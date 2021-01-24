@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# A script, that lists all the ancestors of a given pid. PID is $1, otherwise it is the current PID.
+
+if [ "$1" ]; then
+	ID=$1
+else
+	ID=$$
+fi
+
+while [ "$ID" -ne 0 ]; do
+	echo $ID
+	ID="$(ps -p $ID -o ppid=)"
+	ID="${ID##* }"
+done
+

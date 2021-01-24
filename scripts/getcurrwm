@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if ! pidof xinit > /dev/null; then
+	echo "nothing"
+	exit 1
+elif pidof dwm > /dev/null; then
+	echo "dwm"
+elif pidof bspwm > /dev/null; then
+	echo "bspwm"
+else
+	echo "unknown"
+	exit 1
+fi
+
+exit 0
+

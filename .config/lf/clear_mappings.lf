@@ -1,0 +1,83 @@
+# This command can be used to clear all the mappings from other modes.
+
+cmd _clear_modes :{{
+    # Function that can be overriden by other modes
+    # These Functions are called after every movement (up, down, left, right)
+    cmd move_func :{{
+    	# An empty function. For now.
+    	echo ""
+    }}
+    cmd down_func :move_func
+    cmd up_func :move_func
+    cmd left_func :move_func
+    cmd right_func :move_func
+
+    # === Add default mappings ===
+    map <esc>
+    # Command Mode Mappings for History
+    cmap <up> cmd-history-prev
+    cmap <down> cmd-history-next
+    
+    map u super_clear
+
+    map <c-r> :redraw;reload
+
+    map <up> :up;up_func
+    map <down> :down;down_func
+    map <left> :updir;left_func
+    map <right> :open;right_func
+    map <c-e> :down;down_func
+    map <c-y> :up;up_func
+
+    # === Remove Old Mappings ===
+    map R
+    map RR
+    map aa
+    map af
+    map c
+    map ci
+    map co
+    map e
+    map eJ
+    map eL
+    map eV
+    map eX
+    map ec
+    map ef
+    map eh
+    map ej
+    map el
+    map eo
+    map ev
+    map ex
+    map ez
+    map g
+    map gu
+    map gz
+    map gzc
+    map i
+    map id
+    map if
+    map j
+    map l
+    map l
+    map m
+    map r
+    map rh
+    map rm
+    map rss
+    map rsw
+    map s
+
+    set previewer ""
+    set promptfmt ""
+}}
+
+cmd clear_modes :{{
+    # Clear all mappings
+    _clear_modes
+    reload
+}}
+
+map ,
+

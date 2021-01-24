@@ -1,0 +1,65 @@
+#!/bin/bash
+
+PRIM=$(bspc query -M | head -n 1)
+SECS=( $(bspc query -M | tail -n +2) )
+
+DESKTOPS=(1 2 3 4 5 6 7 8 9)
+
+TEMPD="TEMPD"
+MAIND="Desktop"
+
+# Add Temporary Desktop to every Monitor
+for M in ${SECS[@]}; do
+	bspc monitor $M -a $TEMPD
+done
+
+# Remove default Desktops
+while bspc query -D -d $MAIND &>/dev/null; do
+	bspc desktop $MAIND -r
+done
+
+# Send every desktop to the Primary Monitor
+for D in ${DESKTOPS[@]}; do
+	bspc desktop $D -m $PRIM
+done
+
+# Focus first Desktop on first monitor
+bspc desktop 1 -f
+
+# Remove unplugged Monitors
+for M in $(bspc query -M --names); do
+	if ! ( xrandr --listmonitors | grep -q $M ); then
+		bspc monitor $M -r
+	fi
+done
+
+# Combine overlapping monitors (when cloning monitor)
+bspc config merge_overlapping_monitors true
+bspc config merge_overlapping_monitors false
+
+PRIM=$(bspc query -M | head -n 1)
+SECS=( $(bspc query -M | tail -n +2) )
+
+# Reassing Desktops to Monitors
+i=0
+while [[ $i -lt ${#SECS[@]} ]]; do
+	bspc desktop ${DESKTOPS[$(($i + 1))]} -m ${SECS[$i]}
+	bspc desktop ${DESKTOPS[$(($i + 1))]} -f
+	i=$(($i + 1))
+done
+
+# Refocus first Desktop on first monitor, to move Pointer
+bspc desktop 1 -f
+
+# Remove Temporary Desktops
+while bspc query -D -d $TEMPD &>/dev/null; do
+	bspc desktop $TEMPD -r
+done
+
+# Sort Desktops
+bspwm_desktop_sort
+
+# Reload Polybar BSPWM Script
+# (sleep 1; polybar-msg hook bspwmdesktops 1)
+# killall bspwm_getdesktops.sh
+

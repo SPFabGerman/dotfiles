@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# A small script, to sort all the desktops on every Monitor
+
+for M in $(bspc query -M); do
+	bspc monitor $M -o $(bspc query -D -m $M --names | sort | tr '\n' ' ')
+done
+

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+function testNode() {
+	NAME=$(bspc query -T -n $1 | jq -r .client.className)
+	if [[ "$NAME" = "albert" ]]; then
+		bspc node -f $1
+	fi
+}
+
+bspc subscribe node_add | while read line; do testNode $(echo $line | cut -d " " -f 5); done
+

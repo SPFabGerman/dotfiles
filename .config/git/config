@@ -1,0 +1,8 @@
+[alias]
+	graph = log --oneline --graph --decorate
+	purr = pull --rebase
+	lf = !lf -command=\"enable_git_mode\"
+[core]
+	editor = nvim
+[pull]
+	ff = only

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Kill the current Window Manager.
+# If $1 is -t terminates instead.
+# Exits with 1, if the current window manager could not be found.
+
+case "$(getcurrwm)" in
+	"dwm")
+		if [ "$1" = "-t" ]; then
+			killall -9 dwm
+		else
+			dwmc quit
+		fi
+		;;
+	"bspwm")
+		if [ "$1" = "-t" ]; then
+			killall -9 bspwm
+		else
+			bspc quit
+		fi
+		;;
+	*)
+		exit 1
+esac
+
+exit 0
+

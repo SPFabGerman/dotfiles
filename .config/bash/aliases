@@ -1,0 +1,143 @@
+#!/bin/bash
+#     _    _ _                     
+#    / \  | (_) __ _ ___  ___  ___ 
+#   / _ \ | | |/ _` / __|/ _ \/ __|
+#  / ___ \| | | (_| \__ \  __/\__ \
+# /_/   \_\_|_|\__,_|___/\___||___/
+
+# A File of Bash Compatible Aliases.
+# Source this File from your bashrc.
+
+# === Additional Configs ===
+
+# Remove old leftover history file (from sh (bash version))
+[ -f "$HOME/.bash_history" ] && rm ~/.bash_history
+[ -f "$HOME/.viminfo" ] && rm ~/.viminfo
+
+# === Aliases ===
+
+# Source Fast CD Aliases
+# source ~/build/cdAliases/out/cd_aliases.sh
+eval "$(generate_cd_aliases bash)"
+alias cd-="cd -"
+
+# Reset Shell
+alias esh='exec $SHELL'
+
+# Fast Sudo
+alias _!='sudo !!'
+
+# basic dotfiles alias
+if [ -d "$HOME/.dotfiles.git" ]; then
+	alias dotfiles="git --git-dir=$HOME/.dotfiles.git  --work-tree=$HOME"
+	alias dotfileslf="(GIT_OPTIONS=\"--git-dir=$HOME/.dotfiles.git  --work-tree=$HOME\"; dotfiles lf)"
+fi
+
+# Cleaner ls
+# alias ll='ls -AgGh --file-type --group-directories-first'
+if isInstalled "exa"; then
+	alias exa='exa -F --icons --group-directories-first -h'
+	alias ls='exa'
+	alias ll='exa -la'
+fi
+
+# Use Neovim as default
+if isInstalled "nvim"; then
+	alias vim='nvim'
+else
+	alias vim='vim -u ~/.config/vim/.vimrc'
+fi
+
+if isInstalled "pacman"; then
+	alias pacman='sudo pacman'
+	alias pm='sudo pacman'
+	alias pms='sudo pacman -S'
+	alias pmu='sudo pacman -Syu'
+fi
+
+# Interactive Grep, with FZF
+isInstalled "fzf" && alias fgrep='fzf --no-sort --multi'
+
+# Trash Alias
+alias rm="trash"
+# alias rd='rm -r' # Not needed, since trash can already remove directories
+# TODO: Maybe add -v to the next ones to have verbose output in terminal?
+alias cp='cp -i'
+alias mv='mv -i'
+alias mkdir='mkdir -p'
+alias md='mkdir'
+
+alias pid='pidof'
+alias k='kill'
+alias ka='killall'
+if [[ "$SHELL" = *"zsh" ]]; then
+	alias w='where'
+else
+	alias w='which'
+fi
+
+alias watch="watch -c -n 1"
+alias W='watch'
+
+isInstalled "tar" && alias untar='tar -xzf'
+
+# Find files
+alias fd='find . -type d -name'
+alias ff='find . -type f -name'
+
+# === shorthand notations ===
+
+# Python3
+if isInstalled "python"; then
+	alias python='python3'
+	alias py='python3'
+fi
+# Enable Anaconda Env
+if [ -d "$HOME/build/anaconda2" ]; then
+	alias anaconda2init='source ~/build/anaconda2/bin/activate'
+fi
+if [ -d "$HOME/build/anaconda3" ]; then
+	alias anaconda3init='source ~/build/anaconda3/bin/activate'
+fi
+
+# gcc and gdb
+if isInstalled "gcc"; then
+	alias gcc='gcc -Wall'
+	alias gdb='gdb -q'
+	# Auto Debug Information
+	alias gccd='gcc -g -O0'
+fi
+
+# File Selector to edit
+isInstalled "edit_selector" && alias es='edit_selector'
+
+alias mnt="sudo mount"
+alias mount="sudo mount"
+[ -d "/mnt/win" ] && alias mntw="sudo mount /mnt/win"
+alias umnt="sudo umount"
+alias umount="sudo umount"
+
+# Single Letter aliases
+alias l='ls'
+alias c='cd'
+function cl(){ cd $1; ls }
+alias v='vim'
+alias _v='sudoedit'
+alias hd='hexdump'
+alias od='objdump'
+alias q='exit'
+
+# Color make output
+isInstalled "colormake" && alias make='colormake'
+# Make aliases
+alias m='make'
+alias mc='make clean'
+alias ma='make all'
+alias mca='make clean all'
+alias _m='sudo make'
+alias _mi='sudo make install'
+alias _mci='sudo make clean install'
+# alias mr='make -r'
+# alias rmake='make -r'
+alias ytd='youtube-dl'
+

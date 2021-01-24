@@ -1,0 +1,75 @@
+--[[ 									  2018/06/17 | Highlight v3.43 | Lua 5.3
+================================================================================
+Scheme:   Base16 "OneDark"
+Author:   
+License:  MIT License
+Source:   
+================================================================================
+------------------------------------------------------------------------------]]
+Description = "Base16 OneDark"
+Categories = {"dark", "base16"}
+--------------------------------------------------------------------------------
+
+dofile("/home/fabian/build/termcolors/out/colors.lua")
+
+Black = color0
+Red = color1
+Green = color2
+Yellow = color3
+Blue = color4
+Magenta = color5
+Cyan = color6
+LGray = color7
+Gray = color8
+LRed = color9
+LGreen = color10
+LYellow = color11
+LBlue = color12
+LMagenta = color13
+LCyan = color14
+White = color15
+--------------------------------------------------------------------------------
+Canvas         = { Colour = Black, Italic = false, Bold = false }
+Default        = { Colour = White, Italic = false, Bold = false }
+Number         = { Colour = LGreen, Italic = false, Bold = false }
+Operator       = { Colour = Yellow, Italic = false, Bold = false }
+String         = { Colour = Green, Italic = false, Bold = false }
+Escape         = { Colour = LYellow, Italic = false, Bold = false }
+StringPreProc  = String
+Interpolation  = { Colour = LGreen, Italic = false, Bold = false } --> Zahlen etc.
+LineComment    = { Colour = Gray, Italic = true,  Bold = false } --> Italic
+BlockComment   = LineComment
+LineNum        = { Colour = Gray, Italic = false, Bold = false }
+PreProcessor   = { Colour = Magenta, Italic = false, Bold = false }
+Keywords = {
+  { Colour = LMagenta, Italic = false, Bold = false  }, --> Keywords
+  { Colour = Cyan, Italic = false, Bold = false  }, --> Types KW
+  { Colour = Cyan, Italic = false, Bold = false  }, --> Types
+  { Colour = Blue, Italic = false, Bold = false  }, --> Functions
+  { Colour = Red, Italic = false, Bold = false  }, --> ???
+  { Colour = LGreen, Italic = false, Bold = false  }, --> Zahlen, etc. ???
+}
+--[[----------------------------------------------------------------------------
+The MIT License
+
+Copyright (c) 2018 Tristano Ajmone
+Copyright (c) Lalit Magant (http://github.com/tilal6991)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+------------------------------------------------------------------------------]]

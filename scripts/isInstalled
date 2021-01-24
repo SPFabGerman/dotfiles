@@ -1,0 +1,4 @@
+#!/bin/sh
+
+which "$1" &>/dev/null
+

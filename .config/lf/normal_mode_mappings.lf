@@ -1,0 +1,103 @@
+# This File contains all the normal mode mappings for lf.
+# It is sourced at startup from the lfrc file.
+
+cmd newFile $touch "$@"
+cmd newDir $mkdir "$@"
+
+cmd img_view ${{
+	if [ -n "$fs" ]; then
+		IFS="$(printf '\n\t')"
+		SEL=$(sxiv -o $fs)
+	else
+		I=$(ls -A | getIndex "$(basename "$f")" 1)
+		SEL=$(sxiv -o -n $I *)
+	fi
+
+	if [ "$SEL" ]; then
+		lf -remote "send $id unselect"
+		IFS="$(printf '\n\t')"
+		for ITEM in $SEL; do
+			lf -remote "send $id glob-select $(basename $ITEM)"
+		done
+	fi
+}}
+
+cmd resource :source ~/.config/lf/lfrc
+
+# === Setup Function ===
+cmd enable_normal_mode :{{
+	_clear_modes
+
+	# === insert new File / Directory ===
+	map if push :newFile<space>
+	map id push :newDir<space>
+	map i
+
+	# === Better Opener Actions ===
+	# Normally vim (or nvim)
+	map ev $$EDITOR "$f"
+	map eV &export LF_LEVEL=""; setsid -f st -e $EDITOR "$f"
+	# Normally less
+	map el $$PAGER "$f"
+	map ec &code "$f"
+	map ez $zathura "$f"
+	map ef $FoxitReader "$f"
+	# map eF &setsid -f FoxitReader "$f"
+	map eF lf_command& tmux_open_setsid FoxitReader
+	map ei :img_view
+	map eI &I=$(ls -A | getIndex "$(basename "$f")" 1); setsid -f sxiv -o -n $I *
+	map ej $conda_notebook.sh "$f"
+	map eJ &setsid -f st -e conda_notebook.sh "$f"
+	# execute current file (must be executable)
+	map ex $"$f"
+	map eX !"$f"
+	map e
+
+	# Shell on s
+	map s lf_command$ shell_tmux
+	map S &export LF_LEVEL=""; setsid -f st -e $SHELL
+	# New "Tab" on T
+	map T &export LF_LEVEL=""; setsid -f st -e lf .
+	map t $lf
+
+	# Move and Deletion
+	map m rename
+	map r trash
+	map RR delete
+	map l link
+
+	# Jump and better search
+	map j jump ~
+	map J jump .
+	map / lf_command$ search
+	map n find-next
+	map N find-prev
+
+	# === Setup Visuals ===
+	set previewer "~/.config/lf/preview_wrapper.sh"
+	set promptfmt " \033[34m░▒▓\033[44;1;37m %w \033[0;34m\033[0m"
+
+	# === Setup Move Functions ===
+	cmd move_func &lf -remote "send $id echo \" $(exa -l --color=always --icons -F -d "$(basename "$f")")\""
+	cmd open lf_command$ normal_open
+	cmd on-cd &{{
+		printf "\033]2;%s\a" "${PWD/$HOME/"~"}" > /dev/tty
+		if [ -p "/tmp/lf.$USER.$id.zshfifo" ]; then
+			echo "cd $PWD; clear" > /tmp/lf.$USER.$id.zshfifo &
+		fi
+	}}
+	on-cd
+
+	# reload
+
+	# source cd Definitions
+	# source ~/build/cdAliases/out/cd_aliases.lf
+	# $eval "$(generate_cd_aliases lf_remote)"
+	$generate_cd_aliases lf > ~/.config/lf/cd_aliases.lf
+	source ~/.config/lf/cd_aliases.lf
+
+	move_func
+}}
+
+map ,n enable_normal_mode
+

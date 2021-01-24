@@ -1,0 +1,258 @@
+﻿
+$ Dollar
+¬ neg, not
+± pm, plusminus
+¶ paragraph
+· interpunct, middle dot
+Å AA
+Æ AE
+× multiplication sign, times, x
+Ø O
+ß ss
+å aa
+æ ae
+÷ div
+ø o
+ı imath
+Ł L
+ł l
+Œ OE
+œ oe
+Γ Gamma
+Δ Delta
+Θ Theta
+Λ Lambda
+Ξ Xi
+Π Pi
+Σ Sigma
+Υ Upsilon
+Φ Phi
+Ψ Psi
+Ω Omega
+α alpha
+β beta
+γ gamma
+δ delta, derivative
+ε epsilon
+ζ zeta
+η eta
+θ theta
+ι iota
+κ kappa
+λ lambda
+μ mu
+ν nu
+ξ xi
+π pi
+ρ rho
+ς varsigma
+σ sigma
+τ tau
+υ upsilon
+φ varphi
+χ chi
+ψ psi
+ω omega
+ϑ vartheta
+ϕ phi
+ϖ varpi
+ϱ varrho
+‘ left single quote
+’ right single quote, apostrophe
+‚ low-9 single quote
+“ left double quote
+” right double quote
+„ low-9 double quote
+† dag
+† dagger
+† dagger
+‡ ddag
+‡ ddagger
+‡ double dagger
+• bullet
+… dots
+‽ interrobang
+⁂ asterism
+€ Euro
+ℂ Complex numbers
+ℍ Hyperbolic plane, quaternions, H
+ℏ hbar
+ℑ Im, Imaginary
+ℓ ell
+ℕ Natural numbers, N
+℘ wp
+ℙ Prime numbers, Probability, P
+ℚ Rational numbers, Q
+ℜ Re, Real, R
+ℝ Real numbers, R
+ℤ Integers, Z
+ℵ aleph
+← gets
+← leftarrow
+↑ uparrow
+→ rightarrow
+→ to
+↓ downarrow
+↔ leftrightarrow
+↕ updownarrow
+↖ nwarrow
+↗ nearrow
+↘ searrow
+↙ swarrow
+↦ mapsto
+↩ hookleftarrow
+↪ hookrightarrow
+↼ leftharpoonup
+↽ leftharpoondown
+⇀ rightharpoonup
+⇁ rightharpoondown
+⇌ rightleftharpoons
+⇐ Leftarrow
+⇑ Uparrow
+⇒ Rightarrow, implies
+⇓ Downarrow
+⇔ Leftrightarrow
+⇕ Updownarrow
+∀ forall
+∂ partial, vardelta, derivative
+∃ exists
+∄ nexist, nexists, NotExists
+∅ emptyset
+∇ nabla, gradient
+∈ in, element of
+∉ notin, NotElement, notinva, not element of
+∋ ni, owns, contains, reverse element of
+∌ notni, notniva, NotReverseElement, not contain
+∏ product
+∐ amalg
+∐ coprod
+∑ sum
+∓ mp, minusplus
+∖ setminus
+∗ ast
+∘ circ
+∙ bullet
+√ radic, Sqrt, radical, square root
+∝ propto
+∞ infty, infinity
+∠ angle
+∣ divides, mid, vertical bar
+∤ does not divide
+∥ Vert, parallel
+∧ and, wedge
+∨ or, vee
+∪ cup
+∩ cap, cupD
+∫ integral
+∬ double integral
+∭ triple integral
+∮ oint
+∼ sim
+≀ wr
+≁ notsim
+≃ asymptotically equal to
+≃ simeq
+≄ not asymptotically equal to
+≄ notsimeq
+≅ approximately equal to
+≅ cong
+≆ approximately but not actually equal to
+≇ neither approximately nor actually equal to
+≇ notcong
+≈ almost equal to
+≈ approx
+≉ not almost equal to
+≉ notapprox
+≍ asymp
+≐ doteq
+≠ ne, neq, !=
+≡ equiv, ===
+≢ notequiv, !==
+≤ le, leq, less or equal, <=
+≥ ge, geq, greater or equal, >=
+≪ ll, <<
+≫ gg, >>
+≭ notasymp
+≮ notlt, !<
+≰ notleq, !<=
+≱ notgeq, !>=
+≺ prec
+≻ succ
+≼ preceq
+≽ succeq
+⊀ notprec
+⊁ notsucc
+⊂ subset
+⊃ supset, subsetR
+⊄ notsubset
+⊅ notsupset, notsubsetR
+⊆ subseteq
+⊇ supseteq, subseteqR
+⊈ notsubseteq
+⊉ notsupseteq, notsubseteqR
+⊎ biguplus
+⊎ uplus
+⊑ sqsubseteq
+⊒ sqsupseteq
+⊓ sqcap
+⊔ sqcup
+⊕ bigoplus
+⊕ oplus
+⊖ ominus
+⊗ bigotimes
+⊗ otimes
+⊘ oslash
+⊙ bigodot, odot
+⊢ vdash
+⊣ dashv
+⊤ top
+⊥ bot
+⊥ perp
+⊨ models
+⋀ bigwedge
+⋁ bigvee
+⋃ bigcup
+⋂ bigcap, bigcupD
+⋄ diamond
+⋅ cdot
+⋆ star
+⋈ bowtie
+⋠ notpreceq
+⋡ notsucceq
+⋢ notsqsubseteq
+⋣ notsqsupseteq
+⌈ lceil
+⌉ rceil
+⌊ lfloor
+⌋ rfloor
+⌢ frown
+⌣ smile
+〈 langle
+〉 rangle
+⌫ erase to the left (backspace)
+⎵ non-breaking space
+⏎ carriage return (CR) symbol
+␣ space symbol
+□ square
+△ bigtriangleup, triangle
+▷ triangleright
+▽ bigtriangledown
+◁ triangleleft
+◯ bigcirc
+★ starf, bigstar, black star
+☆ white star
+☑ ballot box with check
+☒ ballot box with X
+☛ black right pointing finger
+☞ white right pointing finger
+♠ cards: spade
+♡ cards: heart
+♢ cards: diamond
+♣ cards: club
+♭ flat
+♮ natural
+♯ sharp
+✓ check mark
+✗ cross mark
+𝓟 Power Set, P
+𝕆 Octonions, O

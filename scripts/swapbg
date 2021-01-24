@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Swaps the current background, to a background in the background queue, with the specific number.
+# $1 is the item of the Queue, that the Background will be set to.
+# (Should be at least 1.)
+# If $1 is larger than the number of items, the last item will be selected.
+
+# Do nothing, when zero
+if [ "$1" = "0" ]; then
+	exit
+fi
+
+# Output all Files, up to the selected one (or the last one) and select the last one
+FILE=$(head -n "$1" ~/.cache/background_queue | tail -n 1)
+
+if [ "$2" = "-q" ]; then
+	setbg "$FILE" > /dev/null
+else
+	setbg "$FILE"
+fi
+

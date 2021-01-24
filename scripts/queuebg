@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# This File adds a Background to the Queue, to be later selected with swapbg.
+# Every Arguments is treated as one image.
+
+QUEUE=~/.cache/background_queue
+touch $QUEUE
+
+while [ "$#" -ne "0" ]; do
+
+	if [ "$1" ]; then
+		if [ -f "$1" ]; then
+			if [ "${1:0:1}" = "/" ]; then
+				NEWFILE="$1"
+			else
+				NEWFILE="$(pwd)/$1"
+			fi
+		else
+			echo "File does not exists."
+			exit 1
+		fi
+	else
+		echo "No Argument was given."
+		exit 1
+	fi
+
+	# Append Background add end of file and select last 9
+	FILES=$( (cat $QUEUE; echo "$NEWFILE") | tail -9 )
+
+	echo "$FILES" > $QUEUE
+	shift
+done

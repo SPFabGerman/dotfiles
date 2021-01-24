@@ -1,0 +1,63 @@
+# === Starting / Reloading ===
+super + shift + p
+    $HOME/scripts/run_interaction.sh
+
+super + space
+	pidof albert &>/dev/null || (DESKTOP_SESSION=gnome albert -k F14 & sleep 0.5); \
+	albert toggle
+
+super + q
+	$HOME/scripts/reload_interaction.sh
+
+
+# === Terminal Stuff ===
+super + t
+    st
+
+super + e
+    st -T "Edit Script" -e "edit_selector"
+
+super + f
+    st -e tmux new-session ~/.config/lf/tmux_lf.sh
+    # st -e lf
+
+
+# === Main Programms ===
+super + s
+#     surf http://www.duckduckgo.com
+# Use MESA_... Env Variable to enable old Mesa Driver to use WebGL.
+# Can maybe be removed in the future. (When the Iris Driver is better.)
+    export MESA_LOADER_DRIVER_OVERRIDE=i965; $BROWSER
+
+super + m
+	thunderbird
+
+
+# === Dmenu Stuff ===
+super + k
+	$HOME/scripts/keybinding_lookup.sh
+
+super + u
+	$HOME/build/unicode_copy/unicode_copy.sh
+
+
+# === System Controll ===
+XF86Audio{Raise,Lower}Volume
+#   pactl set-sink-volume 0 {+,-}5%; $HOME/scripts/dwm_status_bar_volume
+	pactl set-sink-volume @DEFAULT_SINK@ {+,-}5%
+XF86AudioMute
+	pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+XF86MonBrightness{Up,Down}
+	xbacklight -{inc,dec} 10 -time 1 -steps 1 & \
+	xob_show "$(xbacklight -get)" &
+
+Print
+	maim -s -u | xclip -selection clipboard -t image/png -in
+
+shift + Print
+	maim -s -u ~/$(date +%s).png
+
+super + a : h
+	notify-send "H"
+

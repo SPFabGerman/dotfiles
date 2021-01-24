@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# A Wrapper for Lf, which sets up some tmux options
+
+# If TMUX is not started, simply start lf
+[ -z "$TMUX" ] && exec lf
+
+tmux set-option default-command "lf"
+
+# Show title set by lf
+# When not in an lf pane, show command instead (the default behaviour)
+tmux set-option window-linked "$(tmux show-options -gv window-linked)"
+tmux set-hook -a window-linked "set-option automatic-rename-format \"#{?#{==:#{pane_current_command},lf},#{pane_title},#{pane_current_command}}\""
+tmux set-option automatic-rename-format "#{?#{==:#{pane_current_command},lf},#{pane_title},#{pane_current_command}}"
+
+# Now start lf
+exec lf
+
