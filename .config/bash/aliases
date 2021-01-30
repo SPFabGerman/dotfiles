@@ -30,6 +30,7 @@ alias _!='sudo !!'
 # basic dotfiles alias
 if [ -d "$HOME/.dotfiles.git" ]; then
 	alias dotfiles="git --git-dir=$HOME/.dotfiles.git  --work-tree=$HOME"
+	alias dot="dotfiles"
 	alias dotfileslf="(GIT_OPTIONS=\"--git-dir=$HOME/.dotfiles.git  --work-tree=$HOME\"; dotfiles lf)"
 fi
 
@@ -139,5 +140,5 @@ alias _mi='sudo make install'
 alias _mci='sudo make clean install'
 # alias mr='make -r'
 # alias rmake='make -r'
-alias ytd='youtube-dl'
+isInstalled "youtube-dl" && alias ytdl='youtube-dl'
 
