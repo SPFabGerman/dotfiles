@@ -1,14 +1,18 @@
-(load-theme 'doom-gruvbox 't)
-(setq inhibit-startup-message t)
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
-(set-fringe-mode 10)
-(menu-bar-mode -1)
+(set-fringe-mode 10) ;; Left and Right Border
+(load-theme 'doom-gruvbox 't)
+(setq inhibit-startup-message t)
 ; (setq visible-bell t)
+
+
+(setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory))))
+
 (set-face-attribute 'default nil :font "Fira Code Retina" :height 105)
 (set-face-attribute 'fixed-pitch nil :inherit 'default)
-(set-face-attribute 'variable-pitch nil :font "FreeSans" :height 105 :weight 'normal)
+(set-face-attribute 'variable-pitch nil :font "FreeSans" :height 120 :weight 'normal)
 ;; Set the line number explicitly, to avoid it being reset to variable-pitch by org mode
 (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
 (set-face-attribute 'line-number-current-line nil :background 'unspecified :inherit '(hl-line line-number))
@@ -58,6 +62,14 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+(use-package auto-package-update
+  :config
+  (setq auto-package-update-interval 14)
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-prompt-before-update t)
+  ;; (setq auto-package-update-hide-results t)
+  (auto-package-update-maybe))
 
 (use-package all-the-icons)
 (use-package doom-modeline
@@ -159,14 +171,17 @@
 (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
 (define-key evil-normal-state-map (kbd "#") 'comment-line)
 (define-key evil-visual-state-map (kbd "#") 'comment-or-uncomment-region)
+(define-key evil-normal-state-map (kbd "U") 'evil-redo)
 (define-key evil-normal-state-map (kbd "<M-right>") 'evil-window-right)
 (define-key evil-normal-state-map (kbd "<M-left>") 'evil-window-left)
 (define-key evil-normal-state-map (kbd "<M-up>") 'evil-window-up)
 (define-key evil-normal-state-map (kbd "<M-down>") 'evil-window-down)
+(define-key evil-normal-state-map (kbd "C-w C-q") 'evil-quit)
 
 (use-package evil-collection
   :after evil
   :config
+  ;; (delete 'info evil-collection-mode-list)
   (evil-collection-init))
 
 ;; (use-package helm
@@ -191,8 +206,12 @@
 
 (use-package ivy
   :diminish
-  :bind (:map ivy-minibuffer-map
+  :bind (("C-s" . swiper)
+	 :map ivy-minibuffer-map
          ("TAB" . ivy-alt-done)
+	 ("C-g" . ivy-beginning-of-buffer)
+	 ("C-o" . ivy-occur)
+	 ;; TODO: Implement Ivy-resume
          :map ivy-switch-buffer-map
          ("C-d" . ivy-switch-buffer-kill)
          :map ivy-reverse-i-search-map
@@ -204,7 +223,6 @@
   (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
   ;; Don't show . and .. directories
   (setq ivy-extra-directories '())
-  :init
   (ivy-mode 1))
 
 (use-package ivy-rich
@@ -218,14 +236,19 @@
   :config
   (setq ivy-initial-inputs-alist nil))
 
+;; TODO: Open in same window
 (use-package helpful
+  :init
+  (setq helpful-switch-buffer-function #'pop-to-buffer)
   :custom
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable)
+  (counsel-describe-symbol-function #'helpful-symbol)
   :bind
   ([remap describe-function] . counsel-describe-function)
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-symbol] . counsel-describe-symbol)
   ([remap describe-key] . helpful-key))
 
 ; (add-to-list 'load-path "/path-to/emacs-tree-sitter/core")
@@ -256,6 +279,7 @@
   ;; (org-indent-mode)
   (variable-pitch-mode 1)
   (display-line-numbers-mode 0)
+  (org-latex-preview 16) ;; Preview all Latex segments
   (visual-line-mode 1))
 
 (defun fab/org-font-setup ()
@@ -297,6 +321,8 @@
   (setq org-ellipsis " ▾")
   (setq org-hide-emphasis-markers 't)
   (setq org-pretty-entities 't)
+  (setq org-cycle-global-at-bob 't)
+  (setq org-startup-folded 't)
   (fab/org-font-setup))
 
 (use-package org-bullets
@@ -305,10 +331,19 @@
   :custom
   (org-bullets-bullet-list '("◉" "●" "○" "●" "○" "●" "○")))
 
-(use-package org-emphtog
+;; (use-package org-emphtog
+;;   :load-path "~/.config/emacs/org-emphtog"
+;;   :after org
+;;   :hook (org-mode . org-emphtog-mode))
+
+(use-package org-appear
   :load-path "~/.config/emacs/org-emphtog"
   :after org
-  :hook (org-mode . org-emphtog-mode))
+  :init
+  (setq org-appear-autolatex 't
+	org-appear-autolinks 't
+	org-appear-autosubmarkers 't)
+  :hook (org-mode . org-appear-mode))
 
 (defun fab/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
@@ -316,6 +351,7 @@
   (visual-fill-column-mode 1))
 
 (defun fab/center-text-visual ()
+  (setq visual-fill-column-width 80)
   (setq visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -359,7 +395,7 @@
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(custom-safe-themes 'nil)
  '(package-selected-packages
-   '(good-scroll visual-fill-column org-bullets ligature evil-collection doom-themes helpful counsel ivy-rich rainbow-delimiters tree-sitter-langs tree-sitter vterm eterm-256color eterm-color xterm-color which-key evil doom-modeline use-package)))
+   '(auto-package-update good-scroll visual-fill-column org-bullets ligature evil-collection doom-themes helpful counsel ivy-rich rainbow-delimiters vterm eterm-256color eterm-color xterm-color which-key evil doom-modeline use-package)))
 
 ; (custom-set-faces
 ;  ;; custom-set-faces was added by Custom.
