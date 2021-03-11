@@ -83,7 +83,7 @@ cmd enable_normal_mode :{{
 	cmd on-cd &{{
 		printf "\033]2;%s\a" "${PWD/$HOME/"~"}" > /dev/tty
 		if [ -p "/tmp/lf.$USER.$id.zshfifo" ]; then
-			echo "cd $PWD; clear" > /tmp/lf.$USER.$id.zshfifo &
+			echo "cd \"$PWD\"; clear" > /tmp/lf.$USER.$id.zshfifo &
 		fi
 	}}
 	on-cd
