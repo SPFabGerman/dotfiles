@@ -13,7 +13,7 @@ else
 fi
 
 # Preselection
-NODE="$(bspc query -N -n biggest.!automatic.window.local)"
+NODE="$(bspc query -N -n biggest.!automatic.window.local.\!focused)"
 if [ "$?" -eq 0 ]; then
 	bspc node $OPTION "$NODE"
 	bspc node -f
@@ -29,7 +29,7 @@ if [ "$?" -eq 0 ]; then
 fi
 
 # Marked
-NODE="$(bspc query -N -n biggest.marked.local)"
+NODE="$(bspc query -N -n biggest.marked.local.\!focused)"
 if [ "$?" -eq 0 ]; then
 	bspc node $OPTION "$NODE"
 	bspc node -f
@@ -37,7 +37,7 @@ if [ "$?" -eq 0 ]; then
 fi
 
 # Biggest
-NODE="$(bspc query -N -n biggest.leaf.local)"
+NODE="$(bspc query -N -n biggest.leaf.local.\!focused)"
 if [ "$?" -eq 0 ]; then
 	bspc node $OPTION "$NODE"
 	bspc node -f
