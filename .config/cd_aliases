@@ -21,6 +21,8 @@ cl ~/.config/lf/
 cn ~/.config/nvim/
 cv ~/.config/vim/
 cz ~/.config/zsh/
+ce ~/.config/emacs/
+cp ~/.config/polybar/
 
 h ~/
 r /
