@@ -3,8 +3,12 @@
 if [ "$2" = "zoom" ] && [ "$3" = "zoom" ]; then
 	NAME="$(xprop -id $1 _NET_WM_NAME | sed "s/.* = \"\(.*\)\"/\1/")"
 	if [ "$NAME" = "zoom" ]; then
-		echo "state=floating"
-		exit
+		sleep 1
+		NAME="$(xprop -id $1 _NET_WM_NAME | sed "s/.* = \"\(.*\)\"/\1/")"
+		if [ "$NAME" = "zoom" ]; then
+			echo "state=floating"
+			exit
+		fi
 	fi
 fi
 

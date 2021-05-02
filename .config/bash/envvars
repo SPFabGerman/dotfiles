@@ -17,8 +17,8 @@ function isInstalled(){
 
 # === Setup PATH ===
 # (avoids dublications)
-[[ $PATH =~ $HOME/bin ]] || PATH="$HOME/bin:$PATH"
 [[ $PATH =~ $HOME/.local/bin ]] || PATH="$HOME/.local/bin:$PATH"
+[[ $PATH =~ $HOME/bin ]] || PATH="$HOME/bin:$PATH"
 [[ $PATH =~ $HOME/scripts ]] || PATH="$HOME/scripts:$PATH"
 
 # === Config some programms ===
@@ -73,6 +73,7 @@ export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME/java"
 export MPLAYER_HOME="$XDG_CONFIG_HOME/mplayer"
 export GOPATH="$XDG_DATA_HOME/go"
+isInstalled go && [[ $PATH =~ $(go env GOPATH)/bin ]] || PATH="$(go env GOPATH)/bin:$PATH"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export KDEHOME="$XDG_CONFIG_HOME/kde"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
