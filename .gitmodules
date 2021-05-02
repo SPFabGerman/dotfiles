@@ -1,0 +1,33 @@
+[submodule "build/dwm"]
+	path = build/dwm
+	url = git@github.com:SPFabGerman/dwm.git
+[submodule "build/dmenu"]
+	path = build/dmenu
+	url = https://git.suckless.org/dmenu
+[submodule "build/lf"]
+	path = build/lf
+	url = git@github.com:SPFabGerman/lf.git
+[submodule "build/st"]
+	path = build/st
+	url = git@github.com:SPFabGerman/st.git
+[submodule "build/Colormake"]
+	path = build/Colormake
+	url = https://github.com/pagekite/Colormake.git
+[submodule "build/sxiv"]
+	path = build/sxiv
+	url = git@github.com:SPFabGerman/sxiv.git
+[submodule ".config/emacs/ligature.el"]
+	path = .config/emacs/ligature.el
+	url = https://github.com/mickeynp/ligature.el.git
+[submodule ".config/emacs/org-appear"]
+	path = .config/emacs/org-appear
+	url = https://github.com/SPFabGerman/org-appear
+[submodule ".config/emacs/org-evil"]
+	path = .config/emacs/org-evil
+	url = https://github.com/GuiltyDolphin/org-evil.git
+[submodule ".config/emacs/org-pretty-table"]
+	path = .config/emacs/org-pretty-table
+	url = https://github.com/Fuco1/org-pretty-table.git
+[submodule ".config/tmux/tmux-better-mouse-mode"]
+	path = .config/tmux/tmux-better-mouse-mode
+	url = https://github.com/NHDaly/tmux-better-mouse-mode.git

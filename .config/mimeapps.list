@@ -1,0 +1,31 @@
+[Added Associations]
+inode/directory=spacefm.desktop;
+x-scheme-handler/mailto=thunderbird.desktop;
+x-scheme-handler/tg=userapp-Telegram Desktop-NQ1JW0.desktop;
+application/pdf=FoxitReader.desktop;
+
+[Default Applications]
+application/json=nvim.desktop;
+application/pdf=org.pwmt.zathura-pdf-poppler.desktop;
+application/x-shellscript=nvim.desktop;
+application/x-xopp=com.github.xournalpp.xournalpp.desktop;
+image/gif=sxiv.desktop
+image/jpeg=sxiv.desktop
+image/jpg=sxiv.desktop
+image/png=sxiv.desktop
+inode/directory=spacefm.desktop;
+text/markdown=typora.desktop;
+text/plain=nvim.desktop;
+text/x-emacs-lisp=emacs.desktop;
+text/x-python3=nvim.desktop;
+video/mp4=mpv.desktop;
+video/x-matroska=mpv.desktop;
+x-scheme-handler/http=firefox.desktop;
+x-scheme-handler/https=firefox.desktop;
+x-scheme-handler/mailto=thunderbird.desktop;
+x-scheme-handler/tg=userapp-Telegram Desktop-NQ1JW0.desktop
+text/css=nvim.desktop;
+x-scheme-handler/eclipse+command x-scheme-handler/eclipse+mpc=_opt_eclipse_.desktop
+x-scheme-handler/mailspring=mailspring.desktop
+text/csv=libreoffice-calc.desktop;
+text/html=firefox.desktop;
