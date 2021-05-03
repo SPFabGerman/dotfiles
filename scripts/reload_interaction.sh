@@ -6,9 +6,14 @@ PROG=("Shutdown" "Logout" "Reboot" "Lock" "Suspend" "Hibernate" "Monitors" "Moni
 # Clear cache File, to not interfear with anything
 echo "" > ~/.cache/reload_selection.cache
 
+RELCMD="fzf"
+if [ -n "$DISPLAY" ]; then
+	RELCMD="dmenu -i -c -l 5 -p \"Reload:\""
+fi
+
 SEL=$(for ele in "${PROG[@]}";do
 echo "$ele"
-done | dmenu -i -c -l 5 -p "Reload:")
+done | $RELCMD)
 
 case "$SEL" in
 	"X11")
