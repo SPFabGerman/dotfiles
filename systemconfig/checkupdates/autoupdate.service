@@ -1,0 +1,11 @@
+[Unit]
+ Description=Automatic Updates
+ After=network-online.target 
+
+[Service]
+ Type=simple
+ ExecStart=/bin/checkupdates_wrapper
+ TimeoutStopSec=180
+ KillMode=process
+ KillSignal=SIGINT
+

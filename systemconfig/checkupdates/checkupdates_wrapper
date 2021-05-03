@@ -1,0 +1,12 @@
+#!/bin/sh
+
+O="$(checkupdates)"
+R="$?"
+
+if [ "$R" -eq 0 ]; then
+	# echo "Updates found"
+	checkupdates -d &> /dev/null
+	export $(xpub 2>/dev/null)
+	[ "$?" -eq 0 ] && su "$XUSER" -c "notify-send \"Updates downloaded\" \"$(echo "$O" | wc -l) Updates ready to install\""
+fi
+

@@ -1,0 +1,11 @@
+[Unit]
+ Description=Automaticly downloads updated Packages
+
+[Timer]
+ OnBootSec=5min
+ OnUnitActiveSec=60min
+ Unit=autoupdate.service
+
+[Install]
+ WantedBy=timers.target
+
