@@ -7,10 +7,9 @@ cmd newDir $mkdir "$@"
 cmd img_view ${{
 	if [ -n "$fs" ]; then
 		IFS="$(printf '\n\t')"
-		SEL=$(sxiv -o $fs)
+		SEL=$(echo "$fs" | sxiv -o -i)
 	else
-		I=$(ls -A | getIndex "$(basename "$f")" 1)
-		SEL=$(sxiv -o -n $I *)
+		SEL=$(sxiv -o "$f")
 	fi
 
 	if [ "$SEL" ]; then
@@ -35,7 +34,8 @@ cmd enable_normal_mode :{{
 
 	# === Better Opener Actions ===
 	# Normally vim (or nvim)
-	map ev $$EDITOR "$f"
+	# map ev $$EDITOR "$f"
+	map ev lf_command& editor_tmux
 	map eV &export LF_LEVEL=""; setsid -f st -e $EDITOR "$f"
 	# Normally less
 	map el $$PAGER "$f"
@@ -75,6 +75,8 @@ cmd enable_normal_mode :{{
 
 	# === Setup Visuals ===
 	set previewer "~/.config/lf/preview_wrapper.sh"
+	set cleaner stpvimgclr
+	&stpvimg --listen $id
 	set promptfmt " \033[34m░▒▓\033[44;1;37m %w \033[0;34m\033[0m"
 
 	# === Setup Move Functions ===

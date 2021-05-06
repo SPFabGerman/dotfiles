@@ -76,7 +76,7 @@ function tmux_open_setsid {
 function shell_tmux {
 	if [[ -n "$TMUX" ]]; then
 		if ! [ -e "/tmp/lf.$USER.$id.zshfifo" ]; then
-			ENV="-e ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo -e ZSH_FIFO_REMOVE=1 -e ZSH_FIFO_REMOVE_LAST=1"
+			ENV="-e ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo -e ZSH_FIFO_REMOVE=1 -e ZSH_FIFO_REMOVE_LAST=1 -e id=$id"
 		fi
 		# tmux new-window $SHELL
 		tmux split-window -v -l 25% $ENV $SHELL
@@ -85,6 +85,15 @@ function shell_tmux {
 	fi
 }
 
+function editor_tmux {
+	if [[ -n "$TMUX" ]]; then
+		ENV="-e id=$id"
+		# TODO: Solve with hook and not a wrapper script, if possible
+		tmux split-window -h -l 40% $ENV ~/.config/lf/editor_tmux_wrapper.sh "$f"
+	else
+		$EDITOR "$f"
+	fi
+}
 
 
 # === Init ===
