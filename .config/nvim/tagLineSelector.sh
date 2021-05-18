@@ -7,8 +7,6 @@
 export HEIGHT="$(stty size | sed "s/ .*//")"
 HEIGHT=$(($HEIGHT - 5))
 
-export USETRUECOLOR=1 # TODO: Implement both as arguments in previewer
-
 LINE=$(ctags --sort=no -x "$1" \
 	| fzf --cycle --border --nth=1 --with-nth=1..3 \
 	--preview='sh -c "~/scripts/previewer.sh --line {3} {4}"')

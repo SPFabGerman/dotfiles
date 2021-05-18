@@ -2,9 +2,7 @@
 
 # stty size
 
-export USETRUECOLOR=1
-
-if [[ "$1" =~ .*\.(png|jpg|pdf|mp4|mpv|mkv|webm|odt) ]]; then
+if [[ "$(mimetype -b "$1")" =~ ^(image|video|application\/pdf|application\/vnd.*) ]]; then
 	stpv "$@"
 else
 	~/scripts/previewer.sh "$1"
