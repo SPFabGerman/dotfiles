@@ -39,13 +39,18 @@ function link {
 }
 
 function normal_open {
+	CUSTOMOPENER="mimeopen"
+	if [[ "$f" =~ .*\.(org|el) ]]; then
+		CUSTOMOPENER="emacs"
+	fi
+
 	MIME="$(mimetype -b "$f")"
 	if [[ "$MIME" = "image/"* ]]; then
 		lf -remote "send $id img_view"
 	elif [[ -n "$TMUX" ]]; then
-		tmux new-window mimeopen "$f"
+		tmux new-window $CUSTOMOPENER "$f"
 	else
-		mimeopen "$f"
+		mimeopen $CUSTOMOPENER "$f"
 	fi
 }
 
@@ -86,10 +91,13 @@ function shell_tmux {
 }
 
 function editor_tmux {
+	if [[ "$f" =~ .*\.(org|el) ]]; then
+		export EDITOR="emacs -nw"
+	fi
 	if [[ -n "$TMUX" ]]; then
 		ENV="-e id=$id"
 		# TODO: Solve with hook and not a wrapper script, if possible
-		tmux split-window -h -l 40% $ENV ~/.config/lf/editor_tmux_wrapper.sh "$f"
+		tmux split-window -h -l 40% -e EDITOR="$EDITOR" $ENV ~/.config/lf/editor_tmux_wrapper.sh "$f"
 	else
 		$EDITOR "$f"
 	fi
