@@ -68,8 +68,8 @@ case "$MIMETYPE" in
 		jq . < "$FILE" | plainTextHighlight;;
 	*"html"*)
 		w3m -dump "$FILE";;
-	*"markdown"*)
-		mdcat "$FILE";;
+	# *"markdown"*)
+	# 	mdcat "$FILE";;
 	*"text"*)
 		ARGS=(-l -j 2 $ARGS)
 		plainTextHighlight "${ARGS[@]}";;

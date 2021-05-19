@@ -16,6 +16,8 @@ function getSymbol() {
 	case "$CLASS" in
 		*"st-256color"*)
 			echo "";;
+		*"emacs"*)
+			echo "";;
 		*"firefox"*)
 			echo "爵";;
 		*"Thunderbird"*)
