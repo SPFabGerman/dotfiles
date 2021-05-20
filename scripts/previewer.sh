@@ -64,8 +64,8 @@ case "$MIMETYPE" in
 	*"image/"*)
 		chafa "$FILE";;
 	*"json"*)
-		FILE=""
-		jq . < "$FILE" | plainTextHighlight;;
+		FILE="-"
+		jq . < "$FILENAME" | plainTextHighlight;;
 	*"html"*)
 		w3m -dump "$FILE";;
 	# *"markdown"*)
