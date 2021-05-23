@@ -31,3 +31,6 @@
 [submodule ".config/tmux/tmux-better-mouse-mode"]
 	path = .config/tmux/tmux-better-mouse-mode
 	url = https://github.com/NHDaly/tmux-better-mouse-mode.git
+[submodule "build/stpv"]
+	path = build/stpv
+	url = https://github.com/Naheel-Azawy/stpv.git
