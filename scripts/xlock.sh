@@ -6,5 +6,5 @@
 source ~/.cache/wal/colors.sh
 
 i3lock -n -e -f --indicator --clock \
-	--color=${color15}90 --insidecolor=${color0}90 --ringcolor=${color1}90 --insidevercolor=${color2}90 --insidewrongcolor=${color3}90 --ringvercolor=${color1}90 --ringwrongcolor=${color1}90 --timecolor=${color15}ff --datecolor=${color15}ff --verifcolor=${color15}ff --wrongcolor=${color15}ff --line-uses-ring --ring-width 16
+	--color=${color15}90 --inside-color=${color0}90 --ring-color=${color1}90 --insidever-color=${color2}90 --insidewrong-color=${color3}90 --ringver-color=${color1}90 --ringwrong-color=${color1}90 --time-color=${color15}ff --date-color=${color15}ff --verif-color=${color15}ff --wrong-color=${color15}ff --line-uses-ring --ring-width 16
 
