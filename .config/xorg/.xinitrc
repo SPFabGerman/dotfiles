@@ -25,6 +25,11 @@ setup_monitor --nobg &
 (find ~/wallpapers/ -type f | shuf -n 9 | xargs -d '\n' queuebg; swapbg 1) &
 # setbg &
 
+# Initialize key deamon
+# (Automatically unlocks default keyring, if password is login password)
+eval $(gnome-keyring-daemon --start)
+export SSH_AUTH_SOCK
+
 # First, kill off any old, leftover Programm
 TOKILL=(picom dwm_status_bar_server dwm_status_bar_time sxhkd xss-lock polybar albert kupfer ulauncher srandrd dunst udiskie xob bspc bspwm_swallow bspwm_albert_focus)
 killall ${TOKILL[@]}
@@ -34,7 +39,8 @@ killall ${TOKILL[@]}
 SEL="reload wm"
 while [ "$SEL" = "reload wm" ]; do
 	echo "" > ~/.cache/reload_selection.cache
-	WM="$(cat ~/.cache/currwm.cache)"
+	# WM="$(cat ~/.cache/currwm.cache)"
+	WM="bspwm"
 	WMEXEC=""
 	WMPID="-1"
 
@@ -75,6 +81,11 @@ while [ "$SEL" = "reload wm" ]; do
 			sxhkd -c ~/.config/sxhkd/sxhkdrc_bspwm &
 			echo ~/.config/sxhkd/sxhkdrc_bspwm | entr -nps "pkill -USR1 -x sxhkd; notify-send \"SXHKD reloaded\" -u low" &
 			WMEXEC="startplasma-x11"
+			;;
+		"emacs")
+			picom &
+			dunst &
+			WMEXEC="emacs"
 			;;
 	esac
 
