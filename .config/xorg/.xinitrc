@@ -27,7 +27,7 @@ setup_monitor --nobg &
 
 # Initialize key deamon
 # (Automatically unlocks default keyring, if password is login password)
-eval $(gnome-keyring-daemon --start)
+eval $(gnome-keyring-daemon --start --components=secrets,pkcs11)
 export SSH_AUTH_SOCK
 
 # First, kill off any old, leftover Programm
