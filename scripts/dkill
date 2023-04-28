@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$1" = "-9" ]; then
+    ps -u "$USER" --no-header | dmenu -i -p "Kill:" -l 20 -sb "#d05c65" -nb "#282c34" -sf "#282c34" -nf "#dcdfe4" -c | awk '{print $1}' | xargs -r kill -9
+else
+    ps -u "$USER" --no-header | dmenu -i -p "Terminate:" -l 20 | awk '{print $1}' | xargs -r kill
+fi

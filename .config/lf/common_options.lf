@@ -1,0 +1,53 @@
+# :q to exit
+cmd q quit
+
+# === Global Options ===
+
+# Change Tabstop for previewer
+# set tabstop 4
+# Better proportions
+set ratios 1:2:2
+# Use Icons and better truncator
+set icons
+set truncatechar 
+# Change to sensible time layout
+set timefmt '_2 Jan 2006 15:04:05'
+
+# Show Number of Files in Dir, when Displaying Size (set info "size")
+set dircounts
+
+# Enable Hidden Files by Default
+# set hidden
+# Custom Hidden Files (don't show git Directories)
+set hiddenfiles .git
+
+# leave some space at the top and the bottom of the screen
+set scrolloff 5
+# Enable Scrolling from top to bottom
+set wrapscroll
+
+# Reload files every second
+set period 1
+
+# Enable Search with Globs (e.g. *)
+# set globsearch
+# Disable wierd case sensitive stuff
+# set nosmartcase
+# set noignorecase
+# Jump when searching and filter down while typing
+set incsearch
+set incfilter
+# Active Globs (requires my fork)
+set globcolor
+set globicon
+
+# interpreter for shell commands
+set shell bash
+# Safer shell commands: '-e' to exit on error,
+# '-u' to give error for unset variables
+# '-u' is not used, because of the GIT_OPTIONS
+set shellopts '-e'
+# set internal field separator (IFS) to "\n" for shell commands
+# set ifs "\n\t"
+# set filesep "\n"
+

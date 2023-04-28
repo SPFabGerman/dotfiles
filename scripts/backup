@@ -1,0 +1,13 @@
+#!/bin/sh
+
+BACKUP_CMD="cp"
+BACKUP_FOLDER=~/.backup
+
+if [ "$1" = "--mv" ]; then
+    BACKUP_CMD="mv"
+    shift
+fi
+
+mkdir -p $BACKUP_FOLDER
+$BACKUP_CMD --backup=numbered -t $BACKUP_FOLDER "$@"
+

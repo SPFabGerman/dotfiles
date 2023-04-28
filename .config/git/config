@@ -1,8 +1,15 @@
 [alias]
-	graph = log --oneline --graph --decorate
-	purr = pull --rebase
-	lf = !lf -command=\"enable_git_mode\"
+    graph = log --oneline --graph --decorate
+    purr = pull --rebase
+    unstage = restore --staged
+    lf = !lf -command=\"enable_git_mode\"
 [core]
-	editor = nvim
+    editor = nvim
+[init]
+	defaultBranch = main
 [pull]
-	ff = only
+    ff = only
+[push]
+	autoSetupRemote = true
+[icdiff]
+	options = --highlight --line-numbers

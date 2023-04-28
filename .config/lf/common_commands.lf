@@ -4,13 +4,14 @@ cmd super_clear :{{
     unselect
 }}
 
-cmd lf_command$ $~/.config/lf/lf_commands.sh "$@"
-cmd lf_command! !~/.config/lf/lf_commands.sh "$@"
-cmd lf_command% %~/.config/lf/lf_commands.sh "$@"
-cmd lf_command& &~/.config/lf/lf_commands.sh "$@"
+cmd lf_command$ $~/.config/lf/common_functions.sh "$@"
+cmd lf_command! !~/.config/lf/common_functions.sh "$@"
+cmd lf_command% %~/.config/lf/common_functions.sh "$@"
+cmd lf_command& &~/.config/lf/common_functions.sh "$@"
 
 cmd trash :lf_command% trash
+cmd backup :lf_command% backup
 
-cmd jump $~/.config/lf/lf_commands.sh jump "$1"
+cmd jump $~/.config/lf/common_functions.sh jump "$1"
 
 cmd link lf_command% link

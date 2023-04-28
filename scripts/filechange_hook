@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DIR="$(dirname "$1")"
+FILE="$(basename "$1")"
+
+inotifywait -e close_write,moved_to,create -m "$DIR" |
+while read -r directory events filename; do
+  if [ "$filename" = "$FILE" ]; then
+    sh -c "$2"
+  fi
+done
+

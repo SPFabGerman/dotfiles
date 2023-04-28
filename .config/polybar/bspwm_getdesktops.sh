@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Avoid erros, which mess with output formatting
+exec 2>/dev/null
+
 # Cancel, if monitor is not initialized by bspwm
 if ! bspc query -M -m $MONITOR &>/dev/null; then
 	exit 1

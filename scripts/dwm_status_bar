@@ -1,0 +1,148 @@
+#!/bin/sh
+
+# This script generates a status bar
+# At the Moment it is piped directly to xsetroot, to set the status for dwm.
+
+SEPERATOR=''
+
+BATTERY_NAME='BAT1'
+WIFI_INTERFACE='wlp3s0'
+
+segmentList () {
+    # Specify all Segments here, from left to right
+    newSegmentRight showTime 1
+    newSegmentRight showWifiState 10
+    newSegmentRight showBatteryState 10
+    newSegmentRight showVolume 0.5
+    newSegmentRight showTODOCount 10
+    newSegmentRight showPrimary 1
+    newSegmentRight showClipboard 1
+}
+
+# === Segments ===
+
+showTime () {
+	TIME=$(date +"%-S")
+	TIME=$(( $TIME % 2 ))
+	if [ "$TIME" -eq 0 ]; then
+		date +"%-H:%M"
+	else
+		date +"%-H %M"
+	fi
+}
+
+showBatteryState () {
+    echo " "
+    cat /sys/class/power_supply/$BATTERY_NAME/capacity | tr -d '\n'
+    echo "%"
+
+#     STATE=$(cat /sys/class/power_supply/$BATTERY_NAME/status | tr -d '\n')
+#     if [ "$STATE" = "Discharging" ]; then
+# 	    echo "ﰬ"
+#     elif [ "$STATE" = "Charging" ]; then
+# 	    echo "ﰵ"
+#     elif [ "$STATE" = "Full" ]; then
+# 	    echo ""
+#     else
+# 	    echo "($STATE)"
+#     fi
+}
+
+showWifiState () {
+    # Test if Device is even online
+    DEVIP=$(ip link show $WIFI_INTERFACE up)
+    if [ -z "$DEVIP" ]; then
+        echo "直 "
+        return
+    fi
+
+    # Get Connected SSID and Show if not empty
+    SSID=$(~/bin/get_wifi_status 2>/dev/null | sed "/^ssid=/!d;s/ssid=//" | tr -d '\n')
+
+    if [ -n "$SSID" ]; then
+        echo "$SSID"
+    else
+       echo "No Connection"
+       return
+    fi
+
+    # Test if blocked by router
+    ping -c 1 archlinux.org >& /dev/null
+    [ "$?" -ne 0 ] && echo " "
+}
+
+showTODOCount () {
+	echo "T: "
+    grep -c '^\*' ~/TODO.md
+}
+
+showVolume () {
+    # Get Volume of the PA sink. This may fail, if there is more than one PulseAudio Sink.
+    echo "墳 "
+    pactl list sinks | grep '^[[:space:]]Volume' | awk -F' / ' '{print $2}' | awk '{$1=$1};1'
+    # The last awk is to remove trailing spaces (when Volume is lower than 100)
+}
+
+showPrimary () {
+    echo " "
+    PRIM=$(xclip -o)
+    if [ "$?" -eq 0 ]; then
+        echo $PRIM | cut -c -10 | tr '\t' ' '
+    else
+        echo "---"
+    fi
+}
+
+showClipboard () {
+    echo " "
+    CLIP=$(xclip -o -selection clipboard)
+    if [ "$?" -eq 0 ]; then
+        echo $CLIP | cut -c -10 | tr '\t' ' '
+    else
+        echo "---"
+    fi
+}
+
+# === Display Functions ===
+
+ISFIRST=true
+newSegmentRight () {
+    # $1 is Function to call
+    # (The Function gets the index to write on as an argument)
+    # $2 is Offtime
+    if ! $ISFIRST; then
+    	    STATUS[$LAST_INDEX]="$SEPERATOR"
+	    LAST_INDEX=$(($LAST_INDEX + 1))
+    fi
+
+    # Call Function async and write output to pipe
+    while true; do
+	    echo -e "$LAST_INDEX\t$($1 | tr -d '\n')" >> $FIFO
+	    sleep $2
+    done &
+
+    ISFIRST=false
+    LAST_INDEX=$(($LAST_INDEX + 1))
+}
+
+# Setup and run all Segment Functions
+set -a STATUS
+LAST_INDEX=0
+FIFO=~/.cache/status_bar_fifo
+rm -f $FIFO
+mkfifo $FIFO
+segmentList
+
+# Now update status bar every Time new Input comes
+while true; do
+	# Work through every new input line. (When more than one line comes at a time. E.g. at Startup)
+	while read OUT; do
+		INDEX=$(echo "$OUT" | cut -f1)
+		TEXT=$(echo "$OUT" | cut -f2)
+		STATUS[$INDEX]="$TEXT"
+		xsetroot -name " ${STATUS[*]} "
+	done < $FIFO
+done
+
+rm $FIFO
+

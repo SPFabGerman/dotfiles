@@ -1,73 +1,173 @@
-#  _  __
-# | |/ _|_ __ ___
-# | | |_| '__/ __|
-# | |  _| | | (__
-# |_|_| |_|  \___|
-
-# === Global Functions ===
-
-# Esc and :q to exit
-cmd q quit
-
-# === Global Options ===
-
-# Nicer Looks (Icons and Previewer)
-set icons
-# Change Tabstop
-# set tabstop 4
-set timefmt '_2 Jan 2006 15:04:05'
-
-# Deprecated
-# set color256
-
-# Show Number of Files in Dir, when Displaying Size (set info "size")
-set dircounts
-
-# Enable Search with Globs (e.g. *)
-set globsearch
-# Disable wierd case sensitive stuff
-# set nosmartcase
-set noignorecase
-
-# Enable Hidden Files by Default
-# set hidden
-# Don't show git Directories
-set hiddenfiles .git
-
-# leave some space at the top and the bottom of the screen
-set scrolloff 5
-# Enable Scrolling from top to bottom
-set wrapscroll
-# Better proportions
-set ratios 1:2:2
-
-set truncatechar 
-
-# (POSIX compatible (?)) interpreter for shell commands
-set shell bash
-# Safer shell commands: '-e' to exit on error,
-# '-u' to give error for unset variables
-# '-u' is not used, because of the GIT_OPTIONS
-set shellopts '-e'
-# set internal field separator (IFS) to "\n" for shell commands
-# set ifs "\n"
-# set filesep "\n"
-
-# Reload files every second
-set period 1
-
-# Active Globs (requires my fork)
-set globcolor
-set globicon
-
-# === Mode Setup ===
-
-# Load other mapping files and enable normal mode
-# (The Default Mappings are Loaded everytime the mode is changed)
+source ~/.config/lf/common_options.lf
 source ~/.config/lf/common_commands.lf
-source ~/.config/lf/clear_mappings.lf
-source ~/.config/lf/normal_mode_mappings.lf
-source ~/.config/lf/git_mode_mappings.lf
+source ~/.config/lf/common_mappings.lf
 
-enable_normal_mode
+cmd newFile $touch "$@"
+cmd newDir $mkdir "$@"
+
+cmd movefilter :{{
+
+	cmap <right> :{{
+		cmd-enter
+		setfilter ""
+		open
+		filter
+	}}
+	cmap <left> :{{
+		cmd-enter
+		setfilter ""
+		updir
+		filter
+	}}
+	cmap <up> up
+	cmap <down> down
+	cmap <c-g> top
+
+	cmd movefilter-reset :{{
+		cmap <enter> cmd-enter
+		cmap <esc> cmd-escape
+		cmap <up> cmd-history-prev
+		cmap <down> cmd-history-next
+		cmap <left> cmd-left
+		cmap <right> cmd-right
+		cmap <c-g>
+	}}
+
+	cmap <esc> :{{
+		# cmd-escape
+		cmd-enter
+		setfilter ""
+		movefilter-reset
+	}}
+
+	cmap <enter> :{{
+		cmd-enter
+		movefilter-reset
+	}}
+
+	filter
+}}
+
+cmd nextdir :{{
+	updir
+	set dironly
+	down
+	set nodironly
+	open
+}}
+
+cmd prevdir :{{
+	updir
+	set dironly
+	up
+	set nodironly
+	open
+}}
+
+cmd resource :source ~/.config/lf/lfrc
+
+# Movement commands
+map n nextdir
+map N prevdir
+
+# === insert new File / Directory ===
+map if push :newFile<space>
+map id push :newDir<space>
+map i
+
+# === Better Opener Actions ===
+# Normally vim (or nvim)
+# map ev $$EDITOR "$f"
+map ee lf_command& editor_tmux
+map eE lf_command$ tmux_open nvim
+map E  lf_command$ tmux_open nvim
+map e<a-e> &export LF_LEVEL=""; setsid -f st -e $EDITOR "$f"
+# TODO: Use previewer as input for Less
+map el $$PAGER "$f"
+map epf lf_command& tmux_open_setsid foxitreader
+map epe lf_command& tmux_open_setsid evince
+# map ei lf_command$ img_view
+# map ej $conda_notebook.sh "$f"
+# map eJ &setsid -f st -e conda_notebook.sh "$f"
+map ea lf_command$ tmux_open mimeopen -a
+map e
+
+# Archive Stuff
+map aa lf_command$ arc_auto
+map ac lf_command$ arc_create
+map ae lf_command$ arc_extract
+
+# Shell on s
+map s lf_command$ shell_tmux
+map S lf_command& tmux_open_terminal
+# New "Tab" on T
+# map T &export LF_LEVEL=""; setsid -f alacritty -e lf .
+
+# Move and Deletion
+map m rename
+map r trash
+map b backup
+map RR delete
+map l link
+
+# Jump and better search
+map j jump ~
+map J jump .
+# map / lf_command$ search
+# map / push :bottom<enter>:search<enter>**<left>
+map <c-s> lf_command$ search
+# map n find-next
+# map N find-prev
+map F movefilter
+
+# === Setup Visuals ===
+set previewer "~/.config/lf/preview_wrapper.sh"
+set cleaner stpvimgclr
+&stpvimg --listen $id
+# set promptfmt " \033[34m░▒▓\033[44;1;37m %w \033[0;34m\033[0m %F"
+
+# === Setup Move Functions ===
+cmd move_func &lf -remote "send $id echo \" $(exa -l --color=always --icons -F -d "$(basename "$f")")\""
+cmd open lf_command$ normal_open
+
+cmd pre-cd :{{
+    setfilter ""
+}}
+
+cmd on-cd :{{
+    &{{
+        printf "\033]2;%s\a" "${PWD/$HOME/"~"}" > /dev/tty
+        if [ -p "/tmp/lf.$USER.$id.zshfifo" ]; then
+            echo "cd \"$PWD\"; clear" > /tmp/lf.$USER.$id.zshfifo &
+        fi
+    }}
+    &{{
+        lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --shell universal --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | sed 's/\o33\[K\o33\[0J//g')\""
+    }}
+    &{{
+        if [ "${PWD/$HOME/"~"}" = "~/Downloads" ]; then
+            lf -remote "send $id set nodirfirst"
+            lf -remote "send $id set sortby time"
+            lf -remote "send $id set reverse"
+            lf -remote "send $id top"
+        else
+            lf -remote "send $id set dirfirst"
+            lf -remote "send $id set sortby name"
+            lf -remote "send $id set noreverse"
+        fi
+
+    }}
+}}
+on-cd
+
+# reload
+
+# source cd Definitions
+# source ~/build/cdAliases/out/cd_aliases.lf
+# $eval "$(generate_cd_aliases lf_remote)"
+$generate_cd_aliases lf > ~/.config/lf/cd_aliases.lf
+source ~/.config/lf/cd_aliases.lf
+map c
+
+move_func
 

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+exec &> ~/.cache/xinitrc.log
+
+# === Initial Setup ===
+
+# Set Keyboard Layout and change some annyoing keys
+setxkbmap de
+xmodmap -e 'keysym Caps_Lock = Shift_L' # Caps Lock to shift
+# xmodmap -e 'keysym dead_circumflex = asciicircum degree' # Only one tap needed for circumflex
+xmodmap -e 'keycode 49 = asciicircum degree' # The above line is bugged and also changes 'ä', for some reason?
+xmodmap -e 'keysym dead_acute = grave acute' # Change Grave order
+
+xsetroot -cursor_name left_ptr
+
+xrdb ~/.Xresources
+setup_monitor --nobg &
+
+# Update Background Queue and set Background
+(find ~/wallpapers/ -type f | shuf -n 9 | xargs -d '\n' queuebg; swapbg 1) &
+# setbg &
+
+WM="awesome"
+WMEXEC="$WM"
+xsetroot -name ""
+
+# Restore gtk settings (these are sometimes changed by KDE)
+cp ~/.config/gtk-3.0/settings.ini.orig  ~/.config/gtk-3.0/settings.ini
+
+# load programms
+sxhkd &
+ls ~/.config/sxhkd/* | entr -nps "pkill -USR1 -x sxhkd; notify-send \"SXHKD reloaded\" -u low" &
+playerctld daemon &
+
+# DESKTOP_SESSION=gnome albert -k F14 &
+nwg-drawer -r -nocats -nofs -term alacritty &> /dev/null &
+
+(tail -f ~/.config/xob/xobfifo | xob) &
+# TODO: Update config
+dunst &
+ls ~/.config/dunst/dunstrc | entr -nps "killall dunst; dunst & sleep .5; notify-send \"Dunst reloaded\" -u low" &
+
+# batsignal -b -w 30 -c 15 -d 5 -D "systemctl hibernate" &
+udiskie -s &
+
+srandrd -n setup_monitor &
+xss-lock -- xlock.sh &
+
+# picom --experimental-backend &
+picom &
+
+# Start Gnome Polkit for later authentication
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+# === WM Specific ===
+case "$WM" in
+    "bspwm")
+        sxhkd -c ~/.config/sxhkd/sxhkdrc_bspwm &
+        ;;
+    "berry")
+        sxhkd -c ~/.config/sxhkd/sxhkd_berry &
+        ;;
+    "leftwm")
+        WMEXEC="dbus-launch leftwm"
+        ;;
+    "exwm")
+        WMEXEC="emacs"
+        ;;
+esac
+
+# === Start WM ===
+$WMEXEC
+# $WMEXEC
+
+# === Cleanup ===
+killall sxhkd entr playerctl albert nwg-drawer xob dunst batsignal udiskie srandrd xss-lock picom \
+    polybar kupfer ulauncher \
+    bspc bspwm_swallow bspwm_albert_focus
+

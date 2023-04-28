@@ -1,12 +1,14 @@
 #!/bin/sh
 
-if ! pidof xinit > /dev/null; then
-	echo "nothing"
-	exit 1
-elif pidof dwm > /dev/null; then
+# if ! pidof xinit > /dev/null; then
+# 	echo "nothing"
+# 	exit 1
+if pidof dwm > /dev/null; then
 	echo "dwm"
 elif pidof bspwm > /dev/null; then
 	echo "bspwm"
+elif pidof herbstluftwm > /dev/null; then
+	echo "herbstluftwm"
 else
 	echo "unknown"
 	exit 1

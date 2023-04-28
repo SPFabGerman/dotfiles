@@ -10,9 +10,16 @@
 
 # === Additional Configs ===
 
+# TODO: Move that somewhere less disruptive (maybe login?)
 # Remove old leftover history file (from sh (bash version))
 [ -f "$HOME/.bash_history" ] && rm ~/.bash_history
 [ -f "$HOME/.viminfo" ] && rm ~/.viminfo
+
+# Also remove empty(!) dirs:
+[ -d "$HOME/.w3m" ] && rmdir "$HOME/.w3m"
+[ -d "$HOME/Desktop" ] && rmdir "$HOME/Desktop"
+[ -d "$HOME/Music" ] && rmdir "$HOME/Music"
+[ -d "$HOME/Videos" ] && rmdir "$HOME/Videos"
 
 # === Aliases ===
 
@@ -29,7 +36,7 @@ alias _!='sudo !!'
 
 # basic dotfiles alias
 if [ -d "$HOME/.dotfiles.git" ]; then
-	alias dotfiles="git --git-dir=$HOME/.dotfiles.git  --work-tree=$HOME"
+	alias dotfiles="git --git-dir=$HOME/.dotfiles.git --work-tree=$HOME"
 	alias dot="dotfiles"
 	alias dotfileslf="(GIT_OPTIONS=\"--git-dir=$HOME/.dotfiles.git  --work-tree=$HOME\"; dotfiles lf)"
 fi
@@ -40,6 +47,8 @@ if isInstalled "exa"; then
 	alias exa='exa -F --icons --group-directories-first -h'
 	alias ls='exa'
 	alias ll='exa -la'
+	alias lt='exa -lT'
+	alias lT='exa -laT'
 fi
 
 # Use Neovim as default
@@ -53,11 +62,17 @@ if isInstalled "pacman"; then
 	alias pacman='sudo pacman'
 	alias pm='sudo pacman'
 	alias pms='sudo pacman -S'
-	alias pmu='sudo pacman -Syu'
+    alias pmss='sudo pacman -Ss'
+    alias pmsi='sudo pacman -Si'
+	alias pmsu='sudo pacman -Syu'
+    alias pmr='sudo pacman -Rs'
+    alias pmq='sudo pacman -Q'
+    alias pmqs='sudo pacman -Qs'
+    alias pmqi='sudo pacman -Qi'
 fi
 
-# Interactive Grep, with FZF
-isInstalled "fzf" && alias fgrep='fzf --no-sort --multi'
+alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
+alias diff='diff --color'
 
 # Trash Alias
 alias rm="trash"
@@ -65,8 +80,11 @@ alias rm="trash"
 # TODO: Maybe add -v to the next ones to have verbose output in terminal?
 alias cp='cp -i'
 alias mv='mv -i'
-alias mkdir='mkdir -p'
+alias mkdir='mkdir -pv'
 alias md='mkdir'
+alias rd='rmdir'
+alias ln='ln -si'
+alias du='du -h'
 
 alias pid='pidof'
 alias k='kill'
@@ -101,6 +119,14 @@ if [ -d "$HOME/build/anaconda3" ]; then
 	alias anaconda3init='source ~/build/anaconda3/bin/activate'
 fi
 
+if isInstalled "xclip"; then
+  function clipcopy() { xclip -in -selection clipboard < "${1:-/dev/stdin}"; }
+  function clippaste() { xclip -out -selection clipboard; }
+elif isInstalled "xsel"; then
+  function clipcopy() { xsel --clipboard --input < "${1:-/dev/stdin}"; }
+  function clippaste() { xsel --clipboard --output; }
+fi
+
 # gcc and gdb
 if isInstalled "gcc"; then
 	alias gcc='gcc -Wall'
@@ -122,6 +148,7 @@ alias umount="sudo umount"
 alias l='ls'
 alias c='cd'
 function cl(){ cd $1; ls }
+function mkcd() { mkdir -p $@ && cd ${@:$#} }
 alias v='vim'
 alias _v='sudoedit'
 alias hd='hexdump'
@@ -140,5 +167,30 @@ alias _mi='sudo make install'
 alias _mci='sudo make clean install'
 # alias mr='make -r'
 # alias rmake='make -r'
+
+# systemd controll
+if isInstalled "systemctl"; then
+    alias sys='systemctl --user'
+    alias ssys='sudo systemctl'
+    alias syssa='systemctl --user start'
+    alias ssyssa='sudo systemctl start'
+    alias sysst='systemctl --user stop'
+    alias ssysst='sudo systemctl stop'
+    alias sysr='systemctl --user restart'
+    alias ssysr='sudo systemctl restart'
+    alias syse='systemctl --user enable'
+    alias ssyse='sudo systemctl enable'
+    alias sysd='systemctl --user disable'
+    alias ssysd='sudo systemctl disable'
+    alias ssysrd='sudo systemctl restart dhcpcd'
+fi
+
 isInstalled "youtube-dl" && alias ytdl='youtube-dl'
+
+alias ip='ip --color'
+alias ipa='ip addr'
+alias ipl='ip link'
+
+[ "$(getcurrwm)" = "dwm" ] && alias dwmrestart='pkill -HUP dwm'
+[ "$(getcurrwm)" = "herbstluftwm" ] && alias hc='herbstclient'
 

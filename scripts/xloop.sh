@@ -8,7 +8,7 @@ SEL="reload xorg"
 while [ "$SEL" = "reload xorg" ]; do
     # Clear Cache File (just for safety)
     echo "" > ~/.cache/reload_selection.cache
-    startx ~/.config/xorg/.xinitrc
+    startx "$XINITRC"
     SEL=$(cat ~/.cache/reload_selection.cache)
 done
 

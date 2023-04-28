@@ -6,26 +6,38 @@
 PRIMARY="eDP1"
 MONITOR="HDMI1"
 
-function getHeight () {
-	xrandr | grep "^$1 connected" | sed 's/.* connected\( primary\)\? [0-9]*x\([0-9]*\)+.*/\2/'
+function getDimensions () {
+    xrandr | grep "^$1 connected" -A 1 | tail -n 1 | awk '{print $1}'
 }
 
-P_SIZE=$(getHeight $PRIMARY)
+function getWidth () {
+    getDimensions "$1" | cut -d "x" -f 1
+}
+
+function getHeight () {
+    getDimensions "$1" | cut -d "x" -f 2
+}
 
 if xrandr | grep -q "^$MONITOR connected"; then
-	xrandr --output $MONITOR --auto --right-of $PRIMARY
-	S_SIZE=$(getHeight $MONITOR)
-	xrandr --output $PRIMARY --auto --pos 0x$(( $S_SIZE - $P_SIZE ))
+    PH=$(getHeight $PRIMARY)
+	MH=$(getHeight $MONITOR)
+	MW=$(getWidth $MONITOR)
+    # Setup positions manually, to align bottom edges
+	xrandr --output $MONITOR --auto --pos 0x0 \
+        --output $PRIMARY --auto --pos ${MW}x$(( $MH - $PH ))
 elif xrandr | grep -q "^$MONITOR disconnected"; then
-	xrandr --output $MONITOR --off
+	xrandr --output $PRIMARY --auto \
+        --output $MONITOR --off
 fi
 
-[ "$1" = "--nobg" ] || setbg
+[ "$1" = "--nobg" ] || (sleep 1; setbg)
+
+exit 0
 
 # Run Post Hooks
+# TODO: Move in BSPWMRC as extra Script
 case "$(getcurrwm)" in
 	"bspwm")
-		# TODO: Move in BSPWMRC as extra Script
 		bspwm_monitor_setup;;
 esac
 

@@ -1,10 +1,10 @@
 u. ~/Uni/
-uu ~/Uni/06_SS_21/
-up ~/Uni/06_SS_21/Experimentalphysik2/
-ut ~/Uni/06_SS_21/TI2/
-ul ~/Uni/06_SS_21/LuP/
-ue ~/Uni/06_SS_21/Englisch/
-uP ~/Uni/Praktikum/
+ul ~/Uni/00_WS_2223/ALuP/
+ua ~/Uni/01_SS_23/Astro2/
+ug ~/Uni/01_SS_23/CG/
+us ~/Uni/01_SS_23/SiR/
+uc ~/Uni/01_SS_23/SoCA/
+ut ~/Uni/01_SS_23/TI2/
 
 d ~/Downloads/
 n ~/Notes/
@@ -16,14 +16,16 @@ bi ~/bin/
 b. ~/build/
 bd ~/build/dwm/
 bs ~/build/st/
+bl ~/build/lf/
 
 c. ~/.config/
+ca ~/.config/awesome/
+ce ~/.config/emacs/
 cl ~/.config/lf/
 cn ~/.config/nvim/
+cp ~/.config/polybar/
 cv ~/.config/vim/
 cz ~/.config/zsh/
-ce ~/.config/emacs/
-cp ~/.config/polybar/
 
 h ~/
 r /

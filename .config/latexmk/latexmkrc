@@ -1,0 +1,12 @@
+# Cleanup all files
+$cleanup_includes_cusdep_generated = 1;
+$cleanup_includes_generated = 1;
+$bibtex_use = 1.5;
+
+# Use ppdflatex by default
+$pdf_mode = 1;
+$pdflatex = "ppdflatex -interaction=nonstopmode %O %S"; # -halt-on-error
+
+# warning about undefined references are errors
+$warnings_as_errors = 1;
+

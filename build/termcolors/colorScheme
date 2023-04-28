@@ -4,6 +4,8 @@ DIR=~/build/termcolors
 
 THEME=$1
 
+mkdir -p $DIR/out
+
 if [ -z "$THEME" ]; then
 	FILE="$DIR/out/colors.json"
 else

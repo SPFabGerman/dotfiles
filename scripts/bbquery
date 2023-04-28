@@ -1,0 +1,78 @@
+#!/bin/python3
+
+import json
+import subprocess
+import sys
+
+pr = subprocess.run(["bspc", "wm", "--dump-state"], capture_output=True, text=True)
+
+if pr.returncode != 0:
+    sys.stderr.write("%s: Error when getting bspwm state\n" % sys.argv[1])
+
+bspwmstate = json.loads(pr.stdout)
+
+nodes_raw = []
+
+def add_node(n):
+    nodes_raw.append(n)
+    if n['firstChild'] != None:
+        add_node(n['firstChild'])
+    if n['secondChild'] != None:
+        add_node(n['secondChild'])
+
+for m in bspwmstate['monitors']:
+    for d in m['desktops']:
+        if d['root'] != None:
+            add_node(d['root'])
+
+class Node:
+    def __init__(self, raw):
+        self.id = raw['id']
+        self.splitType = (raw['splitType'], raw['splitRatio'])
+        self.flags = []
+        if raw['hidden']: self.flags.append("hidden")
+        if raw['sticky']: self.flags.append("sticky")
+        if raw['private']: self.flags.append("private")
+        if raw['locked']: self.flags.append("locked")
+        if raw['marked']: self.flags.append("marked")
+        self.presel = None
+        if raw['presel']: self.presel = (raw['presel']['splitDir'], raw['presel']['splitRatio'])
+        self.x = raw['rectangle']['x']
+        self.y = raw['rectangle']['y']
+        self.width = raw['rectangle']['width']
+        self.height = raw['rectangle']['height']
+        self.className = self.instanceName = self.borderWidth = self.state = self.layer = None
+        self.hasClient = False
+        if raw['client']:
+            self.hasClient = True
+            self.className = raw['client']['className']
+            self.instanceName = raw['client']['instanceName']
+            self.borderWidth = raw['client']['borderWidth']
+            self.state = raw['client']['state']
+            self.layer = raw['client']['layer']
+            if raw['client']['urgent']: self.flags.append("urgent")
+            if self.state == "tiled":
+                self.x = raw['client']['tiledRectangle']['x']
+                self.y = raw['client']['tiledRectangle']['y']
+                self.width = raw['client']['tiledRectangle']['width']
+                self.height = raw['client']['tiledRectangle']['height']
+            elif self.state == "floating":
+                self.x = raw['client']['floatingRectangle']['x']
+                self.y = raw['client']['floatingRectangle']['y']
+                self.width = raw['client']['floatingRectangle']['width']
+                self.height = raw['client']['floatingRectangle']['height']
+        # TODO: Constraints
+
+        self.childs = []
+        self.parent = None
+        self.brother = None
+        self.desktop = None
+        self.monitor = None
+
+
+nodes = []
+for node_raw in nodes_raw:
+    nodes.append(Node(node_raw))
+
+print(nodes[-1].__dict__)
+

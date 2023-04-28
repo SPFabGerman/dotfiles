@@ -16,11 +16,15 @@ function getSymbol() {
 	case "$CLASS" in
 		*"st-256color"*)
 			echo "";;
+        *"Alacritty"*)
+            echo "";;
 		*"emacs"*)
 			echo "";;
 		*"firefox"*)
 			echo "爵";;
 		*"Thunderbird"*)
+			echo "";;
+		*"Mailspring"*)
 			echo "";;
 		*"telegram-desktop"*)
 			echo "";;
@@ -29,6 +33,8 @@ function getSymbol() {
 		*"FoxitReader"*)
 			echo "";;
 		*"zathura"*)
+			echo "";;
+		*"Evince"*)
 			echo "";;
 		*"typora"*)
 			echo "";;
@@ -40,6 +46,9 @@ function getSymbol() {
 			echo "";;
 		*"xournalpp"*)
 			echo "";;
+		*"Steam"*)
+			echo "";;
+			# echo "";;
 		*)
 			return 1;; # Default case: Error if no correct symbol was found
 	esac

@@ -3,6 +3,7 @@
 function testNode() {
 	NAME=$(bspc query -T -n $1 | jq -r .client.className)
 	if [[ "$NAME" = "albert" ]]; then
+		echo $1
 		bspc node -f $1
 	fi
 }

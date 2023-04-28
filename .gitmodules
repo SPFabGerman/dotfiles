@@ -34,3 +34,21 @@
 [submodule "build/stpv"]
 	path = build/stpv
 	url = https://github.com/Naheel-Azawy/stpv.git
+[submodule "build/rofi-bluetooth"]
+	path = build/rofi-bluetooth
+	url = https://github.com/nickclyde/rofi-bluetooth.git
+[submodule ".config/zsh/F-Sy-H"]
+	path = .config/zsh/F-Sy-H
+	url = https://github.com/zdharma/fast-syntax-highlighting.git
+[submodule ".config/zsh/zsh-autocomplete"]
+	path = .config/zsh/zsh-autocomplete
+	url = https://github.com/marlonrichert/zsh-autocomplete.git
+[submodule ".config/zsh/zsh-autosuggestions"]
+	path = .config/zsh/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions
+[submodule ".config/zsh/zsh-completion-generator"]
+	path = .config/zsh/zsh-completion-generator
+	url = https://github.com/RobSis/zsh-completion-generator.git
+[submodule ".config/zsh/zsh-completions"]
+	path = .config/zsh/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions.git

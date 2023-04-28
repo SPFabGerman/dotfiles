@@ -1,52 +1,69 @@
 # === Starting / Reloading ===
-super + shift + p
-    $HOME/scripts/run_interaction.sh
-
 super + space
-	pidof albert &>/dev/null || (DESKTOP_SESSION=gnome albert -k F14 & sleep 0.5); \
-	albert toggle
+    if pgrep nwg-drawer; then \
+        nwg-drawer -nofs -nocats -term alacritty  &> /dev/null ; \
+    else \
+        nwg-drawer -nofs -nocats -term alacritty -r &> /dev/null & \
+        sleep 1; nwg-drawer -nocats -nofs -term alacritty &> /dev/null ; \
+    fi
 
 super + q
-	$HOME/scripts/reload_interaction.sh
+    nwg-bar
 
+
+# === APPS ===
 
 # === Terminal Stuff ===
 super + t
-    st
+	alacritty
+super + a ; t
+    alacritty
+
+super + a ; v
+	alacritty -e bash -c 'sleep 0.1; exec nvim'
+super + a ; e
+	emacs
+
+super + a ; c
+    alacritty -e python3 -i ~/.config/python/pycalc.py
+
+# Some Quick Terminal Stuff
+super + f
+    alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh
 
 super + e
-    st -T "Edit Script" -e "edit_selector"
-
-super + f
-    st -e tmux new-session ~/.config/lf/tmux_lf.sh
-    # st -e lf
+    alacritty --title "Edit Script" -e bash -c edit_selector
 
 
 # === Main Programms ===
-super + s
-#     surf http://www.duckduckgo.com
-# Use MESA_... Env Variable to enable old Mesa Driver to use WebGL.
-# Can maybe be removed in the future. (When the Iris Driver is better.)
-    export MESA_LOADER_DRIVER_OVERRIDE=i965; $BROWSER
+super + a ; s
+    $BROWSER
 
-super + m
+super + a ; m
 	thunderbird
+	# mailspring
 
 
 # === Dmenu Stuff ===
-super + k
-	$HOME/scripts/keybinding_lookup.sh
-
-super + u
+super + a ; u
 	$HOME/build/unicode_copy/unicode_copy.sh
 
+super + a ; b
+	$HOME/bin/rofi-bluetooth
 
 # === System Controll ===
 XF86Audio{Raise,Lower}Volume
-#   pactl set-sink-volume 0 {+,-}5%; $HOME/scripts/dwm_status_bar_volume
 	pactl set-sink-volume @DEFAULT_SINK@ {+,-}5%
 XF86AudioMute
 	pactl set-sink-mute @DEFAULT_SINK@ toggle
+XF86AudioPlay
+    playerctl play-pause
+XF86AudioStop
+    playerctl stop
+XF86AudioNext
+    playerctl next
+XF86AudioPrev
+    playerctl prev
 
 XF86MonBrightness{Up,Down}
 	xbacklight -{inc,dec} 10 -time 1 -steps 1 & \
@@ -56,8 +73,10 @@ Print
 	maim -s -u | xclip -selection clipboard -t image/png -in
 
 shift + Print
-	maim -s -u ~/$(date +%s).png
-
-super + a : h
-	notify-send "H"
+    FN="Screenshot-$(date +%F-%T).png" ; \
+    P="$HOME/Pictures/$FN"; \
+	maim -s -u $P ; \
+    [ -e "$P" ] || exit 0; \
+    A="$(notify-send "Screenshot taken" "Saved under: $FN" -u low -A open -i "$P")"; \
+    [ -n "$A" ] && alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh --command "select $P"
 

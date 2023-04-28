@@ -7,13 +7,16 @@
 # |_____|_| |_|\_/      \_/ \__,_|_|  |___/
 
 # In this file all Shell and Enviroment Variables are set up.
-# Source this in your Shell profile or rc File.
+# Run very early (most times it is the first thing) on initialization
 
 # A Helper function, to test if a programm can be run (is installed)
 # (Overwrites the script, to include aliases etc.)
 function isInstalled(){
 	which "$1" 1&>/dev/null
 }
+
+# Overwrite LC_TIME (ly does currently not setup locale correctly, see also https://github.com/fairyglade/ly/issues/278)
+export LC_TIME="de_DE.UTF-8"
 
 # === Setup PATH ===
 # (avoids dublications)
@@ -24,6 +27,7 @@ function isInstalled(){
 # === Config some programms ===
 
 # LS Colors and LF Icons
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
 eval "$(dircolors -b ~/.config/bash/.dircolors)"
 isInstalled "lf" && source ~/.config/lf/lficons.sh
 
@@ -48,14 +52,24 @@ if isInstalled "nvim"; then
 	export EDITOR="nvim"
 else
 	export EDITOR="vim"
-	export VISUAL="gvim"
+	# export VISUAL="gvim"
+fi
+if isInstalled "emacs"; then
+    # Speeds up emacs LSP implementation
+    export LSP_USE_PLISTS=true
 fi
 export PAGER="less"
 # export BROWSER="surf"
 export BROWSER="firefox"
 
-if isInstalled "st"; then
-	export TERMINAL="st"
+if isInstalled "alacritty"; then
+	export TERMINAL="alacritty"
+fi
+
+# If ssh-agent is running, but no socket was configured assume default socket path
+# as specified in user systemd ssh-agent.service file.
+if pgrep ssh-agent &>/dev/null && [[ -z "$SSH_AUTH_SOCK" ]]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
 
 # === Change config file locations ===
@@ -66,6 +80,7 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_DATA_DIRS="/usr/local/share:/usr/share"
 export XDG_CONFIG_DIRS="/etc/xdg"
 
+export XINITRC="$XDG_CONFIG_HOME/xinitrc"
 export XAUTHORITY="$XDG_CACHE_HOME/Xauthority"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
@@ -89,6 +104,10 @@ export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
 export VSCODE_PORTABLE="$XDG_CONFIG_HOME/vscode"
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc.py"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
+export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
+export SSB_HOME="$XDG_DATA_HOME/zoom"
+export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 
 export LESSHISTFILE="-" # Remove Less History File
 

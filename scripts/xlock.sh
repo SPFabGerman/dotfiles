@@ -5,6 +5,28 @@
 # COLOR=$(xrdb -query | grep '*color15' | sed 's/^*color15:\s#//')
 source ~/.cache/wal/colors.sh
 
-i3lock -n -e -f --indicator --clock \
-	--color=${color15}90 --inside-color=${color0}90 --ring-color=${color1}90 --insidever-color=${color2}90 --insidewrong-color=${color3}90 --ringver-color=${color1}90 --ringwrong-color=${color1}90 --time-color=${color15}ff --date-color=${color15}ff --verif-color=${color15}ff --wrong-color=${color15}ff --line-uses-ring --ring-width 16
+i3lock -n -e -f \
+	--blur=10 \
+    --ring-width 16 \
+    --inside-color=${color0}90 \
+    --ring-color=${color8}ff \
+    --insidewrong-color=${color0}90 \
+    --ringwrong-color=${color0}ff \
+    --insidever-color=${color7}90 \
+    --ringver-color=${color15}ff \
+    --line-color=00000000 \
+    --keyhl-color=${color15}90 \
+    --bshl-color=${color15}90 \
+    --separator-color=${color0}ff \
+    --greeter-text="" \
+    --greeter-font="MesloLGS NF" \
+    --greeter-size=128 \
+    --greeter-color=${color15}ff \
+    --greeteroutline-width=4 \
+    --greeteroutline-color=${color0}ff \
+    --greeter-pos="ix:iy+36" \
+    --noinput-text="" \
+    --lock-text="" \
+    --verif-text="" \
+    --wrong-text=""
 

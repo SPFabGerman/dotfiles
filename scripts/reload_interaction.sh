@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script can be used to select and reload a lot of programms.
 
-PROG=("Shutdown" "Logout" "Reboot" "Lock" "Suspend" "Hibernate" "Monitors" "Monitors (C)" "Bluetooth (On)" "Bluetooth (Off)" "XP-Pen" "WM => dwm" "WM (K) => dwm" "bspwm (R)" "WM => bspwm" "WM (K) => bspwm" "WM => Plasma + bspwm" "WM (K) => Plasma + bspwm" "WM => Plasma" "WM (K) => Plasma" "Statusbar (R)" "sxhkd (R)" "Albert" "Picom" "Picom (R)" "Dunst" "Dunst (R)" "X11" "X11 (R)" "Other" "Other (K)")
+PROG=("Shutdown" "Logout" "Reboot" "Lock" "Suspend" "Hibernate" "Monitors" "Monitors (C)" "Bluetooth (On)" "Bluetooth (Off)" "XP-Pen" "WM => dwm" "WM (K) => dwm" "bspwm (R)" "herbstluftwm (R)"  "WM => bspwm" "WM (K) => bspwm" "WM => Plasma + bspwm" "WM (K) => Plasma + bspwm" "WM => Plasma" "WM (K) => Plasma" "Statusbar (R)" "sxhkd (R)" "Albert" "Picom" "Picom (R)" "Dunst" "Dunst (R)" "X11" "X11 (R)" "Other" "Other (K)")
 
 # Clear cache File, to not interfear with anything
 echo "" > ~/.cache/reload_selection.cache
@@ -70,6 +70,9 @@ case "$SEL" in
 		;;
 	"bspwm (R)")
 		bspc wm -r
+		;;
+	"herbstluftwm (R)")
+		herbstclient reload
 		;;
 	"Statusbar (R)")
 		killall dwm_status_bar_time dwm_status_bar_server polybar

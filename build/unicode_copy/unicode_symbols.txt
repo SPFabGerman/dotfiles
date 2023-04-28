@@ -139,8 +139,8 @@ $ Dollar
 ∣ divides, mid, vertical bar
 ∤ does not divide
 ∥ Vert, parallel
-∧ and, wedge
-∨ or, vee
+∧ land, wedge
+∨ lor, vee
 ∪ cup
 ∩ cap, cupD
 ∫ integral
@@ -197,7 +197,7 @@ $ Dollar
 ⊓ sqcap
 ⊔ sqcup
 ⊕ bigoplus
-⊕ oplus
+⊕ oplus, XOR
 ⊖ ominus
 ⊗ bigotimes
 ⊗ otimes

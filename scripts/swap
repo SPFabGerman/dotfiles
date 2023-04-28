@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# This script can be used to reverse the order of arguments, to a programm.
+# so "swap echo 1 2 3" will become "echo 2 3 1".
+# It is intended to be used with xargs like this: "xargs swap [CMD] [LASTARG]".
+
+CMD="$1"
+LARG="$2"
+shift 2
+
+"$CMD" "$@" "$LARG"
+

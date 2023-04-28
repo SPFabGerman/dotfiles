@@ -180,7 +180,7 @@ command! -nargs=1 -complete=file EoB call AutoBOE("\<args>")
 " === Configs ===
 
 " Load my custom Color Scheme
-colorscheme my_vim_theme
+colorscheme my_new_vim_theme
 
 " Enable Numbers + Relativenumbers
 set number relativenumber
@@ -264,8 +264,6 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
 
-Plug 'NLKNguyen/c-syntax.vim'
-
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
 Plug 'easymotion/vim-easymotion'
@@ -273,18 +271,18 @@ Plug 'tpope/vim-commentary'
 
 Plug 'takac/vim-hardtime'
 Plug 'liuchengxu/vim-which-key'
+" Plug 'wellle/context.vim'
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
-Plug 'iamcco/coc-vimlsp', {'do': 'yarn install --frozen-lockfile'}
-Plug 'josa42/coc-sh', {'do': 'yarn install --frozen-lockfile'}
-
+Plug 'NLKNguyen/c-syntax.vim'
 Plug 'vim-python/python-syntax'
 Plug 'kevinoid/vim-jsonc'
 
-" Plug 'wellle/context.vim'
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'iamcco/coc-vimlsp', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'josa42/coc-sh', {'do': 'yarn install --frozen-lockfile'}
 call plug#end()
 
 " Configs to be sourced, after plugins are loaded

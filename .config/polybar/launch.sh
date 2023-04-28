@@ -10,6 +10,8 @@ case "$(getcurrwm)" in
 		BAR="dwmbar";;
 	"bspwm")
 		BAR="bspwmbar";;
+	"herbstluftwm")
+		BAR="herbstluftbar";;
 esac
 
 export MONITOR

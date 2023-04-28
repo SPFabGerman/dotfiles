@@ -1,0 +1,6 @@
+#!/bin/sh
+
+VOLUME="墳 $(pactl list sinks | grep '^[[:space:]]Volume' | awk -F' / ' '{print $2}' | awk '{$1=$1};1')"
+# The last awk is to remove trailing spaces (when Volume is lower than 100)
+dwm_status_bar_send 3 "$VOLUME"
+

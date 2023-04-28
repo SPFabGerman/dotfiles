@@ -1,0 +1,17 @@
+control + t
+    sleep .2; \
+    if [[ "$(xdotool getwindowname "$(xdotool getwindowfocus)")" =~ ".*Foxit Reader" ]]; then \
+        xdotool key --clearmodifiers --delay 10 Alt Right Right Right Right Enter Down Down Down Down Down Down Down Enter; \
+        xdotool key Alt Control; \
+        xdotool mousemove_relative 1 0; \
+    fi
+
+
+control + l
+    sleep .2; \
+    if [[ "$(xdotool getwindowname "$(xdotool getwindowfocus)")" =~ ".*Foxit Reader" ]]; then \
+        xdotool key --clearmodifiers --delay 10 Alt Right Right Right Right Enter Down Down Down Down Down Down Down Down Down Down Down Down Down Enter; \
+        xdotool key Alt Control; \
+        xdotool mousemove_relative 1 0; \
+    fi
+

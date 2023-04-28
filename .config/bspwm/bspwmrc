@@ -3,7 +3,7 @@
 # :!bspc wm -r
 
 # Kill any old querys and subscribtions
-killall bspwm_albert_focus bspc bspwm_swallow
+killall bspc
 
 if [ "$1" -eq 0 ]; then
 	# === INITIAL SETUP ===
@@ -29,11 +29,12 @@ bspc config pointer_action2 none
 
 # bspc rule -a Kupfer.py focus=on
 bspc rule -a "albert" border=off  # focus=on sticky=on
-bspwm_albert_focus & # Needed, since albert has some wierd behaviour when resizing and focusing
+(sleep 3; exec bspwm_albert_focus) & # Needed, since albert has some wierd behaviour when resizing and focusing
+bspwm_emacs_tiling &
 # bspc rule -a "Kupfer.py" center=on focus=on sticky=on
 
 bspc rule -a "Zathura" state=tiled
-bspc rule -a "Emacs" state=tiled
+# bspc rule -a "Emacs" state=tiled
 bspc rule -a "mpv" state=fullscreen
 
 bspc config external_rules_command ~/.config/bspwm/external_rules.sh
@@ -41,4 +42,10 @@ bspc config external_rules_command ~/.config/bspwm/external_rules.sh
 bspc wm --adopt-orphans
 
 bspwm_swallow &
+
+# Remove Monocle Layout, when desktop is empty
+bspc subscribe desktop_focus | while read line; do
+	d=$(echo $line | cut -d " " -f 3)
+	[ "$(bspc query -N -d "$d" | wc -l)" -eq 0 ] && bspc desktop "$d" -l tiled
+done &
 

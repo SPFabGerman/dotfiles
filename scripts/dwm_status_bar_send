@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# A Little Script to send a String to a Block in the Status Bar.
+# $1 indicates Block, The rest is the Text. (Leave Empty to remove.)
+
+FIFO=~/.cache/status_bar_fifo
+INDEX=$1
+shift
+TEXT=$(echo "$*" | tr -d '\n')
+echo -e "$INDEX\t$TEXT" >> $FIFO
+

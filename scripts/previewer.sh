@@ -54,11 +54,14 @@ fi
 
 MIMETYPE="$(mimetype -b -a "$FILENAME")"
 case "$MIMETYPE" in
-	*"gzip"*)
-		# TODO: Archiver Implementation
-		tar -tf "$FILE" | sed 's/^/- /';;
-	*"zip"*)
-		unzip -l "$FILE" | tail -n+4 | head -n-2 | awk '{print $4}' | sed 's/^/- /';;
+    # *"gzip"*)
+		# tar -tf "$FILE" | sed 's/^/- /';;
+	# *"zip"*)
+		# unzip -l "$FILE" | tail -n+4 | head -n-2 | awk '{print $4}' | sed 's/^/- /';;
+    *"-tar"*)
+        arc ls "$FILE" | cut -f 6-;;
+    *"zip"*)
+        arc ls "$FILE" | cut -f 5-;;
 	*"pdf"*)
 		pdftotext "$FILE" -;;
 	*"image/"*)
