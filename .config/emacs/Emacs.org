@@ -831,7 +831,7 @@
     (setq dashboard-set-file-icons t)
     (setq dashboard-set-navigator t)
     (setq dashboard-center-content t)
-    (setq dashboard-startup-banner "~/.local/share/icons/emacs_medium.png")
+    (setq dashboard-startup-banner "~/.config/emacs/emacs_icon.png")
     (setq dashboard-projects-backend 'project-el)
     (dashboard-setup-startup-hook))
 #+end_src

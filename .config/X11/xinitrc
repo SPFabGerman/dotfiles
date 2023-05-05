@@ -28,9 +28,6 @@ WM="awesome"
 WMEXEC="$WM"
 xsetroot -name ""
 
-# Restore gtk settings (these are sometimes changed by KDE)
-cp ~/.config/gtk-3.0/settings.ini.orig  ~/.config/gtk-3.0/settings.ini
-
 # load programms
 sxhkd &
 ls ~/.config/sxhkd/* | entr -nps "pkill -USR1 -x sxhkd; notify-send \"SXHKD reloaded\" -u low" &

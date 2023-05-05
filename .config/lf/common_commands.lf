@@ -9,7 +9,7 @@ cmd lf_command! !~/.config/lf/common_functions.sh "$@"
 cmd lf_command% %~/.config/lf/common_functions.sh "$@"
 cmd lf_command& &~/.config/lf/common_functions.sh "$@"
 
-cmd trash :lf_command% trash-put
+cmd trash :lf_command% trash
 cmd backup :lf_command% backup
 
 cmd jump $~/.config/lf/common_functions.sh jump "$1"
