@@ -13,13 +13,13 @@ paq {
     'kyazdani42/nvim-web-devicons',
 
     "nvim-lualine/lualine.nvim",
-    'kyazdani42/nvim-tree.lua',
+    -- 'kyazdani42/nvim-tree.lua',
     'lewis6991/gitsigns.nvim',
     'ibhagwan/fzf-lua',
     'folke/which-key.nvim',
     'akinsho/toggleterm.nvim',
 
-    "blackCauldron7/surround.nvim",
+    "ur4ltz/surround.nvim",
     "windwp/nvim-autopairs",
     "numToStr/Comment.nvim",
 
@@ -39,7 +39,7 @@ function paq_post_install()
     require("user.gitsigns")
     require("user.toggleterm")
     require("user.lualine")
-    require("user.filetree")
+    -- require("user.filetree")
     require("user.fzf")
     require("user.whichkey")
     require("user.surround")

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-TRASH_FOLDER=~/.trash
-
-mkdir -p $TRASH_FOLDER
-mv --backup=numbered -t $TRASH_FOLDER "$@"
-

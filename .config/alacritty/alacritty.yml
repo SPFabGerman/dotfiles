@@ -30,9 +30,9 @@ window:
 # Font configuration
 font:
   normal:
-    family: "MesloLGS NF"
+    family: "MesloLGS Nerd Font Mono"
     style: Regular
-  size: 9.5
+  size: 12
 
   # Use built-in font for box drawing characters.
   builtin_box_drawing: true

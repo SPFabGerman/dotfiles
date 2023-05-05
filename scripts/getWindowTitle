@@ -1,5 +1,0 @@
-#!/bin/sh
-
-ID=$(xprop -root _NET_ACTIVE_WINDOW | sed 's/^.* # //')
-TITLE=$(xprop -id $ID _NET_WM_NAME | sed 's/^.* = "\(.*\)"$/\1/')
-echo $TITLE

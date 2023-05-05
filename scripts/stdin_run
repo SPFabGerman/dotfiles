@@ -1,9 +1,0 @@
-#!/bin/bash
-# Reads and executes lines from stdin
-
-while read line; do
-	$line &
-done
-
-disown -a
-

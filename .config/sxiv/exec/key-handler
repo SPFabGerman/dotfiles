@@ -1,9 +1,0 @@
-#!/bin/sh
-
-case $1 in
-    "r")
-        xargs -d '\n' rm;;
-    "b")
-        shuf -n 1 | xargs -d '\n' setbg & disown;;
-esac
-

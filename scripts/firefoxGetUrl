@@ -1,9 +1,0 @@
-#!/bin/sh
-
-TITLE="$(getWindowTitle)"
-if echo "$TITLE" | grep -q " . Mozilla Firefox$"; then
-	echo "$TITLE" | sed 's/^.* :: \(.*\) . Mozilla Firefox$/\1/'
-else
-	echo "No Firefox Instance is focused." >&2
-	exit 1
-fi

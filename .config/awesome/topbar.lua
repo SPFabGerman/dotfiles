@@ -125,8 +125,8 @@ local batbox = wibox.widget {
 }
 
 -- Register battery widget
--- vicious.register(batwidget, vicious.widgets.bat, "$2", 60, "BAT1")
--- vicious.register(batwidgettext, vicious.widgets.bat, "$2%", 60, "BAT1")
+vicious.register(batwidget, vicious.widgets.bat, "$2", 60, "BAT0")
+vicious.register(batwidgettext, vicious.widgets.bat, "$2%", 60, "BAT0")
 
 
 awful.screen.connect_for_each_screen(function(s)
@@ -144,7 +144,7 @@ awful.screen.connect_for_each_screen(function(s)
         filter  = awful.widget.taglist.filter.all,
         buttons = awful.util.taglist_buttons,
         style = {
-            font = "sans 18"
+            font = "MesloLGS Nerd Font Mono 18"
         }
     }
 

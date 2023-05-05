@@ -1,1 +1,1 @@
-/home/fabian/.config/bash/envvars
+.config/zsh/envvars.sh

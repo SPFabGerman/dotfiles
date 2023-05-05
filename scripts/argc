@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# This script returns the argument count.
-
-echo "$#"
-

@@ -1,1 +1,1 @@
-/home/fabian/.config/xinitrc
+.config/X11/xinitrc

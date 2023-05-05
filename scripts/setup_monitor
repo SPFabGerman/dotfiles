@@ -34,10 +34,3 @@ fi
 
 exit 0
 
-# Run Post Hooks
-# TODO: Move in BSPWMRC as extra Script
-case "$(getcurrwm)" in
-	"bspwm")
-		bspwm_monitor_setup;;
-esac
-

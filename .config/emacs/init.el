@@ -35,20 +35,21 @@
 (scroll-bar-mode -1)
 (tooltip-mode -1)
 (set-fringe-mode 10) ;; Left and Right Border
-;; (load-theme 'doom-gruvbox 't)
-(load-theme 'doom-oceanic-next 't)
+(when (member 'doom-oceanic-next (custom-available-themes))
+  ;; (load-theme 'doom-gruvbox 't)
+  (load-theme 'doom-oceanic-next 't))
 (setq inhibit-startup-message t)
 ;; (setq visible-bell t)
 
 (setq frame-title-format '(multiple-frames "%b"
-               ("" "%b - Emacs")))
+                                           ("" "%b - Emacs")))
 ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 ;; (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 
 ;; (set-fontset-font "fontset-default" nil "MesloLGS NF")
-(set-face-attribute 'default nil :font "Fira Code Retina" :height 105)
-(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina")
-(set-face-attribute 'variable-pitch nil :font "FreeSans" :height 105 :weight 'normal)
+(set-face-attribute 'default nil :font "FiraCode Nerd Font:style=Retina" :height 120)
+(set-face-attribute 'fixed-pitch nil :font "FiraCode Nerd Font:style=Retina")
+(set-face-attribute 'variable-pitch nil :font "FreeSans" :height 120 :weight 'normal)
 
 (show-paren-mode)
 
@@ -429,7 +430,12 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package doom-themes)
+(use-package doom-themes
+  :config
+  ;; Only load theme, if it is not already loaded.
+  (unless (member 'doom-oceanic-next custom-enabled-themes)
+    ;; (load-theme 'doom-gruvbox 't)
+    (load-theme 'doom-oceanic-next 't)))
 
 (use-package all-the-icons)
 (use-package doom-modeline
@@ -583,6 +589,9 @@
   (setq dashboard-startup-banner "~/.local/share/icons/emacs_medium.png")
   (setq dashboard-projects-backend 'project-el)
   (dashboard-setup-startup-hook))
+
+;; Seems to be required by some other packages
+(use-package monitor)
 
 (defun fab/org-mode-setup ()
   (setq tab-width 2)

@@ -28,7 +28,7 @@ if [[ ! -o login ]]; then
     setup_prompt_filler
 else
     # On Login shells load starship
-    eval "$(starship init zsh)"
+    # eval "$(starship init zsh)"
 fi
 
 # Load Syntax Highlighting last, since otherwise it interferes with alot of stuff

@@ -16,7 +16,7 @@
  },
  {
    "label": "Lock",
-   "exec": "xlock.sh",
+   "exec": "~/.config/X11/xlock.sh",
    "icon": "system-lock-screen"
  },
  {

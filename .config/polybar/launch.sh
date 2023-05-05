@@ -4,15 +4,8 @@
 
 PIDS=$(pidof polybar)
 
-BAR="mainbar"
-case "$(getcurrwm)" in
-	"dwm")
-		BAR="dwmbar";;
-	"bspwm")
-		BAR="bspwmbar";;
-	"herbstluftwm")
-		BAR="herbstluftbar";;
-esac
+# BAR="mainbar"
+BAR="bspwmbar"
 
 export MONITOR
 polybar -m | sed 's/:.*$//' | while read MONITOR; do

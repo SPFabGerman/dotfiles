@@ -11,7 +11,7 @@ function trash() {
 	read ans
 	# [ "$ans" = "y" ] && rm -rf $fx
 	# Use command to avoid recursion
-	[ "$ans" = "y" ] && command trash $fx
+	[ "$ans" = "y" ] && command trash-put $fx
 }
 
 function backup() {

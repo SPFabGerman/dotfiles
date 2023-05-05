@@ -2,18 +2,30 @@
 
 # This script sets the BG and updates the Color Schemes.
 # Supply it with a File and it uses this file as a BG, otherwise it will just use the last one.
+# You can also use --random and a directory to use a random image as a wallpaper.
 
 BGIMAGE=~/.cache/background
 
 # Update Cache file, if File is given.
 if [ "$1" ]; then
-    if [ ! -f "$1" ]; then
+    if [ "$1" = --random ]; then
+        shift 1
+        if [ ! -d "$1" ]; then
+            echo "No directory supplied."
+            exit 1
+        fi
+        NEWIMAGE="$(find "$1" -type f | shuf -n 1)"
+    else
+        NEWIMAGE="$1"
+    fi
+
+    if [ ! -f "$NEWIMAGE" ]; then
         echo "File does not exist."
         exit 1
     fi
 
     rm -f "$BGIMAGE"
-    ln -s "$1" "$BGIMAGE"
+    ln -s "$NEWIMAGE" "$BGIMAGE"
 fi
 
 
@@ -37,25 +49,12 @@ xrdb -override ~/.cache/wal/colors.Xresources
 # wal-telegram --wal -g &
 
 
-echo "Upadate Color Schemes"
-case "$(getcurrwm)" in
-	"dwm")
-		~/.config/polybar/launch.sh &
-		dwmc xrdb &
-		;;
-	"bspwm")
-		~/.config/polybar/launch.sh &
+if pgrep bspwm &>/dev/null; then
+    ~/.config/polybar/launch.sh &
 
-		bspc config normal_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
-		bspc config active_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
-		bspc config focused_border_color $(xrdb -query | grep '^\*color4:' | sed 's/.*\(\#.*\)/\1/')
-		bspc config presel_feedback_color $(xrdb -query | grep '^\*color6:' | sed 's/.*\(\#.*\)/\1/')
-		;;
-	"herbstluftwm")
-		~/.config/polybar/launch.sh &
-		;;
-esac
-
-# Restarting Compton causes to much window flickering
-# ~/scripts/compton_launch.sh &
+    bspc config normal_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config active_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config focused_border_color $(xrdb -query | grep '^\*color4:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config presel_feedback_color $(xrdb -query | grep '^\*color6:' | sed 's/.*\(\#.*\)/\1/')
+fi
 

@@ -32,7 +32,7 @@ super + f
     alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh
 
 super + e
-    alacritty --title "Edit Script" -e bash -c edit_selector
+    alacritty --title "Edit Script" -e bash -c ~/.config/sxhkd/edit_selector.zsh
 
 
 # === Main Programms ===

@@ -1,5 +1,5 @@
 u. ~/Uni/
-ul ~/Uni/00_WS_2223/ALuP/
+ul ~/Uni/01_SS_23/ALuP2/
 ua ~/Uni/01_SS_23/Astro2/
 ug ~/Uni/01_SS_23/CG/
 us ~/Uni/01_SS_23/SiR/
@@ -14,22 +14,17 @@ t ~/test/
 bi ~/bin/
 
 b. ~/build/
-bd ~/build/dwm/
-bs ~/build/st/
 bl ~/build/lf/
 
 c. ~/.config/
 ca ~/.config/awesome/
 ce ~/.config/emacs/
 cl ~/.config/lf/
-cn ~/.config/nvim/
-cp ~/.config/polybar/
-cv ~/.config/vim/
+cv ~/.config/nvim/
 cz ~/.config/zsh/
 
 h ~/
 r /
 
-mw /mnt/win/
-mm /media/
+m /media/
 
