@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/bin/chafa --animate off --polite on "$@"
+

@@ -1,0 +1,86 @@
+# === Starting / Reloading ===
+super + space
+    pgrep nwg-drawer || \
+        ( nwg-drawer -nofs -nocats -term alacritty -c 10 -r &> /dev/null & \
+        sleep 0.5 ); \
+    nwg-drawer &> /dev/null
+
+super + q
+    nwg-bar
+
+
+# === APPS ===
+
+# === Terminal Stuff ===
+super + t
+	alacritty
+super + a ; t
+    alacritty
+
+super + a ; v
+	alacritty -e bash -c 'sleep 0.1; exec nvim'
+super + a ; e
+	emacs
+
+super + a ; c
+    alacritty -e python3 -i ~/.config/python/pycalc.py
+
+# Some Quick Terminal Stuff
+super + f
+    alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh
+
+super + e
+    alacritty --title "Edit Script" -e bash -c ~/.config/sxhkd/edit_selector.zsh
+
+
+# === Main Programms ===
+super + a ; s
+    $BROWSER
+
+super + a ; m
+	thunderbird
+	# mailspring
+
+
+# === Dmenu Stuff ===
+super + a ; u
+	$HOME/build/unicode_copy/unicode_copy.sh
+
+super + a ; b
+    alacritty --title "BTop" -e btop
+	# $HOME/bin/rofi-bluetooth
+
+# === System Controll ===
+XF86Audio{Raise,Lower}Volume
+	pactl set-sink-volume @DEFAULT_SINK@ {+,-}5%
+XF86AudioMute
+	pactl set-sink-mute @DEFAULT_SINK@ toggle
+shift + XF86AudioMute
+	pactl set-sink-volume @DEFAULT_SINK@ 50%
+XF86AudioPlay
+    playerctl play-pause
+XF86AudioStop
+    playerctl stop
+XF86AudioNext
+    playerctl next
+XF86AudioPrev
+    playerctl prev
+
+XF86MonBrightness{Up,Down}
+	xbacklight -{inc,dec} 10 -time 1 -steps 1 & \
+	xob_show "$(xbacklight -get)" &
+
+XF86TouchpadToggle
+    tuxedo-touchpad-toggle
+
+Print
+	maim -s -u | xclip -selection clipboard -t image/png -in
+
+shift + Print
+    FN="Screenshot-$(date +%F-%T).png" ; \
+    P="$HOME/Pictures/$FN"; \
+	maim -s -u $P ; \
+    [ -e "$P" ] || exit 0; \
+    A="$(notify-send "Screenshot taken" "Saved under: $FN" -u low -A open -i "$P")"; \
+    [ -n "$A" ] && alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh --command "select $P"
+

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+DIR=~/build/termcolors
+
+THEME=$1
+
+mkdir -p $DIR/out
+
+if [ -z "$THEME" ]; then
+	FILE="$DIR/out/colors.json"
+else
+	FILE="$DIR/schemes/$THEME.json"
+fi
+
+if [ ! -f "$FILE" ]; then
+	echo "File does not exist." >&2
+	exit 1
+fi
+
+# Generate new Schemes and change in all Terminals
+wal -f "$FILE" -ne
+
+# Save Generated Files to be loaded later
+cp ~/.cache/wal/color* "$DIR/out/"
+cp ~/.cache/wal/sequences "$DIR/out/"
+
+# Create a lua file, based upon the hs file
+cp "$DIR/out/colors.hs" "$DIR/out/colors.lua"
+tail -n +12 "$DIR/out/colors.hs" > "$DIR/out/colors.lua"
+

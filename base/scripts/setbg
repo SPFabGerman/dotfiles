@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# This script sets the BG and updates the Color Schemes.
+# Supply it with a File and it uses this file as a BG, otherwise it will just use the last one.
+# You can also use --random and a directory to use a random image as a wallpaper.
+
+BGIMAGE=~/.cache/background
+
+# Update Cache file, if File is given.
+if [ "$1" ]; then
+    if [ "$1" = --random ]; then
+        shift 1
+        if [ ! -d "$1" ]; then
+            echo "No directory supplied."
+            exit 1
+        fi
+        NEWIMAGE="$(find "$1" -type f | shuf -n 1)"
+    else
+        NEWIMAGE="$1"
+    fi
+
+    if [ ! -f "$NEWIMAGE" ]; then
+        echo "File does not exist."
+        exit 1
+    fi
+
+    rm -f "$BGIMAGE"
+    ln -s "$NEWIMAGE" "$BGIMAGE"
+fi
+
+
+if [ ! -f "$BGIMAGE" ]; then
+    echo "Background file does not exist."
+    exit 1
+fi
+
+echo -n "Set Wallpaper ..."
+xwallpaper --zoom "$BGIMAGE" &
+echo " done"
+
+
+echo -n "Generate Color Scheme ..."
+rm -f ~/.cache/wal/schemes/_home_fabian__cache_background_dark_None_None_1.1.0.json
+wal -i "$BGIMAGE" -stne &> /dev/null
+
+XRDB_ALPHA="90" # Alpha value for the colors. (Range: 00-ff)
+grep '^\*color' ~/.cache/wal/colors.Xresources | sed 's/^\*color\(.*\):\s*\#\(.*\)/alpha_color\1: #'"$XRDB_ALPHA"'\2/' >> ~/.cache/wal/colors.Xresources
+xrdb -override ~/.cache/wal/colors.Xresources
+echo " done"
+
+# wal-telegram --wal -g &
+
+
+if pgrep bspwm &>/dev/null; then
+    ~/.config/polybar/launch.sh &
+
+    bspc config normal_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config active_border_color $(xrdb -query | grep '^\*color2:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config focused_border_color $(xrdb -query | grep '^\*color4:' | sed 's/.*\(\#.*\)/\1/')
+    bspc config presel_feedback_color $(xrdb -query | grep '^\*color6:' | sed 's/.*\(\#.*\)/\1/')
+elif pgrep awesome &>/dev/null; then
+    awesome-client 'update_theme()'
+fi
+

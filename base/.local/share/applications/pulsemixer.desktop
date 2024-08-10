@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=PulseMixer
+Comment=Launches the PulseAudio Mixer
+Icon=utilities-terminal
+Terminal=true
+Exec=pulsemixer
+Categories=ConsoleOnly;System

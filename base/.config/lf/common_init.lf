@@ -1,0 +1,231 @@
+# === Common Options ===
+
+# Change Tabstop for previewer
+# set tabstop 4
+# Better proportions
+set ratios 1:2:2
+# Use Icons and better truncator
+set icons
+set truncatechar 󰇘
+
+# Show Number of Files in Dir, when Displaying Size (set info size)
+set dircounts
+
+# Enable Hidden Files by Default
+# set hidden
+# Custom Hidden Files (don't show git Directories)
+set hiddenfiles ".git:.#*"
+
+# leave some space at the top and the bottom of the screen
+set scrolloff 5
+# Enable Scrolling from top to bottom
+set wrapscroll
+
+set mouse
+map <m-up> scroll-up
+map <m-down> scroll-down
+
+# Reload files every second
+set period 1
+
+# Jump when searching and filter down while typing
+set incsearch
+set incfilter
+
+# interpreter for shell commands
+set shell bash
+# Safer shell commands: '-e' to exit on error,
+# '-u' to give error for unset variables
+# '-u' is not used, because of the GIT_OPTIONS
+set shellopts '-e'
+# set internal field separator (IFS) to "\n" for shell commands
+# set ifs "\n\t"
+# set filesep "\n"
+
+set dupfilefmt "%b.~%n~%e"
+
+
+# === Common Mappings ===
+
+# Command Mode Mappings to access history
+cmap <up> cmd-history-prev
+cmap <down> cmd-history-next
+
+# Combine Commands with simmilar use cases
+map <c-r> :redraw;reload
+map u :clear;unselect
+
+
+
+# === Common Commands ===
+
+# TODO: Automatically select newly created file, if only one was created
+cmd create-file $touch "$@"
+cmd create-dir $mkdir "$@"
+
+cmd create-archive !{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+    if [[ "$#" -eq 0 ]]; then
+        echo "Please provide an archive name."
+        exit 1
+    fi
+
+	apack "$@" $fx
+}}
+
+# TODO: Better Link creation, when no file is selected
+cmd link %{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+	ln -si -t $PWD $fx
+}}
+
+cmd link-relative %{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+	ln -sir -t $PWD $fx
+}}
+
+cmd follow-link %{{
+    T="$(readlink $f)"
+    lf -remote "send $id select '$T'"
+}}
+
+cmd trash %{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+	printf "Really Trash? [y/N]"
+	read ans
+	# Use command to avoid recursion
+	[ "$ans" = "y" ] && command trash-put $fx
+}}
+cmd backup %{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+	printf "Create Backup? [y/N]"
+	read ans
+	# Use command to avoid recursion
+	[ "$ans" = "y" ] && command backup $fx && echo "Backup created!"
+}}
+cmd jump ${{
+    cd ~
+	# DIR=$(bfs ~ -type d 2>/dev/null | fzf --header='LF - Jump To: ' --preview='exa -aFT -L1 --icons --group-directories-first --color=always {}' --keep-right)
+    export FZF_DEFAULT_COMMAND=" "
+    RELOAD_CMD='bfs ~ -type d -iname "*$(echo {q} | cut -d " " -f 1)*" -printf "%P\n"'
+    PREVIEW_CMD='exa -aFT -L1 --icons --group-directories-first --color=always ./{}'
+	DIR=$(fzf --header='LF - Jump To: ' --preview="$PREVIEW_CMD" --bind "change:reload($RELOAD_CMD)" --exact --scheme=path --tiebreak=length,end,index)
+	[ "$DIR" ] && lf -remote "send $id cd \"$HOME/$DIR\""
+}}
+cmd search-deep ${{
+	DIR=$(bfs . 2>/dev/null | fzfp --header='LF - Jump To: ' --scheme=path -d "/" -n -1)
+	[ "$DIR" ] && lf -remote "send $id select \"$DIR\""
+}}
+cmd multi-select ${{
+    export FZF_DEFAULT_COMMAND="find . -path './*'"
+    RELOAD_CMD='find . -path {q}'
+	PATTERN=$(fzfp --header='Pattern:' --header-first --bind "change:reload($RELOAD_CMD)" -q "./*" --disabled --no-sort --print-query | head -n 1)
+	[ "$PATTERN" ] && lf -remote "send $id toggle $(find . -path "$PATTERN" -printf '"%P" ')"
+    stpvimgclr
+}}
+
+cmd next-dir :{{
+	updir
+	set dironly
+	down
+	set nodironly
+	open
+}}
+cmd prev-dir :{{
+	updir
+	set dironly
+	up
+	set nodironly
+	open
+}}
+
+cmd copy-path-full &echo -n "$fx" | xclip -in -selection clipboard
+cmd copy-path-relative &echo -n "$fx" | sed "s|^$PWD|.|" | xclip -in -selection clipboard
+cmd copy-to-clipboard &{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+    xclip-copyfile $fx
+}}
+
+cmd drag-and-drop &{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+    dragon-drop -T -x -a $fx
+}}
+
+cmd drag-and-drop-all &{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+    dragon-drop -T -A $fx
+}}
+
+cmd move-from ${{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+    DEST="$PWD"
+    cd "${1/\~/$HOME}"
+    FILES="$(ls -t | fzfp -m +s --header="Move from $1:")"
+    mv -t "$DEST" -i $FILES
+    LAST="$(echo "$FILES" | tail -n 1)"
+    lf -remote "send $id select \"$DEST/$LAST\""
+}}
+
+cmd rename-all !{{
+	# disable globbing
+	set -f
+	# Set IFS to avoid problems with spaces in filenames
+	IFS="$(printf '\n\t')"
+
+    clear
+
+    if [ -n "$fs" ]; then
+        qmv -f do -d $(echo -n "$fs" | sed "s|^$PWD/||")
+    else
+        qmv -f do
+    fi
+}}
+
+cmd open &mimeopen -n "$f" &>/dev/null
+cmd open-with $mimeopen -a "$f"
+cmd open-with-new-default $mimeopen -d "$f"
+cmd open-with-editor $$EDITOR "$f"
+cmd open-with-external-editor &setsid $TERMINAL -e $EDITOR "$f"
+cmd edit $$EDITOR "$f"
+cmd terminal $$SHELL
+cmd terminal-extern &unset LF_LEVEL; setsid -f $TERMINAL -e $SHELL
+
+# === Common Extensions ===
+
+source ~/.config/lf/better_filter.lf
+

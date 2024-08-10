@@ -1,0 +1,35 @@
+# This file sets up lf commands for integration with tmux.
+# It overrides some commands defined in common_init.lf
+# This file assumes lf is run in a tmux session! If that is not the case, these commands will not work correctly!
+# (This assumption is made to keep the commands simple and without much interruption.)
+# Load this file with the following code: (The sleep ensures that the lf server is ready for remote commands.)
+# TODO: Look for a better way to solve this than using sleep.
+# &{{
+#     if [[ -n "$TMUX" ]]; then
+#         sleep 1
+#         lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
+#     fi
+# }}
+
+# cmd open &tmux new-window -d mimeopen -n "$f"
+# cmd open-with &tmux split -l 15 setsid -w mimeopen -a "$f"
+cmd open-with &tmux popup -E -h 15 -w 75 "setsid -f -w mimeopen -a \"$f\"; tmux popup -C"
+# cmd open-with-new-default &tmux popup -E -h 15 -w 75 setsid -w mimeopen -d "$f"
+cmd open-with-editor &tmux new-window $EDITOR "$f"
+
+cmd _tmux_edit_stop :set preview; set ratios 1:2:2
+cmd edit :{{
+    # Do this in lf, for slightly smoother transition
+    :set nopreview; set ratios 1:2
+    # TODO: Solve with hook and not a wrapper script, if possible
+    $tmux split-window -h -l 40% -e id=$id ~/.config/lf/editor_tmux_wrapper.sh "$f"
+}}
+
+cmd terminal &{{
+    if ! [ -e "/tmp/lf.$USER.$id.zshfifo" ]; then
+        ENV="-e ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo -e ZSH_FIFO_REMOVE=1 -e ZSH_FIFO_REMOVE_LAST=1 -e id=$id"
+    fi
+    tmux split-window -v -l 25% $ENV $SHELL
+}}
+cmd terminal-extern &tmux new-window $SHELL
+

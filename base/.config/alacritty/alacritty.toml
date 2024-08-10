@@ -1,0 +1,31 @@
+import = ["/home/fabian/build/termcolors/out/colors-wal-alacritty.toml"]
+live_config_reload = true
+
+[bell]
+animation = "EaseOutSine"
+duration = 250
+
+[font]
+builtin_box_drawing = true
+size = 12
+
+[font.normal]
+family = "MesloLGS Nerd Font Mono"
+style = "Regular"
+
+[window]
+dynamic_padding = true
+dynamic_title = true
+opacity = 0.9
+
+[window.dimensions]
+columns = 60
+lines = 20
+
+[window.padding]
+x = 1
+y = 1
+
+[colors]
+transparent_background_colors = true
+

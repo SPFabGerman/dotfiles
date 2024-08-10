@@ -1,0 +1,113 @@
+# Configuration file for dircolors, a utility to help you set the
+# LS_COLORS environment variable used by GNU ls with the --color option.
+# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copying and distribution of this file, with or without modification,
+# are permitted provided the copyright notice and this notice are preserved.
+
+# === Select Terminals ===
+TERM *color*
+TERM Eterm
+TERM alacritty
+TERM ansi
+TERM con[0-9]*x[0-9]*
+TERM cons25
+TERM console
+TERM cygwin
+TERM dtterm
+TERM gnome
+TERM hurd
+TERM jfbterm
+TERM konsole
+TERM kterm
+TERM linux
+TERM linux-c
+TERM mlterm
+TERM putty
+TERM rxvt*
+TERM screen*
+TERM st
+TERM terminator
+TERM tmux*
+TERM vt100
+TERM xterm*
+
+# === HELP: Attribute codes ===
+# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
+# Text color codes:
+# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
+# Background color codes:
+# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+
+# === Normal Files === (white)
+NORMAL 0
+FILE 0 # regular file
+RESET 0 # reset to "normal" color
+MULTIHARDLINK 00 # regular file with more than one link
+
+# === Directories === (yellow + underscore)
+DIR 38;5;3;4 # directory
+STICKY_OTHER_WRITABLE 38;5;172;4 # 33;4 # dir that is sticky and other-writable (+t,o+w)
+OTHER_WRITABLE 38;5;172;4 # 33;4 # dir that is other-writable (o+w) and not sticky
+STICKY 38;5;3;4 # dir with the sticky bit set (+t) and not other-writable
+
+# === System Interals === (magenta)
+LINK 35 # symbolic link. (If you set this to 'target' instead of a numerical value, the color is as for the file pointed to.)
+ORPHAN 31  # symlink to nonexistent file
+MISSING 31;1 # and the files they point to
+FIFO 35 # pipe
+SOCK 35 # socket
+DOOR 35 # door
+BLK 35 # block device driver
+CHR 35 # character device driver
+
+# === (Potentially) Dangerous Stuff === (red)
+SETUID 31 # file that is setuid (u+s)
+SETGID 31 # file that is setgid (g+s)
+CAPABILITY 31 # file with capability
+
+# === Executable Files === (green (like programms) )
+EXEC 32
+.sh 32
+.zsh 32
+
+# === All Code Files === (cyan)
+.c 36
+.cpp 36
+.h 36
+.py 36
+.java 36
+.s 36
+.asm 36
+.md 36
+.tex 36
+.go 36
+.vim 36
+.conf 36
+.json 36
+.mk 36
+.lua 36
+
+# Special Code Files (light cyan)
+*Makefile 38;5;14;1
+*makefile 38;5;14;1
+
+# Compilation files
+.o 38;5;8
+
+# .pdf 38;5;174
+.pdf 38;5;9
+
+# === All Git Files === (orange)
+.git 38;5;215
+.gitignore 38;5;215
+.gitmodules 38;5;215
+
+# === Compromessed Files === (yellow)
+.tar 38;5;11
+.tar.gz 38;5;11
+.gz 38;5;11
+.zip 38;5;11
+
+# === temporary Files === (grey)
+*~ 38;5;8
+

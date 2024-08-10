@@ -1,0 +1,7 @@
+# Disable picom autostart, as it is already started by xinit
+[Desktop Entry]
+Type=Application
+Name=picom
+TryExec=picom
+Exec=picom
+Hidden=true

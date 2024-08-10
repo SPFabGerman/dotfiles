@@ -1,0 +1,32 @@
+[
+ {
+   "label": "Shutdown",
+   "exec": "systemctl poweroff",
+   "icon": "system-shutdown"
+ },
+ {
+   "label": "Reboot",
+   "exec": "systemctl reboot",
+   "icon": "system-reboot"
+ },
+ {
+   "label": "Logout",
+   "exec": "pkill dwm|awesome|bspwm",
+   "icon": "system-log-out"
+ },
+ {
+   "label": "Lock",
+   "exec": "~/.config/X11/xlock.sh",
+   "icon": "system-lock-screen"
+ },
+ {
+   "label": "Suspend",
+   "exec": "systemctl suspend",
+   "icon": "system-suspend"
+ },
+ {
+   "label": "Hibernate",
+   "exec": "systemctl hibernate",
+   "icon": "system-hibernate"
+ }
+]

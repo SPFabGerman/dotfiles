@@ -1,0 +1,69 @@
+#!/bin/bash
+
+function dir_to_type() {
+	if [[ $1 = "north" || $1 = "south" ]]; then
+		echo "horizontal"
+	elif [[ $1 = "east" || $1 = "west" ]]; then
+		echo "vertical"
+	else
+		echo "undefined"
+	fi
+}
+
+function dir_to_inc() {
+	if [[ $1 = "north" || $1 = "west" ]]; then
+		echo "dec"
+	elif [[ $1 = "south" || $1 = "east" ]]; then
+		echo "inc"
+	else
+		echo "undefined"
+	fi
+}
+
+DIR=$1
+INC="$(dir_to_inc $DIR)"
+TYPE="$(dir_to_type $DIR)"
+
+if bspc query -N -n focused.leaf > /dev/null; then
+	PRESELDIR="$(bspc query -T -n | jq -r .presel.splitDir)"
+	PRESELRAT="$(bspc query -T -n | jq -r .presel.splitRatio)"
+	PRESELRAT="${PRESELRAT#0.}"
+	PRESELTYPE="$(dir_to_type $PRESELDIR)"
+	if [[ "$PRESELDIR" = "null" ]]; then
+		bspc node -p $DIR
+	elif [[ "$PRESELTYPE" = "$TYPE" ]]; then
+		RATFIN=5
+		if [[ "$INC" = "inc" ]]; then
+			RATFIN=$(($PRESELRAT + 1))
+		elif [[ "$INC" = "dec" ]]; then
+			RATFIN=$(($PRESELRAT - 1))
+		fi
+		if [[ $RATFIN -ge 10 ]]; then RATFIN=9; fi
+		if [[ $RATFIN -le  0 ]]; then RATFIN=1; fi
+		bspc node -o 0.$RATFIN
+	else
+		bspc node -p cancel
+	fi
+else
+	SPLITTYPE="$(bspc query -T -n | jq -r .splitType)"
+	SPLITRAT="$(bspc query -T -n | jq -r .splitRatio)"
+	SPLITRAT="${SPLITRAT#0.}"
+	if [[ "$SPLITTYPE" = "$TYPE" ]]; then
+		RATFIN=5
+		if [[ "$INC" = "inc" ]]; then
+			RATFIN=$(($SPLITRAT + 1))
+		elif [[ "$INC" = "dec" ]]; then
+			RATFIN=$(($SPLITRAT - 1))
+		fi
+		if [[ $RATFIN -ge 10 ]]; then RATFIN=9; fi
+		if [[ $RATFIN -le  0 ]]; then RATFIN=1; fi
+		bspc node -r 0.$RATFIN
+	else
+		if [[ "$SPLITTYPE" = "horizontal" ]]; then
+			bspc node -R 270
+		elif [[ "$SPLITTYPE" = "vertical" ]]; then
+			bspc node -R 90
+		fi
+	fi
+fi
+

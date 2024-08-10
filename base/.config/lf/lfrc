@@ -1,0 +1,118 @@
+source ~/.config/lf/common_init.lf
+
+&{{
+    if [[ -n "$TMUX" ]]; then
+        sleep 1
+        lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
+    fi
+}}
+
+# Bookmarks
+$generate_bookmark_aliases lf > ~/.config/lf/bookmarks.lf
+source ~/.config/lf/bookmarks.lf
+cmd edit-bookmarks ${{
+    nvim ~/.config/bookmarks
+    generate_bookmark_aliases lf > ~/.config/lf/bookmarks.lf
+    lf -remote "send $id source ~/.config/lf/bookmarks.lf"
+}}
+map B edit-bookmarks
+
+# Previewer
+set sixel
+set previewer ctpv
+set cleaner ctpvclear
+&ctpv -s $id
+&ctpvquit $id
+cmd preview-reset ${{
+    ctpv -e $id
+    sleep .1
+    ctpv -s $id &
+}}
+
+# Movement
+map j jump
+map <c-s> search-deep
+map F filter-interactive
+map n next-dir
+map N prev-dir
+
+# create new files and directories
+map cf push :create-file<space>
+map cd push :create-dir<space>
+map ca push :create-archive<space>
+map c
+
+# move and deletion of files
+map m rename
+map l link
+map r trash
+map RR delete
+
+# Advanced file movement
+map Y :copy-path-relative; echo "Paths copied to clipboard."
+map D drag-and-drop
+map P move-from ~/Downloads
+map M rename-all
+map V multi-select
+
+# Opening and editing files
+map ow open-with
+map od open-with-new-default
+map oe open-with-editor
+map oE open-with-external-editor
+map e edit
+
+# Shells and Terminals
+map t terminal
+map T terminal-extern
+
+# Different sorting for directories
+cmd _sort-default :{{
+    set dirfirst
+    set sortby natural
+    set noreverse
+}}
+
+cmd _sort-Downloads :{{
+    set nodirfirst
+    set sortby time
+    set reverse
+    top
+}}
+
+cmd sort-dir &{{
+# Use custom commands, so that they are executed at once, without the display updating inbetween
+    if [ "${PWD/$HOME/"~"}" = "~/Downloads" ]; then
+        lf -remote "send $id _sort-Downloads"
+    else
+        lf -remote "send $id _sort-default"
+    fi
+
+}}
+
+# Movement related functions
+cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --shell universal --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | sed 's/\o33\[K\o33\[0J//g')\""
+map <c-r> :preview-reset;redraw;reload;update-prompt
+
+cmd on-select &{{
+    lf -remote "send $id set statfmt \" $(exa -l --color=always --icons -F --git -d "$f")\""
+}}
+
+cmd pre-cd :{{
+    setfilter ""
+}}
+
+cmd on-cd :{{
+    &{{
+        printf "\033]2;%s\a" "${PWD/$HOME/"~"}" > /dev/tty
+        if [ -p "/tmp/lf.$USER.$id.zshfifo" ]; then
+            echo "cd \"$PWD\"; clear" > /tmp/lf.$USER.$id.zshfifo &
+        fi
+    }}
+    update-prompt
+    sort-dir
+}}
+
+# TODO: Make sure lf server is ready to recieve remote commands, before calling this
+on-cd
+

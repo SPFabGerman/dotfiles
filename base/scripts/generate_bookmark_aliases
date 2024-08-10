@@ -1,0 +1,32 @@
+#!/bin/sh
+
+INFILE=~/.config/bookmarks
+
+# This File takes the INFILE File and outputs commands, which when executed generate aliases,
+# to switch between the folders defined in INFILE.
+# $1 defines for which programm the commands should be generated.
+# Be carefull with spaces. You need to quote them. (TODO: Does that even work?)
+# Also use always the same amount of characters for each alias, since in some programms (lf for example)
+# the shorter one takes precedence
+
+if [ "$1" ]; then
+	TYPE="$1"
+else
+	TYPE=bash
+fi
+
+sed '/^$/d' "$INFILE" | while read line; do
+	case "$TYPE" in
+		"bash")
+			printf "alias b%s='cd %s'\n" $line
+			;;
+		"lf")
+			printf "map b%s cd %s\n" $line
+			;;
+		"lf_remote")
+			# Add option to automatically execute commands
+			printf "lf -remote \"send \$id map b%s cd %s\"\n" $line
+			;;
+	esac
+done
+
