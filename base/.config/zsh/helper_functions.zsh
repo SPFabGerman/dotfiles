@@ -28,17 +28,6 @@ function fgrep {
 
 }
 
-# This function returns every argument. Good for debugging how the shell parses arguments.
-function argv {
-    local i=1
-    while [ "$#" -ne "0" ]; do
-        echo "${i}: \"$1\""
-        i=$((i+1))
-        shift
-    done
-}
-
-
 function showColorCodes {
     local max=256
     if [ "$1" = "-16" ]; then

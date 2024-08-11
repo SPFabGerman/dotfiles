@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+TARGET="$HOME"
+STOWDIR="$HOME/dotfiles"
+
+DEFAULT_PACKAGES=(base private)
+
+function restow () {
+    packages=( ${DEFAULT_PACKAGES[@]} )
+    if [[ $# -gt 0 ]]; then
+        packages=( "$@" )
+    fi
+    
+    # Construct command array manually, to avoid issues with word splitting with IFS
+    cmda=()
+    for p in "${packages[@]}"; do
+        cmda=(${cmda[@]} -R "$p")
+    done
+
+    stow -d "$STOWDIR" -t "$TARGET" ${cmda[@]}
+}
+
+function adopt-into () {
+    # TODO: Automatically add new files to git repo?
+    if [[ $# -lt 2 ]]; then
+        echo "Usage: dot adopt-into PACKAGE FILES"
+        exit 1
+    fi
+    package="$1"
+    shift
+    filepaths=( $(realpath --no-symlinks -e --relative-to=$TARGET $@) )
+    reldirs=( $(dirname ${filepaths[@]}) )
+
+    # Make sure paths exist in STOWDIR
+    for rd in "${reldirs[@]}"; do
+        mkdir -pv "$STOWDIR/$package/$rd"
+    done
+
+    # Move all files over into STOWDIR
+    for f in "${filepaths[@]}"; do
+        mv -v -i -T "$TARGET/$f" "$STOWDIR/$package/$f"
+    done
+
+    restow "$package"
+}
+
+CMD="$1"
+shift
+
+case "$CMD" in
+    restow)
+        restow "$@";;
+    adopt|adopt-into)
+        adopt-into "$@";;
+    *)
+        echo "Available commands: restow, adopt-into"
+        exit 1;;
+esac
+

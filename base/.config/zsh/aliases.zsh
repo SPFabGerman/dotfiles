@@ -19,12 +19,6 @@ alias _!='doas !!'
 
 isInstalled doas && alias sudo='doas'
 
-# basic dotfiles alias
-if [ -d "$HOME/.dotfiles.git" ]; then
-	alias dotfiles="git --git-dir=$HOME/.dotfiles.git --work-tree=$HOME"
-	alias dot="dotfiles"
-fi
-
 # Cleaner ls
 if isInstalled "eza"; then
 	alias eza='eza -F --icons --group-directories-first -h'

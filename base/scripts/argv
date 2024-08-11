@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# This script returns every argument. Good for debugging how the shell parses arguments.
+
+i=1
+while [ "$#" -ne "0" ]; do
+    echo "${i}: \"$1\""
+    i=$((i+1))
+    shift
+done
+
