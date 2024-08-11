@@ -3,7 +3,8 @@ import os
 import readline
 
 # Change history file
-histfile = os.path.join(os.path.expanduser("~"), ".config/python/python_history")
+os.makedirs(os.path.join(os.path.expanduser("~"), ".cache/python"), exist_ok=True)
+histfile = os.path.join(os.path.expanduser("~"), ".cache/python/python_history")
 try:
     readline.read_history_file(histfile)
     # default history len is -1 (infinite), which may grow unruly
