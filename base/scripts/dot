@@ -6,7 +6,7 @@ IFS=$'\n\t'
 TARGET="$HOME"
 STOWDIR="$HOME/dotfiles"
 
-DEFAULT_PACKAGES=(base private)
+DEFAULT_PACKAGES=(base tuxedo private)
 
 function restow () {
     packages=( ${DEFAULT_PACKAGES[@]} )
