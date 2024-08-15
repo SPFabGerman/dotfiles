@@ -27,7 +27,7 @@ xss-lock -- ~/.config/X11/xlock.sh &
 
 # Hotkeys
 sxhkd &
-find ~/.config/sxhkd -type f | entr -nps "pkill -USR1 -x sxhkd; notify-send \"SXHKD reloaded\" -u low" &
+echo ~/.config/sxhkd/sxhkdrc | entr -nps "pkill -USR1 -x sxhkd; notify-send \"SXHKD reloaded\" -u low" &
 playerctld daemon &
 
 # Notifications
