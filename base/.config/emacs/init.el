@@ -247,13 +247,13 @@ in the current window."
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (global-set-key (kbd "C-:") 'eval-expression)
 
-(setq evil-emacs-state-cursor '("red" box))
-(setq evil-normal-state-cursor '("green" box))
-(setq evil-visual-state-cursor '("orange" box))
-(setq evil-insert-state-cursor '("lightblue" bar))
-(setq evil-replace-state-cursor '("red" hollow))
-(setq evil-operator-state-cursor '("red" hbar))
-(setq evil-motion-state-cursor '("orange" hbar))
+(setq evil-emacs-state-cursor '("seagreen" box))
+(setq evil-normal-state-cursor '("lightskyblue" box))
+(setq evil-visual-state-cursor '("lightskyblue" hollow))
+(setq evil-insert-state-cursor '("lightskyblue" bar))
+(setq evil-replace-state-cursor '("orange" hollow))
+(setq evil-operator-state-cursor '("lightskyblue" hbar))
+(setq evil-motion-state-cursor '("lightskyblue" hbar))
 
 ;; (setq evil-want-C-w-in-emacs-state 't)
 (setq evil-want-Y-yank-to-eol 't)
@@ -900,7 +900,6 @@ Note: Last Block detection currently only checks the last character of the line.
   )
 
 (use-package org-appear
-  ;; :load-path "~/.config/emacs/org-appear"
   :after org
   :init
   (setq org-appear-autolinks 't
@@ -916,8 +915,8 @@ Note: Last Block detection currently only checks the last character of the line.
 
 (use-package org-pretty-table
   :load-path "~/.config/emacs/org-pretty-table"
-  :after org)
-;; :hook (org-mode . org-pretty-table-mode))
+  :after org
+  :hook (org-mode . org-pretty-table-mode))
 
 (defvar-local fab/org-src-blocks-display-line-numbers--overlays '()
   "List of overlays for line numbers.")
@@ -1155,18 +1154,6 @@ Also works for numbered lists."
 
 (setq org-confirm-babel-evaluate nil)
 
-;; Automatically tangle our Emacs.org config file when we save it
-(defun fab/org-auto-tangle ()
-  (when (and (eq major-mode 'org-mode)
-             (string-equal (file-name-directory (buffer-file-name))
-                           (expand-file-name user-emacs-directory)))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-;; TODO: Optimize setting of hook
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'fab/org-auto-tangle nil t)))
-
 (setq org-latex-listings t)
 ;; TODO: Remove from snipit creation, remove geometry when exporting to beamer
 (setq org-latex-packages-alist
@@ -1222,6 +1209,22 @@ Also works for numbered lists."
 ;;                  (buffer-substring (overlay-start ov)
 ;;                                    (overlay-end ov)))))
 ;; (setq hs-set-up-overlay 'fab/hs-display-code-line-counts)
+
+(defun fab/hideshowvis-delayed-start ()
+  (interactive)
+  (run-with-timer 1 nil #'hideshowvis-minor-mode)
+  (run-with-timer 1 nil #'hideshowvis-symbols))
+
+(use-package hideshowvis
+  :load-path "~/.config/emacs/hideshowvis"
+  ;; BUG: Enabling minor mode immediately causes some strange bugs with syntax highlighting
+  ;; -> Solution: Use delayed activation
+  ;; :hook (hs-minor-mode . hideshowvis-minor-mode)
+  :init
+  (add-hook 'hs-minor-mode-hook #'fab/hideshowvis-delayed-start)
+  )
+;; BUG: Hideshowvis Mode seems to break on empty files, like the scratch buffer
+;; -> TODO: Disable on scratch buffer
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)

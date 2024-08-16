@@ -1,3 +1,4 @@
+# -*- eval: (add-hook 'after-save-hook #'org-babel-tangle nil t); -*-
 #+TITLE: Emacs init.el
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.config/emacs/init.el
 #+STARTUP: content
@@ -237,7 +238,7 @@ So removing a use-package declaration, e.g. from your initialization file, marks
 
 ** Smart Operators
 
-Currently disabled. Does have to many situations where it works in undesirable ways.
+Currently disabled. Does have too many situations where it works in undesirable ways.
 
 #+begin_src emacs-lisp :tangle no
 (use-package electric-operator
@@ -382,13 +383,13 @@ in the current window."
 ** Evil
 
 #+begin_src emacs-lisp
-(setq evil-emacs-state-cursor '("red" box))
-(setq evil-normal-state-cursor '("green" box))
-(setq evil-visual-state-cursor '("orange" box))
-(setq evil-insert-state-cursor '("lightblue" bar))
-(setq evil-replace-state-cursor '("red" hollow))
-(setq evil-operator-state-cursor '("red" hbar))
-(setq evil-motion-state-cursor '("orange" hbar))
+(setq evil-emacs-state-cursor '("seagreen" box))
+(setq evil-normal-state-cursor '("lightskyblue" box))
+(setq evil-visual-state-cursor '("lightskyblue" hollow))
+(setq evil-insert-state-cursor '("lightskyblue" bar))
+(setq evil-replace-state-cursor '("orange" hollow))
+(setq evil-operator-state-cursor '("lightskyblue" hbar))
+(setq evil-motion-state-cursor '("lightskyblue" hbar))
 
 ;; (setq evil-want-C-w-in-emacs-state 't)
 (setq evil-want-Y-yank-to-eol 't)
@@ -1211,7 +1212,6 @@ A version of =counsel-org-goto= that previews selected items.
 
 #+begin_src emacs-lisp
 (use-package org-appear
-  ;; :load-path "~/.config/emacs/org-appear"
   :after org
   :init
   (setq org-appear-autolinks 't
@@ -1233,12 +1233,14 @@ A version of =counsel-org-goto= that previews selected items.
 #+begin_src emacs-lisp
 (use-package org-pretty-table
   :load-path "~/.config/emacs/org-pretty-table"
-  :after org)
-;; :hook (org-mode . org-pretty-table-mode))
+  :after org
+  :hook (org-mode . org-pretty-table-mode))
 #+end_src
 
 ** Sidebar Outline
 
+Disabled, since it's too bugy and with =org-goto= not all too usefull.
+TODO: Find better version with outline-mode?
 #+begin_src emacs-lisp :tangle no
 (define-minor-mode org-sidebar-outline-mode
   "A minor mode for the sidebar, intended for the outline."
@@ -1576,22 +1578,6 @@ Also works for numbered lists."
 (setq org-confirm-babel-evaluate nil)
 #+end_src
 
-*** Auto Tangle Emacs.org
-
-#+begin_src emacs-lisp
-;; Automatically tangle our Emacs.org config file when we save it
-(defun fab/org-auto-tangle ()
-  (when (and (eq major-mode 'org-mode)
-             (string-equal (file-name-directory (buffer-file-name))
-                           (expand-file-name user-emacs-directory)))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-;; TODO: Optimize setting of hook
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'fab/org-auto-tangle nil t)))
-#+end_src
-
 *** Latex
 
 #+begin_src emacs-lisp
@@ -1665,19 +1651,23 @@ In case we use the default tree-sitter.
 ;; (setq hs-set-up-overlay 'fab/hs-display-code-line-counts)
 #+end_src
 
-Hideshowvis Mode is currently disabled, is it does not work correctly in to many cases.
-#+begin_src emacs-lisp :tangle no
+TODO: Compare with =hideshow-org.el= package.
+#+begin_src emacs-lisp
 (defun fab/hideshowvis-delayed-start ()
   (interactive)
-  (run-with-timer 1 nil #'hideshowvis-minor-mode))
+  (run-with-timer 1 nil #'hideshowvis-minor-mode)
+  (run-with-timer 1 nil #'hideshowvis-symbols))
 
 (use-package hideshowvis
   :load-path "~/.config/emacs/hideshowvis"
-  ;; BUG: Enabling minor mode immediatly causes some strange bugs with syntax highlighting
+  ;; BUG: Enabling minor mode immediately causes some strange bugs with syntax highlighting
+  ;; -> Solution: Use delayed activation
   ;; :hook (hs-minor-mode . hideshowvis-minor-mode)
   :init
   (add-hook 'hs-minor-mode-hook #'fab/hideshowvis-delayed-start)
   )
+;; BUG: Hideshowvis Mode seems to break on empty files, like the scratch buffer
+;; -> TODO: Disable on scratch buffer
 #+end_src
 
 ** LSP Mode
@@ -2006,46 +1996,6 @@ Usefull if an update broke a dependency and the server needs to be rebuild."
 #+end_src
 
 * AI Completion
-
-#+begin_src emacs-lisp :tangle no
-(use-package codeium
-  :load-path "~/.config/emacs/codeium.el"
-  :init
-  ;; use globally
-  (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
-  ;; if you want multiple completion backends, use cape (https://github.com/minad/cape):
-  ;; (add-hook 'python-mode-hook
-  ;;     (lambda ()
-  ;;         (setq-local completion-at-point-functions
-  ;;             (list (cape-super-capf #'codeium-completion-at-point #'lsp-completion-at-point)))))
-
-  ;; codeium-completion-at-point is autoloaded, but you can
-  ;; optionally set a timer, which might speed up things as the
-  ;; codeium local language server takes ~0.2s to start up
-  (add-hook 'emacs-startup-hook
-   (lambda () (run-with-timer 0.1 nil #'codeium-init)))
-
-  ;; :defer t ;; lazy loading, if you want
-  :config
-  ;; get codeium status in the modeline
-  (setq codeium-mode-line-enable
-        (lambda (api) (not (memq api '(CancelRequest Heartbeat AcceptCompletion)))))
-  (add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
-  ;; alternatively for a more extensive mode-line
-  ;; (add-to-list 'mode-line-format '(-50 "" codeium-mode-line) t)
-
-  ;; You can overwrite all the codeium configs!
-  ;; for example, we recommend limiting the string sent to codeium for better performance
-  (defun my-codeium/document/text ()
-    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-  ;; if you change the text, you should also change the cursor_offset
-  ;; warning: this is measured by UTF-8 encoded bytes
-  (defun my-codeium/document/cursor_offset ()
-    (codeium-utf8-byte-length
-     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-  (setq codeium/document/text 'my-codeium/document/text)
-  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
-#+end_src
 
 #+begin_src emacs-lisp
 (use-package tabnine
