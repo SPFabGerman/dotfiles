@@ -19,6 +19,11 @@
   "Return non-nil, if the current line is empty or contains only space characters."
   (string-match-p "\\`[[:space:]]*\\'" (thing-at-point 'line t)))
 
+(defun add-to-color (col radd gadd badd)
+  "Take color and add respective red, green and blue values."
+  (pcase-let* ((`(,r ,g ,b) (color-name-to-rgb col)))
+    (color-rgb-to-hex (+ r radd) (+ g gadd) (+ b badd) 2)))
+
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq gc-cons-threshold 100000000) ;; 100mb
 ;; (setq lsp-idle-delay 0.5) ;; Default
@@ -89,9 +94,13 @@
   (add-hook mode (lambda () (setq-local global-hl-line-mode nil))))
 
 (setq mouse-wheel-scroll-amount '(3))
+(setq mouse-wheel-tilt-scroll 't)
 (setq mouse-wheel-flip-direction 't)
 (setq mouse-wheel-progressive-speed nil)
 (setq scroll-step 5)
+(setq hscroll-step 0.2)
+(setq hscroll-margin 1)
+(setf (alist-get 'truncation fringe-indicator-alist) '(nil right-arrow))
 
 (require 'package)
 
@@ -122,7 +131,7 @@ So removing a use-package declaration, e.g. from your initialization file, marks
   (when use-package-compute-statistics
     (if (not after-init-time)
         (add-hook 'after-init-hook #'fab/update-selected-packages-with-use-package)
-      (let ((new-packages (hash-table-keys use-package-statistics)))
+      (let ((new-packages (sort (hash-table-keys use-package-statistics) #'string<)))
         (unless (equal package-selected-packages new-packages) ;; Only update list if it has changed, to avoid unnecessary writes to custom file
           (package--save-selected-packages new-packages)))
       (when-let ((removable (package--removable-packages)))
@@ -161,14 +170,6 @@ So removing a use-package declaration, e.g. from your initialization file, marks
 
 ;; (use-package all-the-icons)
 (use-package nerd-icons)
-
-(use-package treemacs
-  :config
-  (treemacs-project-follow-mode)
-  (setq treemacs--project-follow-delay 0)
-  (define-key treemacs-mode-map [mouse-1] #'treemacs-single-click-expand-action)
-  (treemacs-fringe-indicator-mode 0)
-  (treemacs-indent-guide-mode))
 
 (use-package no-littering)
 
@@ -456,6 +457,52 @@ Note: Last Block detection currently only checks the last character of the line.
 (use-package evil-nerd-commenter
   :general ('(normal visual) "#" 'evilnc-comment-or-uncomment-lines))
 
+(defcustom evil-contextual-next-functions-list
+      '((evil-search evil-search-next evil-search-previous
+                     evil-search-forward evil-search-backward
+                     evil-search-word-forward evil-search-word-backward)
+        (flycheck flycheck-next-error flycheck-previous-error)
+        (flyspell evil-next-flyspell-error evil-prev-flyspell-error))
+      "List of specifications for contextual next/prev commands.
+A specification is a list (ID NEXT PREV [OTHER]).")
+
+(defvar-local evil-contextual-next-current-spec 'evil-search "Currently active specification for contextual next/prev commands.")
+
+(defun evil-contextual-next--find-spec (fn)
+  "Return the specification in `evil-contextual-next-functions-list', that contains `fn'."
+  (seq-some (lambda (l) (and (seq-contains-p (cdr l) fn #'eq) (car l)))
+            evil-contextual-next-functions-list))
+
+(defun evil-contextual-next--set-spec (fn)
+  "Updates `evil-contextual-next-current-spec' to spec that contains `fn', if necessary."
+  (when-let* ((s (evil-contextual-next--find-spec fn)))
+    (setq evil-contextual-next-current-spec s)))
+
+
+
+(defun evil-contextual-next--post-command-hook ()
+  "Updates `evil-contextual-next-current-spec', if necessary."
+  (evil-contextual-next--set-spec this-command))
+(defun evil-contextual-next--command-execute-advice (fn &rest r)
+  "Updates `evil-contextual-next-current-spec', if necessary."
+  (evil-contextual-next--set-spec fn))
+
+(add-hook 'post-command-hook #'evil-contextual-next--post-command-hook)
+(advice-add #'command-execute :after #'evil-contextual-next--command-execute-advice)
+
+(defun evil-contextual-next ()
+  "Call next-function, as specified by `evil-contextual-next-current-spec' and `evil-contextual-next-functions-list'."
+  (interactive)
+  (funcall (elt (alist-get evil-contextual-next-current-spec evil-contextual-next-functions-list) 0)))
+
+(defun evil-contextual-prev ()
+  "Call prev-function, as specified by `evil-contextual-next-current-spec' and `evil-contextual-next-functions-list'."
+  (interactive)
+  (funcall (elt (alist-get evil-contextual-next-current-spec evil-contextual-next-functions-list) 1)))
+
+(evil-define-key 'motion 'global "n" #'evil-contextual-next)
+(evil-define-key 'motion 'global "N" #'evil-contextual-prev)
+
 (use-package ivy
   :diminish
   :demand t
@@ -682,7 +729,18 @@ Note: Last Block detection currently only checks the last character of the line.
   :config
   (company-prescient-mode 1))
 
-(use-package posframe)
+(use-package posframe
+  :config
+
+  ;; Shorten delay to run hidehandler
+  (defun posframe-hidehandler-daemon ()
+  "Run posframe hidehandler daemon."
+  (when (timerp posframe-hidehandler-timer)
+    (cancel-timer posframe-hidehandler-timer))
+  (setq posframe-hidehandler-timer
+        (run-with-idle-timer 0.1 t #'posframe-hidehandler-daemon-function)))
+  (posframe-hidehandler-daemon)
+)
 
 (defun fab/reshrink-window (&optional window)
   (interactive)
@@ -818,6 +876,8 @@ Note: Last Block detection currently only checks the last character of the line.
   (setq org-hidden-keywords '(title subtitle author email date))
   (setq org-indent-indentation-per-level 2)
   (setq org-startup-indented 't)
+  (setq org-startup-truncated nil)
+  (setq org-startup-with-inline-images 't)
   ;; (setq org-edit-src-content-indentation 2)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-preview-latex-image-directory (no-littering-expand-var-file-name "ltximg/"))
@@ -941,8 +1001,9 @@ Only adds line numbers to visible src blocks."
           (dotimes (i (count-lines beg-body end-body))
             (beginning-of-line)
             (when (<= ws (point) we)
-              (let ((ol (make-overlay (point) (point))))
+              (let ((ol (make-overlay (point) (line-end-position))))
                 (overlay-put ol 'before-string (propertize (format "%3s " (number-to-string (1+ i))) 'face 'line-number))
+                ;; (overlay-put ol 'wrap-prefix "    ")
                 (push ol fab/org-src-blocks-display-line-numbers--overlays)))
             (next-logical-line)))))))
 
@@ -1186,6 +1247,8 @@ Also works for numbered lists."
                       (t
                        (message "Could not open PDF File."))))))
 
+(add-hook 'prog-mode-hook (lambda () (setq truncate-lines t)))
+
 (use-package tree-sitter
   :hook (prog-mode . global-tree-sitter-mode) ;; Turn on parsing by tree sitter
   :config
@@ -1197,6 +1260,126 @@ Also works for numbered lists."
   :after tree-sitter)
 
 (setq treesit-font-lock-level 4)
+
+(use-package flycheck
+  :after lsp-mode
+  :config
+  ;; Make Error List a bit nicer, by placing it at the bottom of the screen
+  (add-to-list 'display-buffer-alist
+             `(,(rx bos "*Flycheck errors*" eos)
+              (display-buffer-reuse-window
+               display-buffer-in-side-window)
+              (side            . bottom)
+              (reusable-frames . visible)
+              (window-height   . 0.2)))
+)
+
+(defface flycheck-error-lens-error-bg
+  `((t :background ,(add-to-color (face-attribute 'default :background) 0.2 0.0 0.0) :extend t))
+  "Error Lens background face for errors.")
+
+(defface flycheck-error-lens-warning-bg
+  `((t :background ,(add-to-color (face-attribute 'default :background) 0.1 0.1 0.0) :extend t))
+  "Error Lens background face for warnings.")
+
+(defface flycheck-error-lens-info-bg
+  `((t :background ,(add-to-color (face-attribute 'default :background) 0.0 0.1 0.1) :extend t))
+  "Error Lens background face for infos.")
+
+(defun fab/flycheck-error-lens-sort-errors-by-line (e1 e2)
+  (let ((l1 (flycheck-error-line e1))
+        (l2 (flycheck-error-line e2))
+        (s1 (flycheck-error-level-severity (flycheck-error-level e1)))
+        (s2 (flycheck-error-level-severity (flycheck-error-level e2))))
+    (or (< l1 l2)
+        (and (= l1 l2) (> s1 s2)))))
+
+(defun fab/flycheck-error-lens-errors-same-line-p (e1 e2)
+  (equal (flycheck-error-line e1) (flycheck-error-line e2)))
+
+(defun fab/flycheck-add-error-lens-overlay ()
+  "Add error-lens overlay for all errors."
+  (let* ((old-ovs (seq-filter
+                   (lambda (o) (overlay-get o 'flycheck-error-lens-overlay))
+                   (overlays-in (point-min) (point-max))))
+         (all-errs flycheck-current-errors)
+         (sort-errs (seq-sort #'fab/flycheck-error-lens-sort-errors-by-line all-errs))
+         (uniq-errs (seq-uniq sort-errs #'fab/flycheck-error-lens-errors-same-line-p)))
+    (dolist (err uniq-errs)
+      (unless (flycheck-relevant-error-other-file-p err)
+        (pcase-let* ((`(,beg . ,end) (flycheck-error-region-for-mode err 'columns))
+                     (line-beg (save-excursion (goto-char beg)
+                                               (line-beginning-position)))
+                     (line-end (save-excursion (goto-char end)
+                                               (line-end-position)))
+                     (overlay (make-overlay line-beg (1+ line-end)))
+                     (overlay-msg (make-overlay line-end line-end))
+                     (message (flycheck-error-message err))
+                     (level (flycheck-error-level err))
+                     (severity (get level 'flycheck-compilation-level))
+                     (priority (pcase severity
+                                 (2 '(nil . 110))
+                                 (1 '(nil . 100))
+                                 (0 '(nil . 90))))
+                     (bg-face (pcase severity
+                                (2 'flycheck-error-lens-error-bg)
+                                (1 'flycheck-error-lens-warning-bg)
+                                (0 'flycheck-error-lens-info-bg)))
+                     (fg-face (pcase severity
+                                (2 'error)
+                                (1 'warning)
+                                (0 'success))))
+          (setf (overlay-get overlay 'flycheck-error-lens-overlay) t)
+          (setf (overlay-get overlay 'face) bg-face)
+          (setf (overlay-get overlay 'priority) priority)
+          (setf (overlay-get overlay-msg 'flycheck-error-lens-overlay) t)
+          (setf (overlay-get overlay-msg 'after-string)
+                (propertize (concat "   " (seq-elt (string-lines message) 0))
+                            'face `(,bg-face ,fg-face)))
+          (setf (overlay-get overlay-msg 'priority) priority)
+          )))
+    (seq-do #'delete-overlay old-ovs)
+    ))
+
+(add-hook 'flycheck-after-syntax-check-hook #'fab/flycheck-add-error-lens-overlay)
+
+(use-package flycheck-posframe
+  :after flycheck
+  :hook (flycheck-mode . flycheck-posframe-mode)
+  :config
+  (flycheck-posframe-configure-pretty-defaults)
+  (setq flycheck-posframe-error-prefix "✖ ") ;; Use a symbol that works with a monospace font
+  (set-face-attribute 'flycheck-posframe-info-face nil :foreground 'unspecified :inherit 'success)
+  (setq flycheck-posframe-border-width 1)
+  (setq flycheck-clear-displayed-errors-function (lambda () (posframe-hide flycheck-posframe-buffer)))
+
+  ;; Overwrite function to show all errors on current line
+  (defun flycheck-display-error-at-point ()
+    "Display all the error messages at point.
+
+If there are no errors, clears the error messages at point."
+    (interactive)
+    ;; This function runs from a timer, so we must take care to not ignore any
+    ;; errors
+    (with-demoted-errors "Flycheck error display error: %s"
+      (flycheck-cancel-error-display-error-at-point-timer)
+      (when flycheck-mode
+        (let ((errors (flycheck-overlay-errors-in (line-beginning-position)
+                                                  (line-end-position))))
+          (if errors
+              (flycheck-display-errors errors)
+            (flycheck-clear-displayed-errors))))))
+
+  ;; Better display for errors
+  (defun flycheck-posframe-format-error (err)
+    "Formats ERR for display."
+    (propertize (concat
+                 (flycheck-posframe-get-prefix-for-error err)
+                 (string-join (string-lines (flycheck-error-message err)) "\n  "))
+                'face
+                `(:inherit ,(flycheck-posframe-get-face-for-error err))))
+
+)
 
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 (setq hs-isearch-open t) ;; Open code and comments when searching
@@ -1220,11 +1403,11 @@ Also works for numbered lists."
   ;; BUG: Enabling minor mode immediately causes some strange bugs with syntax highlighting
   ;; -> Solution: Use delayed activation
   ;; :hook (hs-minor-mode . hideshowvis-minor-mode)
+  ;; BUG: hs-mode is also enabled by other modes (like org-mode) which causes hideshowvis to break
+  ;; -> Only enable explicitly in LSP Mode
   :init
-  (add-hook 'hs-minor-mode-hook #'fab/hideshowvis-delayed-start)
+  (add-hook 'lsp-mode-hook #'fab/hideshowvis-delayed-start)
   )
-;; BUG: Hideshowvis Mode seems to break on empty files, like the scratch buffer
-;; -> TODO: Disable on scratch buffer
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
@@ -1255,9 +1438,6 @@ Also works for numbered lists."
     (lsp-format-buffer)))
 
 (add-hook 'lsp-mode-hook (lambda () (add-hook 'before-save-hook #'fab/lsp-maybe-format-on-save nil 'local)))
-
-(use-package flycheck
-  :after lsp-mode) ;; TODO: Configure
 
 (use-package yasnippet
   :hook (lsp-mode . yas-minor-mode)
