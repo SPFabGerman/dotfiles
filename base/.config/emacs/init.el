@@ -259,7 +259,6 @@ in the current window."
 ;; (setq evil-want-C-w-in-emacs-state 't)
 (setq evil-want-Y-yank-to-eol 't)
 (setq evil-want-C-u-scroll 't)
-(setq evil-want-C-i-jump nil)
 ;; (setq evil-respect-visual-line-mode 't)
 (setq evil-split-window-below 't)
 (setq evil-vsplit-window-right 't)
@@ -274,6 +273,10 @@ in the current window."
 (setq evil-symbol-word-search t)
 
 (use-package evil)
+
+;; I use my own jump list implementation (see below). This removes the default evil implementation.
+(remove-hook 'evil-local-mode-hook #'evil--jumps-install-or-uninstall)
+
 (evil-mode 1)
 ;; (add-to-list 'evil-insert-state-modes 'vterm-mode)
 (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -297,7 +300,10 @@ in the current window."
   :after evil
   :config
   ;; (delete 'info evil-collection-mode-list)
-  (evil-collection-init))
+  (setq evil-collection-want-unimpaired-p nil)
+  (evil-collection-init)
+  (evil-collection-require 'unimpaired) ;; I like to have the functionality of unimparied, but not the keybindings
+  )
 
 (defun avy-goto-org-table ()
   "Avy navigation of cells in org-mode tables.  'SPC' can be used to jump to blank cells. "
@@ -395,6 +401,12 @@ in the current window."
   ;; Terminal style paste
   "C-S-V" '(lambda () (interactive) (evil-paste-before 1) (right-char)))
 
+;; More [/] (forward/backward) bindings
+(general-def 'normal
+  ;; Quick buffer jumping
+  "[ b" 'evil-prev-buffer
+  "] b" 'evil-next-buffer)
+
 (general-imap "j"
               (general-key-dispatch 'self-insert-command
                 :timeout 0.1
@@ -444,10 +456,9 @@ Note: Last Block detection currently only checks the last character of the line.
 
 (fab/leader-def :infix "f"
   ""  '(:ignore t :wk "Files")
-  "f" 'find-file
-  "r" '(counsel-recentf :wk "Recent Files")
+  "f" '(find-file :wk "Open")
+  "r" '(counsel-recentf :wk "Recent")
   "m" '(bookmark-jump :wk "Bookmarks")
-  "e" 'treemacs
   )
 
 (fab/leader-def "p" '(:keymap project-prefix-map :wk "Projects"))
@@ -461,7 +472,8 @@ Note: Last Block detection currently only checks the last character of the line.
       '((evil-search evil-search-next evil-search-previous
                      evil-search-forward evil-search-backward
                      evil-search-word-forward evil-search-word-backward)
-        (flycheck flycheck-next-error flycheck-previous-error)
+        (flycheck flycheck-next-error flycheck-previous-error
+                  flycheck-first-error)
         (flyspell evil-next-flyspell-error evil-prev-flyspell-error))
       "List of specifications for contextual next/prev commands.
 A specification is a list (ID NEXT PREV [OTHER]).")
@@ -502,6 +514,53 @@ A specification is a list (ID NEXT PREV [OTHER]).")
 
 (evil-define-key 'motion 'global "n" #'evil-contextual-next)
 (evil-define-key 'motion 'global "N" #'evil-contextual-prev)
+
+(defcustom point-undo-line-delta 1 "Amount of Lines, before the current position is put into undo-list.")
+
+(defun point-undo--pre-command-hook ()
+  (let ((prev-pos (or (window-parameter nil 'point-undo--prev-pos)
+                      (set-window-parameter nil 'point-undo--prev-pos (make-marker)))))
+    (set-marker prev-pos (point) (current-buffer))))
+
+(defun point-undo--post-command-hook ()
+  (let ((prev-pos (window-parameter nil 'point-undo--prev-pos)))
+    (unless (memq this-command '(point-undo point-redo))
+      (when (and prev-pos (marker-buffer prev-pos) (marker-position prev-pos)
+                 (or (not (equal (marker-buffer prev-pos) (current-buffer)))
+                     (not (<= (- (line-number-at-pos prev-pos t) point-undo-line-delta)
+                              (line-number-at-pos (point) t)
+                              (+ (line-number-at-pos prev-pos t) point-undo-line-delta)))))
+        (push (copy-marker prev-pos) (window-parameter nil 'point-undo-list)))
+      (set-window-parameter nil 'point-redo-list nil))
+    (when prev-pos
+      (set-marker prev-pos nil))))
+
+(defun point-undo--goto-marker (marker)
+  (when (and marker (marker-buffer marker) (marker-position marker))
+    (switch-to-buffer (marker-buffer marker))
+    (goto-char marker)
+    (set-marker marker nil)))
+
+(defun point-undo ()
+  "Undo position."
+  (interactive)
+  (when (window-parameter nil 'point-undo-list)
+    (push (point-marker) (window-parameter nil 'point-redo-list))
+    (point-undo--goto-marker (pop (window-parameter nil 'point-undo-list)))))
+
+(defun point-redo ()
+  "Redo position."
+  (interactive)
+  (when (window-parameter nil 'point-redo-list)
+    (push (point-marker) (window-parameter nil 'point-undo-list))
+    (point-undo--goto-marker (pop (window-parameter nil 'point-redo-list)))))
+
+
+
+(add-hook 'pre-command-hook #'point-undo--pre-command-hook)
+(add-hook 'post-command-hook #'point-undo--post-command-hook)
+(evil-define-key 'normal 'global (kbd "C-o") #'point-undo)
+(evil-define-key 'normal 'global (kbd "C-i") #'point-redo)
 
 (use-package ivy
   :diminish
@@ -1272,7 +1331,16 @@ Also works for numbered lists."
               (side            . bottom)
               (reusable-frames . visible)
               (window-height   . 0.2)))
-)
+
+  ;; Add better bindings
+  (general-def 'normal flycheck-mode-map
+    "[ e" 'flycheck-previous-error
+    "] e" 'flycheck-next-error
+    "[ E" 'flycheck-first-error
+    ;; No corresponding last error function, only evil unimpaired one
+    ;; "] E" 'evil-collection-unimpaired-last-error
+    )
+  )
 
 (defface flycheck-error-lens-error-bg
   `((t :background ,(add-to-color (face-attribute 'default :background) 0.2 0.0 0.0) :extend t))
