@@ -95,7 +95,10 @@ cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print prim
 map <c-r> :preview-reset;redraw;reload;update-prompt
 
 cmd on-select &{{
-    lf -remote "send $id set statfmt \" $(exa -l --color=always --icons -F --git -d "$f")\""
+    exa-help () {
+        timeout 0.05s exa -l --color=always --icons -F --git -d --total-size "$1" || exa -l --color=always --icons -F --git -d "$1"
+    }
+    lf -remote "send $id set statfmt \" $(exa-help "$f")\""
 }}
 
 cmd pre-cd :{{
