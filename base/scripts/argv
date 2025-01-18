@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script returns every argument. Good for debugging how the shell parses arguments.
 

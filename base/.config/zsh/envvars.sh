@@ -62,14 +62,15 @@ fi
 
 # === Change config file locations ===
 
+# Don't set environment variables, if we are NixOS, since some of these need to be set by Nix and are otherwise easily wrong
+if [ "$HOST" != "fabians-nix-tuxedo" ]; then
+
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_DATA_DIRS="/usr/local/share:/usr/share"
 export XDG_CONFIG_DIRS="/etc/xdg"
 
-export XINITRC="$XDG_CONFIG_HOME/xinitrc"
-export XAUTHORITY="$XDG_CACHE_HOME/Xauthority"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
@@ -97,6 +98,12 @@ export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
 export SSB_HOME="$XDG_DATA_HOME/zoom"
 export WGETRC="$XDG_CONFIG_HOME/wgetrc"
+
+fi
+
+export XINITRC="$XDG_CONFIG_HOME/xinitrc"
+export XAUTHORITY="$XDG_CACHE_HOME/Xauthority"
+export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose-cache"
 
 export LESSHISTFILE="-" # Remove Less History File
 

@@ -8,12 +8,12 @@ exec &> ~/.cache/xinitrc.log
 # See also: https://bugs.archlinux.org/task/77789
 # Also see the relevant files: /etc/X11/xorg.conf.d/00-keyboard.conf and /usr/share/X11/xkb/symbols/custom
 # If this bug is fixed, both of these files can be deleted again and the layout can be changed from custom to de.
-# setxkbmap de
-setxkbmap custom
-# xmodmap -e 'keysym Caps_Lock = Shift_L' # Caps Lock to shift
+setxkbmap de
+# setxkbmap custom
+xmodmap -e 'keysym Caps_Lock = Shift_L' # Caps Lock to shift
 # xmodmap -e 'keysym dead_circumflex = asciicircum degree' # Only one tap needed for circumflex
-# xmodmap -e 'keycode 49 = asciicircum degree' # The above line is bugged and also changes 'ä', for some reason?
-# xmodmap -e 'keysym dead_acute = grave acute' # Change Grave order
+xmodmap -e 'keycode 49 = asciicircum degree' # The above line is bugged and also changes 'ä', for some reason?
+xmodmap -e 'keysym dead_acute = grave acute' # Change Grave order
 
 xsetroot -name ""
 xsetroot -cursor_name left_ptr
@@ -45,7 +45,7 @@ udiskie -s &
 picom &
 
 # Start Gnome Polkit for later authentication (needed by systemctl for example)
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+# /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Autostart applications
 dex -a -e Awesome --term alacritty

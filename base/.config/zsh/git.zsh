@@ -103,6 +103,8 @@ alias grst='git restore --staged'
 
 alias gst='git status'
 
+alias gqs='git quicksave'
+
 function grename() {
   if [[ -z "$1" || -z "$2" ]]; then
     echo "Usage: $0 old_branch new_branch"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 BACKUP_CMD="cp"
 BACKUP_FOLDER=~/.backup

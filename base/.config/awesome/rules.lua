@@ -44,8 +44,8 @@ awful.rules.rules = {
     },
 
     {
-        rule = {
-            class = "Dragon-drop"
+        rule_any = {
+            class = { "Dragon-drop", "Xdragon" }
         },
         properties = {
             sticky = true

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # A Wrapper for Lf, which sets up some tmux options
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # This Script is a wrapper around the i3 screen locker.
 
