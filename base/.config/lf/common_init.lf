@@ -55,6 +55,13 @@ cmap <down> cmd-history-next
 map <c-r> :redraw;reload
 map u :clear;unselect
 
+# Setup stub tmux commands.
+# These commands may later be overwritten by tmux_commands.lf
+cmd _tmux_not_found :echoerr "Not in a TMUX session."
+cmd tmux-splith _tmux_not_found
+cmd tmux-splitv _tmux_not_found
+cmd tmux-create _tmux_not_found
+
 
 
 # === Common Commands ===

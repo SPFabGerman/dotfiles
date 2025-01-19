@@ -2,14 +2,15 @@
 # It overrides some commands defined in common_init.lf
 # This file assumes lf is run in a tmux session! If that is not the case, these commands will not work correctly!
 # (This assumption is made to keep the commands simple and without much interruption.)
-# Load this file with the following code: (The sleep ensures that the lf server is ready for remote commands.)
-# TODO: Look for a better way to solve this than using sleep.
-# &{{
-#     if [[ -n "$TMUX" ]]; then
-#         sleep 1
-#         lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
-#     fi
-# }}
+# Load this file with the following code, right after loading common_init.lf:
+# $[[ -n "$TMUX" ]] && lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
+
+# Show title set by lf (should be the current path). When not in an lf pane, use default behaviour.
+&tmux set-option -w automatic-rename-format "#{?#{m/r:lf|nvim,#{pane_current_command}},#{pane_title},$(tmux show-options -wgv automatic-rename-format)}"
+
+cmd tmux-splith &tmux split-window -h lf
+cmd tmux-splitv &tmux split-window -v lf
+cmd tmux-create &tmux new-window -c ~ lf
 
 # cmd open &tmux new-window -d mimeopen -n "$f"
 # cmd open-with &tmux split -l 15 setsid -w mimeopen -a "$f"
@@ -19,10 +20,10 @@ cmd open-with-editor &tmux new-window $EDITOR "$f"
 
 cmd _tmux_edit_stop :set preview; set ratios 1:2:2
 cmd edit :{{
-    # Do this in lf, for slightly smoother transition
+    # Run this command in lf, for slightly smoother transition
     :set nopreview; set ratios 1:2
-    # TODO: Solve with hook and not a wrapper script, if possible
-    $tmux split-window -h -l 40% -e id=$id ~/.config/lf/editor_tmux_wrapper.sh "$f"
+    # TODO: Solve with hook and not a stop command, if possible
+    $tmux split-window -h -l 40% "$EDITOR \"$f\"; lf -remote \"send $id _tmux_edit_stop\""
 }}
 
 cmd terminal &{{

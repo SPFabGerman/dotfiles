@@ -1,11 +1,5 @@
 source ~/.config/lf/common_init.lf
-
-&{{
-    if [[ -n "$TMUX" ]]; then
-        sleep 1
-        lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
-    fi
-}}
+$[[ -n "$TMUX" ]] && lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
 
 # Bookmarks
 $generate_bookmark_aliases lf > ~/.config/lf/bookmarks.lf
@@ -37,10 +31,10 @@ map n next-dir
 map N prev-dir
 
 # create new files and directories
+map c
 map cf push :create-file<space>
 map cd push :create-dir<space>
 map ca push :create-archive<space>
-map c
 
 # move and deletion of files
 map m rename
@@ -61,6 +55,12 @@ map od open-with-new-default
 map oe open-with-editor
 map oE open-with-external-editor
 map e edit
+
+# Tmux window mappings
+map w
+map ws tmux-splith
+map wv tmux-splitv
+map wc tmux-create
 
 # Shells and Terminals
 map t terminal
