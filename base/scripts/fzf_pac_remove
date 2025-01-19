@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-pacman -Qq | fzf --multi --preview 'COLUMNS=$FZF_PREVIEW_COLUMNS pacman -Qi {1}' | xargs -ro doas pacman -Rs
-

@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-man -k . | awk '{print $1}' | fzf --reverse --preview='MANWIDTH=$FZF_PREVIEW_COLUMNS man {} 2>/dev/null' | xargs -ro man
-
