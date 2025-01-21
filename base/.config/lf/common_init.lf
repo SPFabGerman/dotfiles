@@ -45,6 +45,7 @@ set shellopts '-e'
 set dupfilefmt "%b.~%n~%e"
 
 
+
 # === Common Mappings ===
 
 # Command Mode Mappings to access history
@@ -55,13 +56,6 @@ cmap <down> cmd-history-next
 map <c-r> :redraw;reload
 map u :clear;unselect
 
-# Setup stub tmux commands.
-# These commands may later be overwritten by tmux_commands.lf
-cmd _tmux_not_found :echoerr "Not in a TMUX session."
-cmd tmux-splith _tmux_not_found
-cmd tmux-splitv _tmux_not_found
-cmd tmux-create _tmux_not_found
-
 
 
 # === Common Commands ===
@@ -71,36 +65,30 @@ cmd create-file $touch "$@"
 cmd create-dir $mkdir "$@"
 
 cmd create-archive !{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
     if [[ "$#" -eq 0 ]]; then
         echo "Please provide an archive name."
         exit 1
     fi
 
-	apack "$@" $fx
+    apack "$@" $fx
 }}
 
 # TODO: Better Link creation, when no file is selected
 cmd link %{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
-	ln -si -t $PWD $fx
+    ln -si -t $PWD $fx
 }}
 
 cmd link-relative %{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
-	ln -sir -t $PWD $fx
+    ln -sir -t $PWD $fx
 }}
 
 cmd follow-link %{{
@@ -109,101 +97,95 @@ cmd follow-link %{{
 }}
 
 cmd trash %{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
-	printf "Really Trash? [y/N]"
-	read ans
-	# Use command to avoid recursion
-	[ "$ans" = "y" ] && command trash-put $fx
+    printf "Really Trash? [y/N]"
+    read ans
+    # Use command to avoid recursion
+    [ "$ans" = "y" ] && command trash-put $fx
 }}
+
 cmd backup %{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
-	printf "Create Backup? [y/N]"
-	read ans
-	# Use command to avoid recursion
-	[ "$ans" = "y" ] && command backup $fx && echo "Backup created!"
+    printf "Create Backup? [y/N]"
+    read ans
+    # Use command to avoid recursion
+    [ "$ans" = "y" ] && command backup $fx && echo "Backup created!"
 }}
+
 cmd jump ${{
     cd ~
-	# DIR=$(bfs ~ -type d 2>/dev/null | fzf --header='LF - Jump To: ' --preview='exa -aFT -L1 --icons --group-directories-first --color=always {}' --keep-right)
+    # DIR=$(bfs ~ -type d 2>/dev/null | fzf --header='LF - Jump To: ' --preview='exa -aFT -L1 --icons --group-directories-first --color=always {}' --keep-right)
     export FZF_DEFAULT_COMMAND=" "
     RELOAD_CMD='bfs ~ -type d -iname "*$(echo {q} | cut -d " " -f 1)*" -printf "%P\n"'
     PREVIEW_CMD='exa -aFT -L1 --icons --group-directories-first --color=always ./{}'
-	DIR=$(fzf --header='LF - Jump To: ' --preview="$PREVIEW_CMD" --bind "change:reload($RELOAD_CMD)" --exact --scheme=path --tiebreak=length,end,index)
-	[ "$DIR" ] && lf -remote "send $id cd \"$HOME/$DIR\""
+    DIR=$(fzf --header='LF - Jump To: ' --preview="$PREVIEW_CMD" --bind "change:reload($RELOAD_CMD)" --exact --scheme=path --tiebreak=length,end,index)
+    [ "$DIR" ] && lf -remote "send $id cd \"$HOME/$DIR\""
 }}
+
 cmd search-deep ${{
-	DIR=$(bfs . 2>/dev/null | fzfp --header='LF - Jump To: ' --scheme=path -d "/" -n -1)
-	[ "$DIR" ] && lf -remote "send $id select \"$DIR\""
+    DIR=$(bfs . 2>/dev/null | fzf --header='LF - Jump To: ' --scheme=path -d "/" -n -1)
+    [ "$DIR" ] && lf -remote "send $id select \"$DIR\""
 }}
+
 cmd multi-select ${{
     export FZF_DEFAULT_COMMAND="find . -path './*'"
     RELOAD_CMD='find . -path {q}'
-	PATTERN=$(fzfp --header='Pattern:' --header-first --bind "change:reload($RELOAD_CMD)" -q "./*" --disabled --no-sort --print-query | head -n 1)
-	[ "$PATTERN" ] && lf -remote "send $id toggle $(find . -path "$PATTERN" -printf '"%P" ')"
+    PATTERN=$(fzf --header='Pattern:' --header-first --bind "change:reload($RELOAD_CMD)" -q "./*" --disabled --no-sort --print-query | head -n 1)
+    [ "$PATTERN" ] && lf -remote "send $id toggle $(find . -path "$PATTERN" -printf '"%P" ')"
     stpvimgclr
 }}
 
 cmd next-dir :{{
-	updir
-	set dironly
-	down
-	set nodironly
-	open
+    updir
+    set dironly
+    down
+    set nodironly
+    open
 }}
+
 cmd prev-dir :{{
-	updir
-	set dironly
-	up
-	set nodironly
-	open
+    updir
+    set dironly
+    up
+    set nodironly
+    open
 }}
 
 cmd copy-path-full &echo -n "$fx" | xclip -in -selection clipboard
 cmd copy-path-relative &echo -n "$fx" | sed "s|^$PWD|.|" | xclip -in -selection clipboard
 cmd copy-to-clipboard &{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
+
     xclip-copyfile $fx
 }}
 
 cmd drag-and-drop &{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
     xdragon -T -x -a $fx
 }}
 
 cmd move-from ${{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
     DEST="$PWD"
     cd "${1/\~/$HOME}"
-    FILES="$(ls -t | fzfp -m +s --header="Move from $1:")"
+    FILES="$(ls -t | fzf -m +s --header="Move from $1:")"
     mv -t "$DEST" -i $FILES
     LAST="$(echo "$FILES" | tail -n 1)"
     lf -remote "send $id select \"$DEST/$LAST\""
 }}
 
 cmd rename-all !{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
+    set -f # disable globbing
+    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
 
     clear
 
@@ -222,6 +204,15 @@ cmd open-with-external-editor &setsid $TERMINAL -e $EDITOR "$f"
 cmd edit $$EDITOR "$f"
 cmd terminal $$SHELL
 cmd terminal-extern &unset LF_LEVEL; setsid -f $TERMINAL -e $SHELL
+
+# Setup stub tmux commands.
+# These commands may later be overwritten by tmux_commands.lf
+cmd _tmux_not_found :echoerr "Not in a TMUX session."
+cmd tmux-splith _tmux_not_found
+cmd tmux-splitv _tmux_not_found
+cmd tmux-create _tmux_not_found
+
+
 
 # === Common Extensions ===
 

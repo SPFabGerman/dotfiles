@@ -1,43 +1,43 @@
 cmd filter-interactive :{{
 
-	cmap <right> :{{
-		cmd-enter
-		setfilter ""
-		open
-		filter
-	}}
-	cmap <left> :{{
-		cmd-enter
-		setfilter ""
-		updir
-		filter
-	}}
-	cmap <up> up
-	cmap <down> down
-	cmap <c-g> top
+    cmap <right> :{{
+        cmd-enter
+        setfilter ""
+        open
+        filter
+    }}
+    cmap <left> :{{
+        cmd-enter
+        setfilter ""
+        updir
+        filter
+    }}
+    cmap <up> up
+    cmap <down> down
+    cmap <c-g> top
 
-	cmd _filter-interactive-reset :{{
-		cmap <enter> cmd-enter
-		cmap <esc> cmd-escape
-		cmap <up> cmd-history-prev
-		cmap <down> cmd-history-next
-		cmap <left> cmd-left
-		cmap <right> cmd-right
-		cmap <c-g>
-	}}
+    cmd _filter-interactive-reset :{{
+        cmap <enter> cmd-enter
+        cmap <esc> cmd-escape
+        cmap <up> cmd-history-prev
+        cmap <down> cmd-history-next
+        cmap <left> cmd-left
+        cmap <right> cmd-right
+        cmap <c-g>
+    }}
 
-	cmap <esc> :{{
-		# cmd-escape
-		cmd-enter
-		setfilter ""
-		_filter-interactive-reset
-	}}
+    cmap <esc> :{{
+        # cmd-escape
+        cmd-enter
+        setfilter ""
+        _filter-interactive-reset
+    }}
 
-	cmap <enter> :{{
-		cmd-enter
-		_filter-interactive-reset
-	}}
+    cmap <enter> :{{
+        cmd-enter
+        _filter-interactive-reset
+    }}
 
-	filter
+    filter
 }}
 
