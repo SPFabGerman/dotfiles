@@ -106,16 +106,6 @@ cmd trash %{{
     [ "$ans" = "y" ] && command trash-put $fx
 }}
 
-cmd backup %{{
-    set -f # disable globbing
-    IFS="$(printf '\n\t')" # Set IFS to avoid problems with spaces in filenames
-
-    printf "Create Backup? [y/N]"
-    read ans
-    # Use command to avoid recursion
-    [ "$ans" = "y" ] && command backup $fx && echo "Backup created!"
-}}
-
 cmd jump ${{
     cd ~
     # DIR=$(bfs ~ -type d 2>/dev/null | fzf --header='LF - Jump To: ' --preview='exa -aFT -L1 --icons --group-directories-first --color=always {}' --keep-right)
