@@ -1,14 +1,8 @@
 source ~/.config/lf/common_init.lf
-$[[ -n "$TMUX" ]] && lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
-
-# Bookmarks
-$generate_bookmark_aliases lf > ~/.config/lf/bookmarks.lf
 source ~/.config/lf/bookmarks.lf
-cmd edit-bookmarks ${{
-    nvim ~/.config/bookmarks
-    generate_bookmark_aliases lf > ~/.config/lf/bookmarks.lf
-    lf -remote "send $id source ~/.config/lf/bookmarks.lf"
-}}
+&[[ -n "$TMUX" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/tmux_commands.lf")
+
+load-bookmarks
 map B edit-bookmarks
 
 # Previewer

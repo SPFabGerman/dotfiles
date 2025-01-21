@@ -1,0 +1,22 @@
+# This file defines commands to generate bookmark mappings.
+# Load this file with `source ~/.config/lf/bookmarks.lf`
+# and then run the load-bookmarks command
+
+cmd load-bookmarks :{{
+    ${{
+        mkdir -p ~/.cache/lf
+
+        # Generate Aliases
+        [[ -f ~/.config/bookmarks ]] && sed '/^$/d' ~/.config/bookmarks | while read line; do
+            # printf "lf -remote \"send \$id map b%s cd %s\"\n" $line
+            printf "map b%s cd %s\n" $line
+        done > ~/.cache/lf/bookmarks.lf
+    }}
+    source ~/.cache/lf/bookmarks.lf
+}}
+
+cmd edit-bookmarks :{{
+    $nvim ~/.config/bookmarks
+    load-bookmarks
+}}
+
