@@ -182,16 +182,7 @@ cmd drag-and-drop &{{
 	# Set IFS to avoid problems with spaces in filenames
 	IFS="$(printf '\n\t')"
 
-    dragon-drop -T -x -a $fx
-}}
-
-cmd drag-and-drop-all &{{
-	# disable globbing
-	set -f
-	# Set IFS to avoid problems with spaces in filenames
-	IFS="$(printf '\n\t')"
-
-    dragon-drop -T -A $fx
+    xdragon -T -x -a $fx
 }}
 
 cmd move-from ${{
