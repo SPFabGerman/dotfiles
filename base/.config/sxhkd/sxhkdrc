@@ -1,7 +1,7 @@
 # === Starting / Reloading ===
 super + space
     pgrep nwg-drawer || \
-        ( nwg-drawer -nofs -nocats -term alacritty -c 10 -r &> /dev/null & \
+        ( nwg-drawer -nofs -nocats -term kitty -c 10 -r &> /dev/null & \
         sleep 0.5 ); \
     nwg-drawer &> /dev/null
 
@@ -13,21 +13,21 @@ super + q
 
 # === Terminal Stuff ===
 super + t
-	alacritty
+	kitty
 super + a ; t
-    alacritty
+    kitty
 
 super + a ; v
-	alacritty -e bash -c 'sleep 0.1; exec nvim'
+	kitty bash -c 'sleep 0.1; exec nvim'
 super + a ; e
 	emacs
 
 super + a ; c
-    alacritty -e python3 -i ~/.config/python/pycalc.py
+    kitty python3 -i ~/.config/python/pycalc.py
 
 # Some Quick Terminal Stuff
 super + f
-    alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh
+    kitty tmux new-session lf
 
 super + e
     alacritty --title "Edit Script" -e bash -c ~/.config/sxhkd/edit_selector.zsh
@@ -39,7 +39,6 @@ super + a ; s
 
 super + a ; m
 	thunderbird
-	# mailspring
 
 
 # === Dmenu Stuff ===
@@ -47,7 +46,7 @@ super + a ; u
 	$HOME/build/unicode_copy/unicode_copy.sh
 
 super + a ; b
-    alacritty --title "BTop" -e btop
+    kitty --title "BTop" btop
 	# $HOME/bin/rofi-bluetooth
 
 # === System Controll ===

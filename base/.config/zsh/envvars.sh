@@ -54,6 +54,10 @@ if isInstalled "alacritty"; then
 	export TERMINAL="alacritty"
 fi
 
+if isInstalled "kitty"; then
+	export TERMINAL="kitty"
+fi
+
 # If ssh-agent is running, but no socket was configured assume default socket path
 # as specified in user systemd ssh-agent.service file.
 if pgrep ssh-agent &>/dev/null && [[ -z "$SSH_AUTH_SOCK" ]]; then
