@@ -6,11 +6,11 @@ load-bookmarks
 map B edit-bookmarks
 
 # Previewer
-set sixel
 set previewer ctpv
 set cleaner ctpvclear
 &ctpv -s $id
-&ctpvquit $id
+# This is more responsive than the included ctpvquit, which only acts after a small delay
+cmd on-quit &ctpv -e $id
 cmd preview-reset ${{
     ctpv -e $id
     sleep .1

@@ -99,7 +99,7 @@ zstyle ':completion:*' completer _expand _complete
 
 # === Custom Completion Definitions ===
 
-compdef _gnu_generic xournalpp fzf pplatex ppdflatex dragon-drop apack aunpack als acat adiff arepack
+compdef _gnu_generic xournalpp fzf pplatex ppdflatex xdragon apack aunpack als acat adiff arepack
 compdef colormake=make
 
 # Better ordering for make

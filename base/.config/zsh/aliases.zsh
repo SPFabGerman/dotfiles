@@ -8,8 +8,12 @@
 set -a no_alias_expand
 no_alias_expand=(gcc gdb ls cp mv grep eza dotfiles make --help watch diff dust qmv)
 
-# Source Fast CD Aliases
-eval "$(generate_bookmark_aliases bash)"
+# Generate Bookmark Aliases
+[[ -f ~/.config/bookmarks ]] && sed '/^$/d' ~/.config/bookmarks | while read line; do
+    M="$(echo "$line" | cut -d " " -f 1)"
+    D="$(echo "$line" | cut -d " " -f 2)"
+    alias b${M}="cd ${D}"
+done
 
 # Reset Shell
 alias esh='exec $SHELL'

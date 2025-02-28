@@ -8,8 +8,8 @@
 # Show title set by lf (should be the current path). When not in an lf pane, use default behaviour.
 &tmux set-option -w automatic-rename-format "#{?#{m/r:lf|nvim,#{pane_current_command}},#{pane_title},$(tmux show-options -wgv automatic-rename-format)}"
 
-cmd tmux-splith &tmux split-window -h lf
-cmd tmux-splitv &tmux split-window -v lf
+cmd tmux-splith &tmux split-window -v lf
+cmd tmux-splitv &tmux split-window -h lf
 cmd tmux-create &tmux new-window -c ~ lf
 
 # cmd open &tmux new-window -d mimeopen -n "$f"
