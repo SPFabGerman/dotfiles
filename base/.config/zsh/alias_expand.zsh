@@ -1,13 +1,6 @@
 if [[ "${+no_alias_expand}" -ne 1 ]]; then
-    set -a no_alias_expand
-    no_alias_expand=()
+    set -A no_alias_expand
 fi
-
-function ne_alias()
-{
-    alias $1
-    no_alias_expand+=(${1%%\=*})
-}
 
 function expand-alias()
 {

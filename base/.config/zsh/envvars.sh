@@ -25,12 +25,12 @@ export LC_TIME="de_DE.UTF-8"
 
 # === Config some programms ===
 
-# LS Colors and LF Icons
+# LS Colors
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 eval "$(dircolors -b ~/.config/zsh/.dircolors)"
-isInstalled "lf" && [ -f ~/.config/lf/lficons.sh ] && source ~/.config/lf/lficons.sh
 
 export LESS="-R --use-color -i -j.25 -a --mouse"
+export WATCH_INTERVAL=1
 
 # Setup FZF
 if isInstalled "fzf"; then
@@ -60,6 +60,7 @@ fi
 
 # If ssh-agent is running, but no socket was configured assume default socket path
 # as specified in user systemd ssh-agent.service file.
+# TODO: Check if this is the right thing to do
 if pgrep ssh-agent &>/dev/null && [[ -z "$SSH_AUTH_SOCK" ]]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi

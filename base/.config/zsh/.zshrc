@@ -3,10 +3,6 @@ HISTFILE="$ZSH_CACHE_DIR/zsh_history"
 HISTSIZE=500000
 SAVEHIST=100000
 
-# Generation of extra completion files
-zstyle :plugin:zsh-completion-generator programs lf mimetype
-source "$ZDOTDIR/zsh-completion-generator/zsh-completion-generator.plugin.zsh"
-
 # Load all config files
 for config_file ("$ZDOTDIR"/*.zsh(N)); do
   source "$config_file"
@@ -33,4 +29,3 @@ source "$ZDOTDIR/F-Sy-H/F-Sy-H.plugin.zsh"
 
 # Remove arguments, that have remained from somewhere
 shift $#
-

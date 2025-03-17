@@ -35,8 +35,6 @@ autoload edit-command-line
 zle -N edit-command-line
 bindkey '^E' edit-command-line
 
-bindkey 'u' zle-upify
-
 # lfcd
 bindkey 'o' lfcd
 

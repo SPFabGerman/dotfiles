@@ -70,29 +70,47 @@ EXEC 32
 .sh 32
 .zsh 32
 
-# === All Code Files === (cyan)
-.c 36
-.cpp 36
-.h 36
-.py 36
-.java 36
-.s 36
-.asm 36
-.md 36
-.tex 36
-.go 36
-.vim 36
+# === Code Files === (blue)
+.c 34
+.cpp 34
+.h 34
+.py 34
+.java 34
+.s 34
+.asm 34
+.tex 34
+.sty 34
+.bib 34
+.go 34
+.rs 34
+.vim 34
+.nix 34
+.lua 34
+.el 34
+.mk 34
+
+# Config & Data Files
 .conf 36
 .json 36
-.mk 36
-.lua 36
+.toml 36
+.yml 36
+.ini 36
+.csv 36
 
 # Special Code Files (light cyan)
-*Makefile 38;5;14;1
-*makefile 38;5;14;1
+*Makefile 38;5;12;1
+*makefile 38;5;12;1
+*Dockerfile 38;5;12;1
+
+# Markup files
+# .md 38;5;71
+.md 38;5;114
+.org 38;5;114
 
 # Compilation files
 .o 38;5;8
+.pyc 38;5;8
+.lock 38;5;8
 
 # .pdf 38;5;174
 .pdf 38;5;9
@@ -104,9 +122,10 @@ EXEC 32
 
 # === Compromessed Files === (yellow)
 .tar 38;5;11
-.tar.gz 38;5;11
+.zst 38;5;11
 .gz 38;5;11
 .zip 38;5;11
+.xz 38;5;11
 
 # === temporary Files === (grey)
 *~ 38;5;8

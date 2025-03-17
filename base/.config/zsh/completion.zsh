@@ -2,17 +2,17 @@
 ZSH_COMPDUMP="$ZSH_CACHE_DIR/zcompdump-${HOST}-${ZSH_VERSION}"
 
 # Setup fpath
-fpath=("$ZDOTDIR/zsh-completions/src" "$ZDOTDIR/custom-completions" $fpath)
+fpath=("$ZDOTDIR/custom-completions" $fpath)
 
 
 autoload -U compinit
-compinit -u -d "$ZSH_COMPDUMP"
+compinit -d "$ZSH_COMPDUMP"
 
 # automatically load bash completion functions
 autoload -U +X bashcompinit && bashcompinit
 
-# fixme - the load process here seems a bit bizarre
-zmodload -i zsh/complist
+# TODO: I don't think this does anything useful. Remove it.
+# zmodload -i zsh/complist
 
 
 # setup caches
@@ -25,7 +25,7 @@ unsetopt flowcontrol # ???
 setopt always_to_end
 setopt no_beep
 
-# ... unless we really want to. TODO: What is this doing?
+# TODO: What is this doing?
 zstyle '*' single-ignored show
 
 # Uncomment the following line to use case-sensitive completion.
@@ -47,7 +47,7 @@ unset CASE_SENSITIVE HYPHEN_INSENSITIVE
 
 # Setup Menu and Group Completion
 setopt auto_menu # (default) enable menu navigation
-unsetopt menu_complete # do not autoselect the first completion entry
+setopt menu_complete # ... and immediately go into it after starting completion
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{8}░▒▓%f%K{8}%B %d %b%k%F{8}%f'
@@ -99,7 +99,9 @@ zstyle ':completion:*' completer _expand _complete
 
 # === Custom Completion Definitions ===
 
-compdef _gnu_generic xournalpp fzf pplatex ppdflatex xdragon apack aunpack als acat adiff arepack
+compdef _gnu_generic xdragon
+compdef _gnu_generic pplatex ppdflatex
+compdef _gnu_generic apack aunpack als acat adiff arepack
 compdef colormake=make
 
 # Better ordering for make
