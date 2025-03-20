@@ -11,4 +11,4 @@ fzf-history() {
   return $ret
 }
 zle -N fzf-history
-
+bindkey '^R' fzf-history

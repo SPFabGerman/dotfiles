@@ -26,17 +26,10 @@ zle -N right-key-func
 bindkey -M emacs '^[OC' right-key-func
 bindkey -M emacs '^[[C' right-key-func
 
-# [Ctrl-r] - Search backward
-# bindkey '^r' history-incremental-search-backward
-bindkey '^R' fzf-history
-
 # [Ctrl+E] - edit cmd-line in vim
 autoload edit-command-line
 zle -N edit-command-line
 bindkey '^E' edit-command-line
-
-# lfcd
-bindkey 'o' lfcd
 
 better-dot-insert () {
     # TODO: Check if we really have a directory
@@ -59,21 +52,5 @@ fancy-ctrl-z () {
 zle -N fancy-ctrl-z
 bindkey '^Z' fancy-ctrl-z
 
-# Alias Expansion
-space-key-func () { expand-alias; zle self-insert }
-zle -N space-key-func
-enter-key-func () { expand-alias; zle accept-line }
-zle -N enter-key-func
-bindkey -M emacs ' ' space-key-func
-bindkey -M emacs '^M' enter-key-func
-bindkey -M emacs '^ ' self-insert # control-space to bypass completion
-bindkey -M isearch " " self-insert # normal space during searches
-bindkey -M emacs '^[^E' expand-alias-full
-
 # [Alt-c] - Copy prev word (good to rename / copy files)
 bindkey "^[c" copy-prev-shell-word
-
-bindkey -M emacs '^S' sudo-command-line
-bindkey -M vicmd '^S' sudo-command-line
-bindkey -M viins '^S' sudo-command-line
-

@@ -15,3 +15,4 @@ function lfcd () {
     fi
 }
 zle -N lfcd
+bindkey 'o' lfcd

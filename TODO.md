@@ -21,8 +21,6 @@
 - Maybe make root dir a tempfs and make nix store it's own partition, so that it is reusable by other operating systems
 
 ## ZSH
-- Move keybindings into place where function is defined instead of single file. This keeps relevant code together and makes it easier to disable some code.
-- Simplify sudo.zsh and make it configurable to use doas, if available
 - Go through defined options and clean some up
 - Simplify line above prompt to avoid visual issues when resizing
 - Check that no aliases are used in init files; define aliases only at end and disable alias expansion for initialization

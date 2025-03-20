@@ -4,12 +4,13 @@ fi
 
 function expand-alias()
 {
+    # TODO Bug: This fails if arguments are present in an alias expansion
     PREV=""
     while [[ \
         ($LBUFFER =~ "\<(${(kj:|:)aliases}|${(kj:|:)galiases})\$") && \
         ! ($LBUFFER =~ "\<(${(j:|:)no_alias_expand})\$") && \
         # Avoid expansion when prefixed by a slash
-        ! ("$LBUFFER" =~ "\\\\[[:alnum:]]*\$") &&
+        ! ("$LBUFFER" =~ "\\\\[[:alnum:]]*\$") && \
         # Cancel expansions, when we are not after a command
         ("$LBUFFER" != "$PREV") ]]; do
         
@@ -30,3 +31,12 @@ function expand-alias-full()
 zle -N expand-alias
 zle -N expand-alias-full
 
+space-key-func () { expand-alias; zle self-insert }
+zle -N space-key-func
+enter-key-func () { expand-alias; zle accept-line }
+zle -N enter-key-func
+bindkey -M emacs ' ' space-key-func
+bindkey -M emacs '^M' enter-key-func
+bindkey -M emacs '^ ' self-insert # [Control-Space] to bypass completion
+bindkey -M isearch " " self-insert # normal space behaviour during searches
+bindkey -M emacs '^[^E' expand-alias-full
