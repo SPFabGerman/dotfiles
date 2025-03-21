@@ -14,7 +14,6 @@
 - Look for a way to better group entries in the Boot Loader
 - Add a Display Manager
 - ctpv: Update nix file to include other programs needed for displaying stuff (like pdf files); also check that the current programs really bring the best result
-- nvim: add plugins to HomeManager
 - Install FoxitReader?
 - Add Bluetooth support
 - Maybe disable channels entirely?
@@ -56,6 +55,10 @@
 
 ## Neovim
 - Check out Nix Neovim distributions
+- Cleanup config
+- Update plugins to modern standards (surround, autopairs, comments, completion, fzf, tmux)
+- WhichKey + Gitsigns: use correct icons
+- WhichKey: Move descriptions to key definitions
 
 ## SXHKD
 - Fix edit selector

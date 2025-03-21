@@ -6,19 +6,33 @@
   home.username = "fabian";
   home.homeDirectory = "/home/fabian";
 
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "24.11"; # Please read the comment before changing.
-
   nixpkgs.config.allowUnfree = true;
 
   programs.firefox.enable = true;
-  programs.neovim.enable = true;
+  programs.neovim = {
+    enable = true;
+    plugins = with pkgs.vimPlugins; [
+      lualine-nvim
+      gitsigns-nvim
+      which-key-nvim
+      nvim-web-devicons # TODO: Maybe switch to mini.icons?
+      toggleterm-nvim
+      surround-nvim # TODO: Seems to be somewhat out of date, with newer alternatives.
+      nvim-autopairs
+      comment-nvim # TODO: Alternatives available
+      tmux-nvim
+      fzf-lua # TODO: Alternatives available
+      nvim-fzf
+
+      # Completion
+      nvim-cmp
+      cmp-buffer
+      cmp-path
+      cmp-cmdline
+      cmp-nvim-lua
+      cmp-nvim-tags
+    ];
+  };
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -124,4 +138,15 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
+
+
+  # This value determines the Home Manager release that your configuration is
+  # compatible with. This helps avoid breakage when a new Home Manager release
+  # introduces backwards incompatible changes.
+  #
+  # You should not change this value, even if you update Home Manager. If you do
+  # want to update the value, then make sure to first check the Home Manager
+  # release notes.
+  home.stateVersion = "24.11"; # Please read the comment before changing.
 }

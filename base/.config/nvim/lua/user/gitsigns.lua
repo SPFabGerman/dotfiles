@@ -1,51 +1,63 @@
 local gs = require("gitsigns")
 
-local jid = vim.fn.jobstart({ "git", "rev-parse", "--git-dir" })
-local ret = vim.fn.jobwait({jid})[1]
-if ret > 0 then
-    vim.env.GIT_DIR = vim.fn.expand("~/.dotfiles.git")
-    vim.env.GIT_WORK_TREE = vim.fn.expand("~")
-end
-
--- Always show signcolumn
-vim.opt.signcolumn = "yes:1"
-
 gs.setup({
     signs = {
-        add = { hl = "GitSignsAdd", text = "┃" },
-        change = { hl = "GitSignsChange", text = "┃" },
-        delete = { hl = "GitSignsDelete", text = "" },
-        topdelete = { hl = "GitSignsDelete", text = "" },
-        changedelete = { hl = "GitSignsChange", text = "┃" },
+        changedelete = { text = "┃" },
     },
-    preview_config = {
-        border = 'rounded',
+    signs_staged = {
+        changedelete = { text = "┃" },
     },
-    -- keymaps = {
-    --     noremap = true,
-    --
-    --     ['n ]c'] = { expr = true, "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'"},
-    --     ['n [c'] = { expr = true, "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'"},
-    --     ['n <leader>gn'] = '<cmd>Gitsigns next_hunk<CR>',
-    --     ['n <leader>gN'] = '<cmd>Gitsigns prev_hunk<CR>',
-    --
-    --     ['n <leader>ga'] = '<cmd>Gitsigns stage_hunk<CR>',
-    --     ['v <leader>ga'] = ':Gitsigns stage_hunk<CR>',
-    --     ['n <leader>gA'] = '<cmd>Gitsigns stage_buffer<CR>',
-    --     ['n <leader>gu'] = '<cmd>Gitsigns undo_stage_hunk<CR>',
-    --     ['n <leader>gU'] = '<cmd>Gitsigns reset_buffer_index<CR>',
-    --     ['n <leader>gr'] = '<cmd>Gitsigns reset_hunk<CR>',
-    --     ['v <leader>gr'] = ':Gitsigns reset_hunk<CR>',
-    --     ['n <leader>gR'] = '<cmd>Gitsigns reset_buffer<CR>',
-    --
-    --     ['n <leader>gp'] = '<cmd>Gitsigns preview_hunk<CR>',
-    --     ['n <leader>gb'] = '<cmd>lua require"gitsigns".blame_line{full=true}<CR>',
-    --
-    --     -- Text objects
-    --     ['o ih'] = ':<C-U>Gitsigns select_hunk<CR>',
-    --     ['o ah'] = ':<C-U>Gitsigns select_hunk<CR>',
-    --     ['x ih'] = ':<C-U>Gitsigns select_hunk<CR>',
-    --     ['x ah'] = ':<C-U>Gitsigns select_hunk<CR>',
-    -- },
+    attach_to_untracked = true,
+
+
+    on_attach = function(bufnr)
+        local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map('n', ']g', function()
+            gs.nav_hunk('next')
+        end, { desc = "Next Git Hunk" })
+
+        map('n', '[g', function()
+            gs.nav_hunk('prev')
+        end, { desc = "Prev Git Hunk" })
+
+        -- Actions
+        map('n', '<leader>ga', gs.stage_hunk, { desc = "Add" })
+        map('n', '<leader>gr', gs.reset_hunk, { desc = "Reset" })
+
+        map('v', '<leader>ga', function()
+            gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+        end, { desc = "Add" })
+
+        map('v', '<leader>gr', function()
+            gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+        end, { desc = "Reset" })
+
+        map('n', '<leader>gA', gs.stage_buffer, { desc = "Add all" })
+        map('n', '<leader>gR', gs.reset_buffer, { desc = "Reset all" })
+        map('n', '<leader>gp', gs.preview_hunk, { desc = "Preview" })
+
+        map('n', '<leader>gb', function()
+            gs.blame_line({ full = true })
+        end, { desc = "Blame" })
+
+        map('n', '<leader>gd', gs.diffthis, { desc = "Diff" })
+
+        map('n', '<leader>gD', function()
+            gs.diffthis('~')
+        end, { desc = "Diff all" })
+
+        map('n', '<leader>gQ', function() gs.setqflist('all') end, { desc = "QuickFix all" })
+        map('n', '<leader>gq', gs.setqflist, { desc = "QuickFix" })
+
+        -- Text object
+        map({'o', 'x'}, 'ih', gs.select_hunk, { desc = "Git Hunk" })
+        map({'o', 'x'}, 'ah', gs.select_hunk, { desc = "Git Hunk" })
+    end
 })
 
