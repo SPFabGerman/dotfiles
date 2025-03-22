@@ -1,42 +1,13 @@
-local fzf = require("fzf")
-local fzf_lua = require("fzf-lua")
+local fzf = require("fzf-lua")
 
-fzf_lua.setup({
-    hl = {
-        normal = 'NormalFloat',
-        border = 'NormalFloat',
-        title = 'NormalFloat',
-    },
-    fzf_opts = {
-        ['--ansi']        = '',
-        ['--prompt']      = false,
-        ['--info']        = 'inline',
-        ['--height']      = '100%',
-        ['--layout']      = false,
-    },
-    files = {
-        cmd = [[bfs -type f -not -path '*/\.git/*' -printf '%P\n' 2>/dev/null]]
-    },
-})
+-- We link highlights this way, because the normal fzf.setup method does not seem to follow links and therefor does not set all highlight groups.
+vim.api.nvim_set_hl(0, "FzfLuaNormal", { link = "NormalFloat" })
+vim.api.nvim_set_hl(0, "FzfLuaBorder", { link = "FloatBorder" })
 
-local map = vim.api.nvim_set_keymap
-local opt = { noremap = true, silent = true }
-map('n', '<Leader>F', ':FzfLua ', { noremap = true })
-map('n', '<Leader>ff', '<Cmd>FzfLua files<CR>', opt)
-map('n', '<Leader>fr', '<Cmd>FzfLua oldfiles<CR>', opt)
-map('n', '<Leader>b', '<Cmd>FzfLua buffers<CR>', opt)
-map('n', '<C-s>', '<Cmd>FzfLua blines<CR>', opt)
-map('n', '<M-s>', '<Cmd>FzfLua lines<CR>', opt)
-map('n', '<C-h>', '<Cmd>FzfLua help_tags<CR>', opt)
-
--- Cd function
-function fab_fzf_cd ()
-    coroutine.wrap(function ()
-        local result = fzf.fzf([[bfs . -type d -not -path '*/\.git' -not -path '*/\.git/*' -printf '%P\n' 2>/dev/null]])
-        if result then
-            vim.cmd("cd " .. result[1])
-        end
-    end)()
-end
-map('n', '<Leader>fcc', '<Cmd>lua fab_fzf_cd()<CR>', opt)
+local map = vim.keymap.set
+map('n', '<Leader>ff', fzf.files, { desc = "Find files" })
+map('n', '<Leader>fr', fzf.oldfiles, { desc = "Recent files" })
+map('n', '<Leader>b', fzf.buffers, { desc = "Buffers" })
+map('n', '<C-s>', fzf.lines, { desc = "Search buffer Lines" })
+map('n', '<C-h>', fzf.help_tags, { desc = "Search help" })
 

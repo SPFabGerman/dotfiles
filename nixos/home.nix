@@ -15,14 +15,13 @@
       lualine-nvim
       gitsigns-nvim
       which-key-nvim
-      nvim-web-devicons # TODO: Maybe switch to mini.icons?
+      nvim-web-devicons # TODO: Maybe switch to or add mini.icons?
       toggleterm-nvim
       surround-nvim # TODO: Seems to be somewhat out of date, with newer alternatives.
       nvim-autopairs
       comment-nvim # TODO: Alternatives available
       tmux-nvim
-      fzf-lua # TODO: Alternatives available
-      nvim-fzf
+      fzf-lua # TODO: Maybe switch out with telescope.nvim
 
       # Completion
       nvim-cmp
