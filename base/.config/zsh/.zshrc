@@ -3,6 +3,10 @@ HISTFILE="$ZSH_CACHE_DIR/zsh_history"
 HISTSIZE=500000
 SAVEHIST=100000
 
+# Use emacs key bindings
+# (We do this early, since otherwise this might overwrite keybindings set later in the config files.)
+bindkey -e
+
 # Load all config files
 for config_file ("$ZDOTDIR"/*.zsh(N)); do
   source "$config_file"

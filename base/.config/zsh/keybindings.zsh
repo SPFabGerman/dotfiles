@@ -1,8 +1,4 @@
 # A Collection of all the Custom Keybindings used
-# (The Function does not really need to be loaded now.)
-
-# Use emacs key bindings
-bindkey -e
 
 # Some sane default bindings for editing:
 # [Shift-Tab] - move backward through completion menu 
