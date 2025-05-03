@@ -5,7 +5,7 @@ super + space
         sleep 0.5 ); \
     nwg-drawer &> /dev/null
 
-super + q
+super + q ; super + q
     nwg-bar
 
 
@@ -51,11 +51,11 @@ super + a ; b
 
 # === System Controll ===
 XF86Audio{Raise,Lower}Volume
-	pactl set-sink-volume @DEFAULT_SINK@ {+,-}5%
+    wpctl set-volume @DEFAULT_SINK@ 5%{+,-}
 XF86AudioMute
-	pactl set-sink-mute @DEFAULT_SINK@ toggle
+    wpctl set-mute @DEFAULT_SINK@ toggle
 shift + XF86AudioMute
-	pactl set-sink-volume @DEFAULT_SINK@ 50%
+    wpctl set-volume @DEFAULT_SINK@ 50%
 XF86AudioPlay
     playerctl play-pause
 XF86AudioStop

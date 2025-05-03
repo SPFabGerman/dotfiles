@@ -18,7 +18,12 @@
   users.users.fabian = {
     isNormalUser = true;
     description = "Fabian Lindner";
-    extraGroups = [ "networkmanager" "wheel" "video" ];
+    extraGroups = [
+      "wheel" # sudo rights
+      "video" # backlight and screen control
+      "networkmanager" # wifi and network control
+      "scanner" "lp" # scanner support
+    ];
   };
 
   environment.sessionVariables = {
@@ -42,6 +47,11 @@
   services.xserver.enable = true;
   services.xserver.displayManager.startx.enable = true;
   services.xserver.windowManager.awesome.enable = true;
+
+  # Apply my patch to awesome to fix some issues with clienticon.lua code
+  services.xserver.windowManager.awesome.package = pkgs.awesome.overrideAttrs (finalAttrs: previousAttrs: {
+    patches = previousAttrs.patches ++ [ ./awesome-clienticon.patch ];
+  });
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.libinput.enable= true;
@@ -69,7 +79,15 @@
     openFirewall = true;
   };
 
-  hardware.sane.brscan5.enable = true;
+  hardware.sane.enable = true;
+  hardware.sane.brscan5 = {
+    enable = true;
+    netDevices.brotherhome = {
+      name = "Brother-DCP-J562DW";
+      model = "DCP-J562DW";
+      nodename = "BRW2C6FC9187896";
+    };
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -81,6 +99,11 @@
 
   virtualisation.virtualbox.host.enable = true;
   users.extraGroups.vboxusers.members = [ "fabian" ];
+  # The following is apparently a workaround for a bug in Linux 6.12 (See https://github.com/NixOS/nixpkgs/issues/363887 and https://discourse.nixos.org/t/issue-with-virtualbox-in-24-11/57607)
+  boot.kernelParams = [ "kvm.enable_virt_at_load=0" ];
+  # Fix #2, currently disabled, as Compilation took way too long.
+  # virtualisation.virtualbox.host.enableKvm = true; 
+  # virtualisation.virtualbox.host.addNetworkInterface = false;
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
@@ -88,7 +111,9 @@
     wget
     udiskie
     polkit_gnome
+    simple-scan # Scan Utility
     home-manager
+    acpi # Dependency for AwesomeWM-Widgets
   ];
 
   security.polkit.enable = true;

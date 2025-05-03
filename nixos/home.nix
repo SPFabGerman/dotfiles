@@ -72,7 +72,6 @@
     btop # System Resource Viewer
     evince # PDF Viewer
     thunderbird # EMails
-    simple-scan # Scan Utility
     syncthing syncthingtray # File Synchronization
 
     discord

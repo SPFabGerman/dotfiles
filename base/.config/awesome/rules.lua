@@ -20,60 +20,27 @@ awful.rules.rules = {
     -- Floating clients
     {
         rule_any = {
-            instance = {
-                "pinentry",
-            },
-            class = {
-                "Arandr",
-                "Blueman-manager",
-            },
-            name = {
-                "Event Tester",  -- xev.
-            }
+            instance = { "pinentry" },
+            class = { "Arandr", "Blueman-manager" },
+            name = { "Event Tester" } -- xev
         },
         properties = { floating = true }
     },
 
-    {
-        rule = {
-            class = "Nwg-bar"
-        },
-        properties = {
-            fullscreen = true
-        }
-    },
-
+    -- Fullscreen clients
     {
         rule_any = {
-            class = { "Dragon-drop", "Xdragon" }
-        },
-        properties = {
-            sticky = true
-        }
-    },
-
-    {
-        rule = {
-            class = "Nwg-drawer"
+            class = { "Nwg-bar", "Nwg-drawer" }
         },
         properties = { fullscreen = true }
     },
 
-    -- {
-    --     rule = {
-    --         class = "Evince"
-    --     },
-    --     callback = function(c)
-    --         awful.layout.set(awful.layout.suit.max, c.first_tag)
-    --     end
-    -- },
-
+    -- Sticky clients
     {
-        rule = {
-            class = "zoom",
-            name = "zoom"
+        rule_any = {
+            class = { "Xdragon" }
         },
-        properties = { floating = true }
+        properties = { sticky = true }
     },
 
     -- Add titlebars to dialogs

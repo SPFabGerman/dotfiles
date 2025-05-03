@@ -41,7 +41,7 @@
 
 ## AwesomeWM
 - Make a nicer status bar
-- Remove dependencies on other repos
+- Look into ways to handle common widgets outside of Awesome (e.g. eww)
 
 ## Emacs
 - Rework keybindings for Indentation und Completion
@@ -66,6 +66,9 @@
 
 ## Other
 - Install remaining programs from Arch
+- Automount of external devices
+- Autoenable of external screens
+- Setup way to duplicate screen
 - Check usage and necessity of bfs
 - Look through binaries in ~/bin and ~/scripts and move them to more appropriate locations
 - Find an alternative to fzfp from stpv
