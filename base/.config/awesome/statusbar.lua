@@ -19,7 +19,7 @@ local mainlauncher = awful.widget.launcher({
     menu = awful.menu({
         items = {
             { "restart", awesome.restart },
-            { "quit", awesome.quit },
+            { "quit", function() awesome.quit() end },
         }
     })
 })

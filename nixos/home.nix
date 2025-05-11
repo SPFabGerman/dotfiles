@@ -17,7 +17,7 @@
       which-key-nvim
       nvim-web-devicons # TODO: Maybe switch to or add mini.icons?
       toggleterm-nvim
-      surround-nvim # TODO: Seems to be somewhat out of date, with newer alternatives.
+      surround-nvim # TODO: Seems to be somewhat out of date, with newer alternatives available.
       nvim-autopairs
       comment-nvim # TODO: Alternatives available
       tmux-nvim
@@ -29,7 +29,6 @@
       cmp-path
       cmp-cmdline
       cmp-nvim-lua
-      cmp-nvim-tags
     ];
   };
 

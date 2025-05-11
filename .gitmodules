@@ -4,3 +4,27 @@
 [submodule "base/.config/awesome/charitable"]
 	path = base/.config/awesome/charitable
 	url = https://github.com/frioux/charitable.git
+[submodule "base/.config/emacs/hideshowvis"]
+	path = base/.config/emacs/hideshowvis
+	url = https://github.com/sheijk/hideshowvis.git
+[submodule "base/.config/emacs/copilot.el"]
+	path = base/.config/emacs/copilot.el
+	url = https://github.com/copilot-emacs/copilot.el.git
+[submodule "base/.config/emacs/org-evil"]
+	path = base/.config/emacs/org-evil
+	url = https://github.com/GuiltyDolphin/org-evil.git
+[submodule "base/.config/emacs/org-pretty-table"]
+	path = base/.config/emacs/org-pretty-table
+	url = https://github.com/Fuco1/org-pretty-table.git
+[submodule "base/.config/zsh/F-Sy-H"]
+	path = base/.config/zsh/F-Sy-H
+	url = https://github.com/zdharma/fast-syntax-highlighting.git
+[submodule "base/.config/zsh/zsh-autocomplete"]
+	path = base/.config/zsh/zsh-autocomplete
+	url = https://github.com/marlonrichert/zsh-autocomplete.git
+[submodule "bspwm/build/polybar-pulseaudio-control"]
+	path = bspwm/build/polybar-pulseaudio-control
+	url = https://github.com/marioortizmanero/polybar-pulseaudio-control.git
+[submodule "tuxedo/build/tuxedo-touchpad-toggle"]
+	path = tuxedo/build/tuxedo-touchpad-toggle
+	url = https://github.com/jluttine/tuxedo-touchpad-switch.git

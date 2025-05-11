@@ -23,6 +23,7 @@
       "video" # backlight and screen control
       "networkmanager" # wifi and network control
       "scanner" "lp" # scanner support
+      "podman" # rootless containers
     ];
   };
 
@@ -89,6 +90,10 @@
     };
   };
 
+  # Manage removable media
+  # Automounting is then managed either by a desktop environment or by udiskie
+  services.udisks2.enable = true;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -97,23 +102,22 @@
 
   programs.git.enable = true;
 
-  virtualisation.virtualbox.host.enable = true;
-  users.extraGroups.vboxusers.members = [ "fabian" ];
-  # The following is apparently a workaround for a bug in Linux 6.12 (See https://github.com/NixOS/nixpkgs/issues/363887 and https://discourse.nixos.org/t/issue-with-virtualbox-in-24-11/57607)
-  boot.kernelParams = [ "kvm.enable_virt_at_load=0" ];
-  # Fix #2, currently disabled, as Compilation took way too long.
-  # virtualisation.virtualbox.host.enableKvm = true; 
-  # virtualisation.virtualbox.host.addNetworkInterface = false;
+  # Enable containerization to support software for other distributions
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+  };
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     gnumake
     wget
-    udiskie
     polkit_gnome
+    udiskie # Automount utility
     simple-scan # Scan Utility
-    home-manager
+    distrobox # Easy userspace utility to manage containers
     acpi # Dependency for AwesomeWM-Widgets
+    home-manager
   ];
 
   security.polkit.enable = true;

@@ -46,7 +46,7 @@ super + a ; u
 	$HOME/build/unicode_copy/unicode_copy.sh
 
 super + a ; b
-    kitty --title "BTop" btop
+    kitty btop
 	# $HOME/bin/rofi-bluetooth
 
 # === System Controll ===

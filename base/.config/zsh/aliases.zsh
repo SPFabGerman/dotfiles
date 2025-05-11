@@ -59,6 +59,7 @@ alias mv='mv -iv'
 alias ln='ln -siv'
 alias lnr='ln -r'
 alias mkdir='mkdir -pv'
+alias pkill='pkill -e'
 noexpand cp mv ln mkdir
 
 alias watch="watch -c"

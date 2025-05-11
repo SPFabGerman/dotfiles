@@ -5,19 +5,19 @@
 
 ## NixOS and HomeManager
 - Change Gnome Polkit from Autostart to systemd service (see wiki)
-- Install udisksctl
 - Move fonts into HomeManager
 - Generate /etc/nixos/flake.nix symlink decleratively or document it somewhere
-- Garbage Collection (nix.gc)
-- Maybe Auto Updates?
+- Maybe Auto Updates? (https://wiki.nixos.org/wiki/Automatic_system_upgrades)
+- Automatic Garbage Collection (nix.gc) and Expiration of old generations
+- Automatic Store Optimization
 - Maybe General Linker (nix-ld)?
-- Look for a way to better group entries in the Boot Loader
 - Add a Display Manager
 - ctpv: Update nix file to include other programs needed for displaying stuff (like pdf files); also check that the current programs really bring the best result
 - Install FoxitReader?
 - Add Bluetooth support
 - Maybe disable channels entirely?
 - Maybe make root dir a tempfs and make nix store it's own partition, so that it is reusable by other operating systems
+- Automatic formatting of nix files (e.g. with alejandra)
 
 ## ZSH
 - Go through defined options and clean some up
@@ -56,8 +56,8 @@
 ## Neovim
 - Check out Nix Neovim distributions
 - Cleanup config
-- Update plugins to modern standards (surround, autopairs, comments, completion, fzf, tmux)
-- WhichKey + Gitsigns: use correct icons
+- Update plugins to modern standards (surround, comments, completion, ...; see home.nix)
+- (WhichKey + Gitsigns: use correct icons)
 - WhichKey: Move descriptions to key definitions
 
 ## SXHKD
@@ -66,8 +66,7 @@
 
 ## Other
 - Install remaining programs from Arch
-- Automount of external devices
-- Autoenable of external screens
+- Networking System Tray
 - Setup way to duplicate screen
 - Check usage and necessity of bfs
 - Look through binaries in ~/bin and ~/scripts and move them to more appropriate locations
@@ -78,7 +77,8 @@
 - Find a way to fetch new git commits in the background after going into a git repository
 - Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
 - Update dot script to include rebuilds of NixOS and HomeManager; also implement better handling of configuration
-- Xinitrc: remove old code
 - Maybe switch to btrfs for home partition?
 - Move code for terminal color schemes out of build directory
 - Remove all things from build directory
+- Update dunst config
+- Report xmodmap bug in xinitrc file
