@@ -6,17 +6,12 @@
     tuxedo-nixos.url = "github:sund3RRR/tuxedo-nixos";
     # tuxedo-nixos.url = "github:sylvesterroos/tuxedo-nixos";
     # tuxedo-nixos.url = "github:chmanie/tuxedo-nixos";
-
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { nixpkgs, tuxedo-nixos, home-manager, ... }@inputs: {
+  outputs = { nixpkgs, tuxedo-nixos, ... }@inputs: {
     nixosConfigurations."fabians-nix-tuxedo" = nixpkgs.lib.nixosSystem {
       modules = [
-        ./configuration.nix
+        ./system.nix
         ./localization.nix
 
         ./gaming-nvidia.nix
@@ -28,11 +23,6 @@
           # services.upower.enable = true;
         }
       ];
-    };
-
-    homeConfigurations."fabian" = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages."x86_64-linux";
-      modules = [ ./home.nix ];
     };
   };
 }
