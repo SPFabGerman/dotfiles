@@ -22,9 +22,6 @@
 [submodule "base/.config/zsh/zsh-autocomplete"]
 	path = base/.config/zsh/zsh-autocomplete
 	url = https://github.com/marlonrichert/zsh-autocomplete.git
-[submodule "bspwm/build/polybar-pulseaudio-control"]
-	path = bspwm/build/polybar-pulseaudio-control
-	url = https://github.com/marioortizmanero/polybar-pulseaudio-control.git
 [submodule "tuxedo/build/tuxedo-touchpad-toggle"]
 	path = tuxedo/build/tuxedo-touchpad-toggle
 	url = https://github.com/jluttine/tuxedo-touchpad-switch.git
