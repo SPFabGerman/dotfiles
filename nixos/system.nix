@@ -69,6 +69,9 @@
   };
   security.rtkit.enable = true; # Used by Pipewire to aquire priority
 
+  # Enable Lockscreen support
+  programs.i3lock.enable = true;
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
   services.system-config-printer.enable = true;
