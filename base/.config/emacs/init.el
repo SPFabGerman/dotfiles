@@ -94,7 +94,7 @@
   (add-hook mode (lambda () (setq-local global-hl-line-mode nil))))
 
 (setq mouse-wheel-scroll-amount '(3))
-(setq mouse-wheel-tilt-scroll 't)
+;; (setq mouse-wheel-tilt-scroll 't) ;; Set as a buffer local variable, at the same time as `truncate-lines' is set
 (setq mouse-wheel-flip-direction 't)
 (setq mouse-wheel-progressive-speed nil)
 (setq scroll-step 5)
@@ -286,6 +286,8 @@ in the current window."
   (interactive "<R><x>")
   (evil-delete beg end type ?_))
 (evil-define-key 'normal 'global "x" 'fab/evil-delete-char-noyank)
+
+(add-hook 'evil-insert-state-entry-hook (lambda () (when (curr-line-empty-p) (indent-according-to-mode))))
 
 (use-package evil-surround
   :after evil
@@ -788,6 +790,15 @@ A specification is a list (ID NEXT PREV [OTHER]).")
   :config
   (company-prescient-mode 1))
 
+(defun company-version (&optional show-version)
+  "Get the Company version as string.
+
+If SHOW-VERSION is non-nil, show the version in the echo area."
+  (interactive (list t))
+  (if show-version
+      (message "Company version: %s" "20250114.2109")
+    "20250114.2109"))
+
 (use-package posframe
   :config
 
@@ -872,7 +883,7 @@ A specification is a list (ID NEXT PREV [OTHER]).")
 (use-package monitor)
 
 (defun fab/org-mode-setup ()
-  (setq tab-width 2)
+  ;; (setq tab-width 2) ;; TODO: Seems to create errors with newest org version
   (variable-pitch-mode 1)
   (display-line-numbers-mode 0)
   (visual-line-mode 1)
@@ -941,6 +952,7 @@ A specification is a list (ID NEXT PREV [OTHER]).")
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-preview-latex-image-directory (no-littering-expand-var-file-name "ltximg/"))
   (setq org-image-actual-width 600)
+  (setq org-src-ask-before-returning-to-edit-buffer nil)
 
   ;; Fontify seperator lines
   (add-hook 'org-font-lock-set-keywords-hook
@@ -1035,45 +1047,8 @@ A specification is a list (ID NEXT PREV [OTHER]).")
 (use-package org-pretty-table
   :load-path "~/.config/emacs/org-pretty-table"
   :after org
-  :hook (org-mode . org-pretty-table-mode))
-
-(defvar-local fab/org-src-blocks-display-line-numbers--overlays '()
-  "List of overlays for line numbers.")
-
-(defun fab/org-src-blocks-display-line-numbers-remove-all ()
-  "Remove all line number overlays in the src blocks."
-  (interactive)
-  (mapc 'delete-overlay fab/org-src-blocks-display-line-numbers--overlays)
-  (setq fab/org-src-blocks-display-line-numbers--overlays '()))
-
-(defun fab/org-src-blocks-display-line-numbers-update ()
-  "Add or update the line number overlays in the src blocks.
-Only adds line numbers to visible src blocks."
-  (interactive)
-  (fab/org-src-blocks-display-line-numbers-remove-all)
-  (save-excursion
-    (let ((ws (- (window-start) 500)) ;; Add some puffer to avoid problems on scrolling
-          (we (+ (window-end) 500))) ;; Note that these denote characters and not lines
-      (org-babel-map-src-blocks nil
-        (goto-char beg-body)
-        (unless (or (> beg-body we) (< end-body ws) (org-truly-invisible-p))
-          (dotimes (i (count-lines beg-body end-body))
-            (beginning-of-line)
-            (when (<= ws (point) we)
-              (let ((ol (make-overlay (point) (line-end-position))))
-                (overlay-put ol 'before-string (propertize (format "%3s " (number-to-string (1+ i))) 'face 'line-number))
-                ;; (overlay-put ol 'wrap-prefix "    ")
-                (push ol fab/org-src-blocks-display-line-numbers--overlays)))
-            (next-logical-line)))))))
-
-(defun fab/org-src-blocks-display-line-numbers-setup ()
-  "Setup line numbers for src blocks."
-  (interactive)
-  (add-hook 'post-command-hook #'fab/org-src-blocks-display-line-numbers-update nil t)
-  (fab/org-src-blocks-display-line-numbers-update))
-
-(add-hook 'org-mode-hook #'fab/org-src-blocks-display-line-numbers-setup)
-(setq org-edit-src-content-indentation 0)
+  ;; :hook (org-mode . org-pretty-table-mode)
+)
 
 ;; TODO: Change to visual-line-mode-map
 (general-def '(normal visual) org-mode-map
@@ -1224,6 +1199,17 @@ Also works for numbered lists."
                         "o" 'fab/org-evil-heading-open-sibling-below
                         "^" 'fab/org-evil-heading-beginning-of-line))
 
+(defun fab/org-mode-update-company-idle-delay ()
+  "Disables idle completion, if inside a latex fragment."
+  (if (org-inside-LaTeX-fragment-p)
+      (setq company-idle-delay nil)
+    (setq company-idle-delay 0.2)))
+
+(defun fab/org-mode-setup-completion ()
+  (add-hook 'post-command-hook #'fab/org-mode-update-company-idle-delay nil t))
+
+(add-hook 'org-mode-hook #'fab/org-mode-setup-completion)
+
 (defun fab/org-prettify-symbols-setup ()
   ;; TODO: Put in mode specific list
   (setq prettify-symbols-unprettify-at-point 't)
@@ -1237,7 +1223,7 @@ Also works for numbered lists."
 (define-abbrev-table 'fab/org-entity-abbrev-table
   '(("->" "\\rightarrow{}")
     ("=>" "\\Rightarrow{}")
-    ("..." "\\dots")
+    ;; ("..." "\\dots")
     ("<=" "\\le{}")
     (">=" "\\ge{}")
     ("<<" "\\ll{}")
@@ -1284,7 +1270,7 @@ Also works for numbered lists."
         ("a4paper,margin=2cm" "geometry")))
 
 ;; Use ppdflatex for nicer compile outputs
-(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -pdflatex=\"ppdflatex %%O %%S\" -interaction=nonstopmode -output-directory=%o %f"))
+;; (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -pdflatex=\"ppdflatex %%O %%S\" -interaction=nonstopmode -output-directory=%o %f"))
 
 ;; Add more files to cleanup
 (with-eval-after-load 'ox-latex
@@ -1306,7 +1292,9 @@ Also works for numbered lists."
                       (t
                        (message "Could not open PDF File."))))))
 
-(add-hook 'prog-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'prog-mode-hook (lambda ()
+                            (setq truncate-lines t)
+                            (setq-local mouse-wheel-tilt-scroll 't)))
 
 (use-package tree-sitter
   :hook (prog-mode . global-tree-sitter-mode) ;; Turn on parsing by tree sitter
@@ -1615,13 +1603,17 @@ When called with prefix ARG the default selection will be symbol at point."
   :autoload elisp-check-run)
 
 (use-package auctex
-  :hook (((LaTeX-mode latex-mode) . lsp-deferred)
+  :hook (
+         ;; We do not need to call LaTeX-mode explicitly, as auctex takes care of the redirection automatically
+         ;; ((LaTeX-mode latex-mode) . lsp-deferred) ;; LSP currently disabled, as LSP server is not installed
+         ((LaTeX-mode latex-mode) . company-mode) ;; Needs to be explicitly called, since this is not a prog-mode
          ((LaTeX-mode latex-mode) . TeX-source-correlate-mode))
   :init
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-master nil))
+  (setq TeX-auto-save t) ;; Automatically saves style information
+  (setq TeX-parse-self t) ;; Automatically parse new files
+  (setq-default TeX-master nil)) ;; Let AucTeX query for master file
 
+;; Provides better completion than default auctex capf, including automatic environments with \begENV and automatic math mode
 (use-package company-auctex
   :after (auctex company)
   :config
@@ -1649,9 +1641,66 @@ When called with prefix ARG the default selection will be symbol at point."
 (add-hook 'LaTeX-mode-hook 'fab/latex-prettify-symbols-setup)
 
 (use-package cdlatex
-  :hook ((latex-mode LaTeX-mode) . cdlatex-mode)
+  :hook
+  ((latex-mode LaTeX-mode) . cdlatex-mode)
+  ((latex-mode LaTeX-mode) . cdlatex-electricindex-mode)
+  :init
+  (setq cdlatex-takeover-dollar nil
+        cdlatex-takeover-parenthesis nil) ;; Disable some unneded features (needs to be set before loading)
   :config
-  (setq cdlatex-auto-help-delay 0))
+  (setq cdlatex-use-dollar-to-ensure-math nil)
+  (setq cdlatex-sub-super-scripts-outside-math-mode nil) ;; Disables automatic insertion of math mode when using ^ or _ outside math mode (it's unintuitive)
+  (setq cdlatex-auto-help-delay 0)
+  ;; Change b modify key to `mathbb' instead of `mathbf'.
+  (setq cdlatex-math-modify-alist
+        '((?b "\\mathbb" "\\textbf" t nil nil)))
+
+  ;; This redifines `cdlatex-electricindex-active-here` to work in Auctex mode (or more general, independent of mode).
+  (defun cdlatex-electricindex-active-here ()
+    (if (fboundp 'texmathp)
+        (texmathp)
+      t))
+
+  ;; Remove space after typing a subscript number
+  (defun cdlatex-electricindex-digit ()
+    "Insert digit, maybe as an index to a quantity in math environment."
+    (interactive)
+    (if (not (cdlatex-electricindex-active-here))
+        (self-insert-command 1)
+      (let ((digit (char-to-string (event-basic-type last-command-event))))
+        (if (looking-back "[a-zA-Z]" (1- (point)))
+            (insert "_" digit)
+          (if (looking-back "\\(_[0-9]\\)" (- (point) 3))
+              (progn
+                (goto-char (match-beginning 1))
+                (forward-char 1)
+                (insert "{")
+                (forward-char 1)
+                (insert digit "}"))
+            (if (looking-back "_{\\([0-9]+\\)}"
+                              (max (- (point) 10) (point-min)))
+                (save-excursion
+                  (goto-char (match-end 1))
+                  (insert digit))
+              (self-insert-command 1)))))))
+  
+  )
+
+(defun fab/cdlatex-enter-or-leave-math-mode ()
+  "When not in math mode, enter it.
+WHen in math mode, try to move cursor out of it.
+(The later only works for inline equations and is heuristic based,
+since it is possible that the math mode has not been closed yet.)"
+  (interactive)
+  (if (not (texmathp))
+      (cdlatex-ensure-math)
+    (goto-char (or (search-forward "\\)" (line-end-position) t) (line-end-position)))))
+
+(general-def cdlatex-mode-map
+  "$" #'fab/cdlatex-enter-or-leave-math-mode)
+
+(add-hook 'cdlatex-tab-hook
+          (lambda () (unless (and (texmathp) (not (curr-line-empty-p))) (indent-for-tab-command) t)))
 
 (advice-add #'cdlatex-turn-on-help :after
             (lambda (&rest r)
@@ -1663,6 +1712,8 @@ When called with prefix ARG the default selection will be symbol at point."
 
 (advice-add #'cdlatex-read-char-with-help :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
 (advice-add #'cdlatex-math-modify :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
+
+(add-hook 'cdlatex-load-hook (lambda () (setf (alist-get "enumerate" cdlatex-env-alist-default) '("\\begin{enumerate}\n\\item ?\n\\end{enumerate}" "\\item ?"))))
 
 (use-package pdf-tools
   :defer t ;; Package is loaded by `pdf-loader-install` on demand
@@ -1685,33 +1736,6 @@ Usefull if an update broke a dependency and the server needs to be rebuild."
 
 (add-to-list 'recentf-exclude ".*\\.pdf")
 
-(use-package jupyter
-  :after org
-  :custom
-  (org-babel-load-languages (append org-babel-load-languages '((jupyter . t))))
-  :config
-  (setq jupyter-repl-echo-eval-p 't)
-  (setq jupyter-eval-use-overlays 't)
-  (setq org-babel-jupyter-resource-directory (no-littering-expand-var-file-name "ob-jupyter/"))
-
-  (add-to-list 'org-structure-template-alist '("jpy" . "src jupyter-python"))
-  (setq org-babel-default-header-args:jupyter-python '((:kernel . "python3")
-                                                       (:session . "org-py")
-                                                       ;; (:pandoc . t)
-                                                       ))
-  (advice-add 'org-babel-execute-src-block :after
-              (lambda (&rest r) (org-redisplay-inline-images)))
-
-  ;; Redifine function, since ansi-color--find-face has been renamed and apply-on-region has new functionality
-  ;; MAY BREAK in Future!
-  ;; (defun jupyter-ansi-color-apply-on-region (begin end)
-  ;;   (ansi-color-apply-on-region begin end t))
-  (defun display-all-ansi-colors ()
-    "Fixes kernel output in emacs-jupyter"
-    (ansi-color-apply-on-region (point-min) (point-max) t))
-  (add-hook 'org-babel-after-execute-hook #'display-all-ansi-colors)
-  )
-
 (use-package tabnine
   :hook (kill-emacs . tabnine-kill-process))
 
@@ -1724,33 +1748,6 @@ Usefull if an update broke a dependency and the server needs to be rebuild."
   :config
   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
   (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion))
-
-;; Optional dependency for better HTTP Requests
-(use-package plz)
-
-(use-package go-translate
-  :config
-  (setq gt-langs '(en de))
-  (setq gt-default-translator
-        (gt-translator
-         :engines (gt-google-engine)
-         :render (gt-posframe-pin-render
-                  :frame-params (list :border-width 1
-                                      :border-color "white"
-                                      :cursor t
-                                      :window-point 0))))
-
-  (setq gt-buffer-render-evil-leading-key nil)
-
-  (advice-add #'gt-do-translate :after
-              (lambda (&rest r)
-                (when (and (get-buffer gt-posframe-pin-render-buffer) gt-posframe-pin-render-frame)
-                  (x-focus-frame gt-posframe-pin-render-frame)
-                  (with-current-buffer gt-posframe-pin-render-buffer
-                    (evil-force-normal-state)
-                    (variable-pitch-mode 1)
-                    (visual-line-mode 1)))))
-  )
 
 (with-eval-after-load 'ispell
   (defun ispell-display-buffer (buffer)

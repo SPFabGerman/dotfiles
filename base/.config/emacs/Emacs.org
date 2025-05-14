@@ -154,7 +154,7 @@ This is currently skipped, since the information is already provided by the dash
 
 #+begin_src emacs-lisp
 (setq mouse-wheel-scroll-amount '(3))
-(setq mouse-wheel-tilt-scroll 't)
+;; (setq mouse-wheel-tilt-scroll 't) ;; Set as a buffer local variable, at the same time as `truncate-lines' is set
 (setq mouse-wheel-flip-direction 't)
 (setq mouse-wheel-progressive-speed nil)
 (setq scroll-step 5)
@@ -435,6 +435,13 @@ in the current window."
   (evil-delete beg end type ?_))
 (evil-define-key 'normal 'global "x" 'fab/evil-delete-char-noyank)
 #+end_src
+
+Automatically adjust indentation, when entering insert state on an empty line.
+#+begin_src emacs-lisp
+(add-hook 'evil-insert-state-entry-hook (lambda () (when (curr-line-empty-p) (indent-according-to-mode))))
+#+end_src
+TODO: For some reason this doesn't work with =curr-line-only-space-p= in some modes (like LaTeX).
+TODO: Find consistent way to remove space-only lines.
 
 *** Evil Extra Packages
 
@@ -1062,6 +1069,18 @@ TODO: Add file directory to counsel. (Similar to what happens in =counsel-projec
   (company-prescient-mode 1))
 #+end_src
 
+Harcode Version. This is a temporary fix, since the current implementation of this function is bugged. But this function is necessary to call =company-diag=.
+#+begin_src emacs-lisp
+(defun company-version (&optional show-version)
+  "Get the Company version as string.
+
+If SHOW-VERSION is non-nil, show the version in the echo area."
+  (interactive (list t))
+  (if show-version
+      (message "Company version: %s" "20250114.2109")
+    "20250114.2109"))
+#+end_src
+
 ** Posframes
 
 #+begin_src emacs-lisp
@@ -1187,7 +1206,7 @@ Ivy and Which-Key Posframes are currently disabled, since I think they aren't th
 
 #+begin_src emacs-lisp
 (defun fab/org-mode-setup ()
-  (setq tab-width 2)
+  ;; (setq tab-width 2) ;; TODO: Seems to create errors with newest org version
   (variable-pitch-mode 1)
   (display-line-numbers-mode 0)
   (visual-line-mode 1)
@@ -1256,6 +1275,7 @@ Ivy and Which-Key Posframes are currently disabled, since I think they aren't th
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-preview-latex-image-directory (no-littering-expand-var-file-name "ltximg/"))
   (setq org-image-actual-width 600)
+  (setq org-src-ask-before-returning-to-edit-buffer nil)
 
   ;; Fontify seperator lines
   (add-hook 'org-font-lock-set-keywords-hook
@@ -1376,11 +1396,16 @@ A version of =counsel-org-goto= that previews selected items.
 
 *** Pretty Tables
 
+Pretty Tables are currently not automatically started, since they tend to mess with prettification of entities inside latex fragments.
+(Specifically they cause entities to be reprettified after every edit, while org-appear unprettifies them constantly. This causes some weird text jumping.)
+See also: https://github.com/awth13/org-appear/issues/34
+TODO: As an alternative, one could try to only prettify tables when =C-c C-c= key is hit inside a table, instead of constantly.
 #+begin_src emacs-lisp
 (use-package org-pretty-table
   :load-path "~/.config/emacs/org-pretty-table"
   :after org
-  :hook (org-mode . org-pretty-table-mode))
+  ;; :hook (org-mode . org-pretty-table-mode)
+)
 #+end_src
 
 ** Sidebar Outline
@@ -1440,7 +1465,7 @@ TODO: Find better version with outline-mode?
 
 ** Line Numbers in Src Blocks
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defvar-local fab/org-src-blocks-display-line-numbers--overlays '()
   "List of overlays for line numbers.")
 
@@ -1475,9 +1500,7 @@ Only adds line numbers to visible src blocks."
   (interactive)
   (add-hook 'post-command-hook #'fab/org-src-blocks-display-line-numbers-update nil t)
   (fab/org-src-blocks-display-line-numbers-update))
-#+end_src
 
-#+begin_src emacs-lisp
 (add-hook 'org-mode-hook #'fab/org-src-blocks-display-line-numbers-setup)
 (setq org-edit-src-content-indentation 0)
 #+end_src
@@ -1665,6 +1688,22 @@ Also works for numbered lists."
   "^" 'fit-window-to-buffer)
 #+end_src
 
+** Completion
+
+This disables completion in math mode, since it doesn't work (always seems to fallback on simple word completion) and gets in the way more than it helps.
+#+begin_src emacs-lisp
+(defun fab/org-mode-update-company-idle-delay ()
+  "Disables idle completion, if inside a latex fragment."
+  (if (org-inside-LaTeX-fragment-p)
+      (setq company-idle-delay nil)
+    (setq company-idle-delay 0.2)))
+
+(defun fab/org-mode-setup-completion ()
+  (add-hook 'post-command-hook #'fab/org-mode-update-company-idle-delay nil t))
+
+(add-hook 'org-mode-hook #'fab/org-mode-setup-completion)
+#+end_src
+
 ** Symbols and Abbreviations
 
 #+begin_src emacs-lisp
@@ -1683,7 +1722,7 @@ Also works for numbered lists."
 (define-abbrev-table 'fab/org-entity-abbrev-table
   '(("->" "\\rightarrow{}")
     ("=>" "\\Rightarrow{}")
-    ("..." "\\dots")
+    ;; ("..." "\\dots")
     ("<=" "\\le{}")
     (">=" "\\ge{}")
     ("<<" "\\ll{}")
@@ -1738,7 +1777,7 @@ Also works for numbered lists."
         ("a4paper,margin=2cm" "geometry")))
 
 ;; Use ppdflatex for nicer compile outputs
-(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -pdflatex=\"ppdflatex %%O %%S\" -interaction=nonstopmode -output-directory=%o %f"))
+;; (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -pdflatex=\"ppdflatex %%O %%S\" -interaction=nonstopmode -output-directory=%o %f"))
 
 ;; Add more files to cleanup
 (with-eval-after-load 'ox-latex
@@ -1764,7 +1803,9 @@ Also works for numbered lists."
 * Programming Stuff
 
 #+begin_src emacs-lisp
-(add-hook 'prog-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'prog-mode-hook (lambda ()
+                            (setq truncate-lines t)
+                            (setq-local mouse-wheel-tilt-scroll 't)))
 #+end_src
 
 ** Syntax Highlighting (Tree Sitter)
@@ -2162,13 +2203,17 @@ When called with prefix ARG the default selection will be symbol at point."
 
 #+begin_src emacs-lisp
 (use-package auctex
-  :hook (((LaTeX-mode latex-mode) . lsp-deferred)
+  :hook (
+         ;; We do not need to call LaTeX-mode explicitly, as auctex takes care of the redirection automatically
+         ;; ((LaTeX-mode latex-mode) . lsp-deferred) ;; LSP currently disabled, as LSP server is not installed
+         ((LaTeX-mode latex-mode) . company-mode) ;; Needs to be explicitly called, since this is not a prog-mode
          ((LaTeX-mode latex-mode) . TeX-source-correlate-mode))
   :init
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-master nil))
+  (setq TeX-auto-save t) ;; Automatically saves style information
+  (setq TeX-parse-self t) ;; Automatically parse new files
+  (setq-default TeX-master nil)) ;; Let AucTeX query for master file
 
+;; Provides better completion than default auctex capf, including automatic environments with \begENV and automatic math mode
 (use-package company-auctex
   :after (auctex company)
   :config
@@ -2204,13 +2249,82 @@ When called with prefix ARG the default selection will be symbol at point."
 
 *** CDLatex
 
+TODO:
+Check if some of this functionality can be replaced by Auctex (if it isn't needed in org mode)
+=TAB= remove automatic extension of commands like =fr= or =equ= (it conflicts with autocompletion more often than it helps).
+Add a custom =Ctrl+Enter= to insert either a new item or start a new section etc.
+
 #+begin_src emacs-lisp
 (use-package cdlatex
-  :hook ((latex-mode LaTeX-mode) . cdlatex-mode)
+  :hook
+  ((latex-mode LaTeX-mode) . cdlatex-mode)
+  ((latex-mode LaTeX-mode) . cdlatex-electricindex-mode)
+  :init
+  (setq cdlatex-takeover-dollar nil
+        cdlatex-takeover-parenthesis nil) ;; Disable some unneded features (needs to be set before loading)
   :config
-  (setq cdlatex-auto-help-delay 0))
+  (setq cdlatex-use-dollar-to-ensure-math nil)
+  (setq cdlatex-sub-super-scripts-outside-math-mode nil) ;; Disables automatic insertion of math mode when using ^ or _ outside math mode (it's unintuitive)
+  (setq cdlatex-auto-help-delay 0)
+  ;; Change b modify key to `mathbb' instead of `mathbf'.
+  (setq cdlatex-math-modify-alist
+        '((?b "\\mathbb" "\\textbf" t nil nil)))
+
+  ;; This redifines `cdlatex-electricindex-active-here` to work in Auctex mode (or more general, independent of mode).
+  (defun cdlatex-electricindex-active-here ()
+    (if (fboundp 'texmathp)
+        (texmathp)
+      t))
+
+  ;; Remove space after typing a subscript number
+  (defun cdlatex-electricindex-digit ()
+    "Insert digit, maybe as an index to a quantity in math environment."
+    (interactive)
+    (if (not (cdlatex-electricindex-active-here))
+        (self-insert-command 1)
+      (let ((digit (char-to-string (event-basic-type last-command-event))))
+        (if (looking-back "[a-zA-Z]" (1- (point)))
+            (insert "_" digit)
+          (if (looking-back "\\(_[0-9]\\)" (- (point) 3))
+              (progn
+                (goto-char (match-beginning 1))
+                (forward-char 1)
+                (insert "{")
+                (forward-char 1)
+                (insert digit "}"))
+            (if (looking-back "_{\\([0-9]+\\)}"
+                              (max (- (point) 10) (point-min)))
+                (save-excursion
+                  (goto-char (match-end 1))
+                  (insert digit))
+              (self-insert-command 1)))))))
+  
+  )
 #+end_src
 
+Better =$= functionality.
+#+begin_src emacs-lisp
+(defun fab/cdlatex-enter-or-leave-math-mode ()
+  "When not in math mode, enter it.
+WHen in math mode, try to move cursor out of it.
+(The later only works for inline equations and is heuristic based,
+since it is possible that the math mode has not been closed yet.)"
+  (interactive)
+  (if (not (texmathp))
+      (cdlatex-ensure-math)
+    (goto-char (or (search-forward "\\)" (line-end-position) t) (line-end-position)))))
+
+(general-def cdlatex-mode-map
+  "$" #'fab/cdlatex-enter-or-leave-math-mode)
+#+end_src
+
+This code disables cdlatex tab outside of math mode (It works great in math mode, but not so much outside of it. It also overwrites normal tab behavior, namely indenting.) or if on empty line (to always get back to current indention).
+#+begin_src emacs-lisp
+(add-hook 'cdlatex-tab-hook
+          (lambda () (unless (and (texmathp) (not (curr-line-empty-p))) (indent-for-tab-command) t)))
+#+end_src
+
+This shows the help buffers for =`= and ='= using Posframe.
 #+begin_src emacs-lisp
 (advice-add #'cdlatex-turn-on-help :after
             (lambda (&rest r)
@@ -2222,6 +2336,11 @@ When called with prefix ARG the default selection will be symbol at point."
 
 (advice-add #'cdlatex-read-char-with-help :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
 (advice-add #'cdlatex-math-modify :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
+#+end_src
+
+Remove automatic insertion of label in =enumerate= environment.
+#+begin_src emacs-lisp
+(add-hook 'cdlatex-load-hook (lambda () (setf (alist-get "enumerate" cdlatex-env-alist-default) '("\\begin{enumerate}\n\\item ?\n\\end{enumerate}" "\\item ?"))))
 #+end_src
 
 *** PDF Support
@@ -2251,7 +2370,9 @@ Usefull if an update broke a dependency and the server needs to be rebuild."
 
 ** Jupyter Support
 
-#+begin_src emacs-lisp
+Currently disabled, as I don't use jupyter much anymore.
+
+#+begin_src emacs-lisp :tangle no
 (use-package jupyter
   :after org
   :custom
@@ -2301,7 +2422,9 @@ Usefull if an update broke a dependency and the server needs to be rebuild."
 
 * Translation
 
-#+begin_src emacs-lisp
+Currently disabled. I don't really need this.
+
+#+begin_src emacs-lisp :tangle no
 ;; Optional dependency for better HTTP Requests
 (use-package plz)
 
