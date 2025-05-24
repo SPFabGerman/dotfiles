@@ -36,18 +36,34 @@
   # environment.
   home.packages = with pkgs; [
     # Basic Xorg Management
-    sxhkd playerctl xorg.xmodmap # Hotkeys, Media Control & Key Remapping
-    dunst batsignal # Notification daemon & Battery Notifications
+    # Hotkeys, Media Control & Key Remapping
+    sxhkd
+    playerctl
+    xorg.xmodmap
+
+    # Notification daemon & Battery Notifications
+    dunst
+    batsignal
+
     picom # Compositor
     xwallpaper # Wallpaper setter
     dex # Autostarts
     nwg-drawer # Application Launcher
     nwg-bar # Power Menu
     maim # Screenshots
-    xclip xsel # Clipboard
-    xss-lock i3lock-color # Lockscreen
-    arandr srandrd # Multi Monitor Management
     xdragon # Drag-and-Drop of Files
+
+    # Clipboard
+    xclip
+    xsel
+
+    # Lockscreen
+    xss-lock
+    i3lock-color
+
+    # Multi Monitor Management
+    arandr
+    srandrd
 
     # Theming
     papirus-icon-theme
@@ -71,7 +87,10 @@
     btop # System Resource Viewer
     evince # PDF Viewer
     thunderbird # EMails
-    syncthing syncthingtray # File Synchronization
+
+    # File Synchronization
+    syncthing
+    syncthingtray
 
     discord
     telegram-desktop
@@ -80,12 +99,14 @@
 
     # CLI Tools
     fzf # Fuzzy Finder
-    bat # Better File Viewer
-    ctpv poppler_utils # File Previewer
+    # Better File Viewer and Previewers
+    bat 
+    ctpv
+    poppler_utils # (needed by ctpv)
     eza # Better File Lister
     fd # File Find
     ripgrep
-    perl540Packages.FileMimeInfo # mimetype of files
+    perl540Packages.FileMimeInfo # Mimetype of files
     entr # Running applications on file change
     renameutils
     trash-cli
@@ -94,6 +115,7 @@
     stow # Dotfile Management
 
     # Nix Tools
+    nixfmt-rfc-style
     nh
     nix-search-tv
     nix-tree
@@ -101,6 +123,13 @@
     # Programming Languages & Tools
     python3
     texliveFull
+
+    (aspellWithDicts (
+      dicts: with dicts; [
+        en
+        de
+      ]
+    ))
   ];
 
   nixpkgs.overlays = [
@@ -140,8 +169,6 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-
-
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release

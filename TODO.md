@@ -17,7 +17,7 @@
 - Add Bluetooth support
 - Maybe disable channels entirely?
 - Maybe make root dir a tempfs and make nix store it's own partition, so that it is reusable by other operating systems
-- Automatic formatting of nix files (e.g. with alejandra)
+- Make formatting automatic
 
 ## ZSH
 - Go through defined options and clean some up

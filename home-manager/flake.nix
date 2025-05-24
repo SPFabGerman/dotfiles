@@ -10,10 +10,13 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs: {
-    homeConfigurations."fabian" = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages."x86_64-linux";
-      modules = [ ./home.nix ];
+  outputs =
+    { nixpkgs, home-manager, ... }@inputs:
+    {
+      homeConfigurations."fabian" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages."x86_64-linux";
+        modules = [ ./home.nix ];
+      };
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
     };
-  };
 }

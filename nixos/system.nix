@@ -6,7 +6,10 @@
 {
   imports = [ ./hardware-configuration.nix ]; # Include the results of the hardware scan.
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -22,16 +25,17 @@
       "wheel" # sudo rights
       "video" # backlight and screen control
       "networkmanager" # wifi and network control
-      "scanner" "lp" # scanner support
+      "scanner" # scanner support
+      "lp" # also needed for scanning
       "podman" # rootless containers
     ];
   };
 
   environment.sessionVariables = {
-    XDG_CACHE_HOME  = "$HOME/.cache";
+    XDG_CACHE_HOME = "$HOME/.cache";
     XDG_CONFIG_HOME = "$HOME/.config";
-    XDG_DATA_HOME   = "$HOME/.local/share";
-    XDG_STATE_HOME  = "$HOME/.local/state";
+    XDG_DATA_HOME = "$HOME/.local/share";
+    XDG_STATE_HOME = "$HOME/.local/state";
   };
 
   # Enable networking
@@ -50,12 +54,14 @@
   services.xserver.windowManager.awesome.enable = true;
 
   # Apply my patch to awesome to fix some issues with clienticon.lua code
-  services.xserver.windowManager.awesome.package = pkgs.awesome.overrideAttrs (finalAttrs: previousAttrs: {
-    patches = previousAttrs.patches ++ [ ./awesome-clienticon.patch ];
-  });
+  services.xserver.windowManager.awesome.package = pkgs.awesome.overrideAttrs (
+    finalAttrs: previousAttrs: {
+      patches = previousAttrs.patches ++ [ ./awesome-clienticon.patch ];
+    }
+  );
 
   # Enable touchpad support (enabled default in most desktopManager).
-  services.libinput.enable= true;
+  services.libinput.enable = true;
   services.libinput.touchpad.naturalScrolling = true;
 
   hardware.acpilight.enable = true;
@@ -77,7 +83,8 @@
   services.system-config-printer.enable = true;
   programs.system-config-printer.enable = true;
   services.printing.browsed.enable = true;
-  services.avahi = { # Enable Autodiscovery of Printers
+  services.avahi = {
+    # Enable Autodiscovery of Printers
     enable = true;
     nssmdns4 = true;
     openFirewall = true;
@@ -135,14 +142,12 @@
     noto-fonts-color-emoji
 
     # I overwrite the default gnu-freefont with a otf version, since some programs (emacs) work better with it
-    (pkgs.callPackage ./gnu-freefont-otf.nix {})
+    (pkgs.callPackage ./gnu-freefont-otf.nix { })
 
     nerd-fonts.fira-code
     nerd-fonts.meslo-lg
     vistafonts
   ];
-
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

@@ -20,7 +20,8 @@
     nvidiaBusId = "PCI:1:0:0";
   };
 
-  hardware.nvidia.powerManagement = { # Needs to be here for suspend to work correctly
+  hardware.nvidia.powerManagement = {
+    # Needs to be here for suspend to work correctly
     enable = true;
     finegrained = true;
   };
