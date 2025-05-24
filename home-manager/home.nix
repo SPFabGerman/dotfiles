@@ -93,6 +93,11 @@
     dust # Storage Usage Visualizer
     stow # Dotfile Management
 
+    # Nix Tools
+    nh
+    nix-search-tv
+    nix-tree
+
     # Programming Languages & Tools
     python3
     texliveFull

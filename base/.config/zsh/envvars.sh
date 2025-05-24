@@ -65,6 +65,11 @@ if pgrep ssh-agent &>/dev/null && [[ -z "$SSH_AUTH_SOCK" ]]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
 
+if isInstalled "nh"; then
+    export NH_OS_FLAKE=~/dotfiles/nixos/
+    export NH_HOME_FLAKE=~/dotfiles/home-manager/
+fi
+
 # === Change config file locations ===
 
 # Don't set environment variables, if we are NixOS, since some of these need to be set by Nix and are otherwise easily wrong
