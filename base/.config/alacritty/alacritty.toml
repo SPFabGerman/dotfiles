@@ -1,5 +1,5 @@
 [general]
-import = ["/home/fabian/build/termcolors/out/colors-wal-alacritty.toml"]
+import = ["/home/fabian/.cache/wal-term/colors-wal-alacritty.toml"]
 live_config_reload = true
 
 [bell]

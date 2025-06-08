@@ -5,7 +5,7 @@ local naughty = require("naughty")
 
 
 local theme = gears.filesystem.get_configuration_dir() .. "wal_theme.lua"
-local wallpaper = gears.filesystem.get_xdg_cache_home() .. "background"
+local wallpaper = gears.filesystem.get_xdg_cache_home() .. "wal/wallpaper"
 
 
 -- Helper function to reload the theme.

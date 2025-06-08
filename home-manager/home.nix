@@ -68,7 +68,8 @@
     # Theming
     papirus-icon-theme
     kdePackages.breeze # TODO: It may be useful to change this to something custom, to not be dependent on all that KDE and QT stuff just for some cursors
-    pywal # Color generator
+    pywal16 # Color generator
+    imagemagick # Runtime dependency of pywal
 
     # Terminal emulators
     alacritty

@@ -78,7 +78,6 @@
 - Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
 - Update dot script to include rebuilds of NixOS and HomeManager; also implement better handling of configuration
 - Maybe switch to btrfs for home partition?
-- Move code for terminal color schemes out of build directory
 - Remove all things from build directory
 - Update dunst config
 - Report xmodmap bug in xinitrc file

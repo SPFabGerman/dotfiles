@@ -2,7 +2,7 @@
 " such that the GUI Color is identical to the 16-Color RGB Values.
 
 " Load values from used colorscheme:
-source ~/build/termcolors/out/colors-wal.vim
+source ~/.cache/wal-term/colors-wal.vim
 
 " create Color Array:
 let guicolors = []

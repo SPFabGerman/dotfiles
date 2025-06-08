@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Script to set a wallpaper image, generate a color scheme for it and apply the colors.
+# All arguments are passed on to wal.
+# Use -R to restore previous wallpaper
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# If no arguments are supplied, choose a random image from the wallpaper directory.
+if [ $# -eq 0 ]; then
+    args=("-i" ~/wallpapers/)
+else
+    args=("$@")
+fi
+
+wal --cols16 lighten --recursive -st "${args[@]}"
+
+# Create a wallpaper symlink for easier access
+ln -sf "$(cat ~/.cache/wal/wal)" ~/.cache/wal/wallpaper
+
+# Reload programs
+if pgrep awesome >/dev/null; then
+    awesome-client 'reload_theme()'
+fi
+
