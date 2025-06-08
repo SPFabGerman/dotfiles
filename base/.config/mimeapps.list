@@ -33,6 +33,8 @@ application/ppdf=FoxitReader.desktop
 application/pdf=org.gnome.Evince.desktop;
 message/rfc822=userapp-Thunderbird-38LQL2.desktop
 x-scheme-handler/mid=userapp-Thunderbird-38LQL2.desktop
+x-scheme-handler/sgnl=signal.desktop
+x-scheme-handler/signalcaptcha=signal.desktop
 
 [Added Associations]
 x-scheme-handler/mailto=userapp-Thunderbird-38LQL2.desktop;
