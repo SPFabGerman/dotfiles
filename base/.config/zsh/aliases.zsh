@@ -33,7 +33,10 @@ alias ll='ls -la'
 alias lt='ls -lT'
 alias lT='ls -laT'
 
-isInstalled "nvim" && alias vim='nvim'
+if isInstalled "nvim"; then
+    alias vim='nvim'
+    alias v='nvim'
+fi
 
 if isInstalled "pacman"; then
     alias pm='pacman'
@@ -50,8 +53,16 @@ if isInstalled "pacman"; then
 fi
 
 alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
-alias diff='diff --color'
-noexpand grep diff
+noexpand grep
+
+if isInstalled difft; then
+    alias diff='difft'
+else
+    alias diff='diff --color'
+    noexpand diff
+fi
+
+isInstalled bat && alias cat="bat"
 
 alias rm="trash-put"
 alias cp='cp -iv'
@@ -65,9 +76,9 @@ noexpand cp mv ln mkdir
 alias watch="watch -c"
 noexpand watch
 
-function show() {
-    command eza -l --no-user --no-time --no-permissions --no-filesize $(which $1)
-}
+alias where="builtin whence -cas"
+alias which="where"
+noexpand where
 
 isInstalled "qmv" && alias qmv='qmv -f do'
 noexpand qmv
@@ -75,10 +86,9 @@ noexpand qmv
 isInstalled "dust" && alias dust="dust -r"
 noexpand dust
 
-if isInstalled "python3"; then
-    alias python='python3'
-    alias py='python3'
-    alias -s py=python3
+if isInstalled "python"; then
+    alias py='python'
+    alias -s py=python
 fi
 
 if isInstalled "xclip"; then
@@ -98,23 +108,20 @@ fi
 alias ipa='ip addr'
 alias ipl='ip link'
 
-# === auto pipes ===
+# Some usefull redirections
 noexpand --help
 alias -g -- --help='--help |& less'
 alias -g G='| grep'
-alias -g GG='|& grep'
-alias -g F='2>/dev/null | fgrep'
+alias -g F='| fgrep'
 alias -g L='| less'
-alias -g LL='|& less'
-alias -g N='>/dev/null'
-alias -g NN='&>/dev/null'
-alias -g 2N='2>/dev/null'
+alias -g E2O='2>&1' # Err to Out
+alias -g N='&>/dev/null' # All to null
+alias -g O2N='>/dev/null' # Out to null
+alias -g E2N='2>/dev/null' # Err to null
 
-# === auto open script files ===
+# auto open script files
 alias -s sh=bash
 alias -s zsh=zsh
-
-isInstalled nix-instantiate && alias -s nix='nix-instantiate --eval --strict'
 
 # Debugging for zsh
 alias path='print -l $path'

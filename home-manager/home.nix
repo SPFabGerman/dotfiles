@@ -116,6 +116,7 @@
     unzip
     dust # Storage Usage Visualizer
     stow # Dotfile Management
+    jq # JSON Query
 
     # Nix Tools
     nixfmt-rfc-style
