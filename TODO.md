@@ -6,18 +6,14 @@
 ## NixOS and HomeManager
 - Change Gnome Polkit from Autostart to systemd service (see wiki)
 - Move fonts into HomeManager
-- Generate /etc/nixos/flake.nix symlink decleratively or document it somewhere
 - Maybe Auto Updates? (https://wiki.nixos.org/wiki/Automatic_system_upgrades)
 - Automatic Garbage Collection (nix.gc) and Expiration of old generations
 - Automatic Store Optimization
 - Maybe General Linker (nix-ld)?
-- Add a Display Manager
 - ctpv: Update nix file to include other programs needed for displaying stuff (like pdf files); also check that the current programs really bring the best result
-- Install FoxitReader?
-- Add Bluetooth support
 - Maybe disable channels entirely?
-- Maybe make root dir a tempfs and make nix store it's own partition, so that it is reusable by other operating systems
-- Make formatting automatic
+- make nix store it's own partition, so that it is reusable by other operating systems
+- make formatting automatic
 
 ## ZSH
 - Go through defined options and clean some up
@@ -27,6 +23,7 @@
 - Make forward slash (and maybe other things too) a word seperator
 - Find a better way to handle cleanhome.zsh code
 - Look for alternatives to F-Sy-H
+- Try out zoxide
 
 - Maybe try out fish?
 
@@ -38,6 +35,9 @@
 - Make previewer reload on file change
 - Improve reloading code in generell
 - Remove zsh-fifo and implement this in a better, more simplistic way
+- Remove bookmarks and use internals marks instead
+- Free up hjkl keys for movement
+- Add a way to toggle numbers for faster jumps
 
 ## AwesomeWM
 - Make a nicer status bar
@@ -52,6 +52,9 @@
 - Rework all org-mode keybindings
 - Implement flymake handling keybindings
 - PDF-View Mode: Add continues scrolling, if possible
+- Factor out code for error-lens and jumplist into their own plugins
+- Extend error lens support for other things too (Spellchecking)
+- Add Grammar checking via LanguageTool for org-mode
 
 ## Neovim
 - Check out Nix Neovim distributions
@@ -60,24 +63,29 @@
 - (WhichKey + Gitsigns: use correct icons)
 - WhichKey: Move descriptions to key definitions
 
+- Maybe look into evil-helix?
+
 ## SXHKD
 - Fix edit selector
 - Add keybinding to open files with mimeopen
 
 ## Other
 - Install remaining programs from Arch
-- Networking System Tray
-- Setup way to duplicate screen
 - Check usage and necessity of bfs
+- Add a Display Manager
+- Networking System Tray
+- Add Bluetooth support
+- Setup way to duplicate screen
 - Look through binaries in ~/bin and ~/scripts and move them to more appropriate locations
 - Find an alternative to fzfp from stpv
 - Remove stpv code
-- Add used git submodules
-- Add code to update all git submodules
+- dot script: add code to update all git submodules
 - Find a way to fetch new git commits in the background after going into a git repository
 - Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
-- Update dot script to include rebuilds of NixOS and HomeManager; also implement better handling of configuration
 - Maybe switch to btrfs for home partition?
 - Remove all things from build directory
 - Update dunst config
 - Report xmodmap bug in xinitrc file
+- Create Pull Request for changes in Awesome
+- Install a git tui
+- Look into git hooks (see also https://pre-commit.com/)
