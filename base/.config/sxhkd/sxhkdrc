@@ -2,7 +2,7 @@
 super + space
     pgrep nwg-drawer || \
         ( nwg-drawer -nofs -nocats -term kitty -c 10 -r &> /dev/null & \
-        sleep 0.5 ); \
+        sleep 0.2 ); \
     nwg-drawer &> /dev/null
 
 super + q ; super + q
@@ -13,14 +13,14 @@ super + q ; super + q
 
 # === Terminal Stuff ===
 super + t
-	kitty
+    kitty
 super + a ; t
     kitty
 
 super + a ; v
-	kitty bash -c 'sleep 0.1; exec nvim'
+    kitty nvim
 super + a ; e
-	emacs
+    emacs
 
 super + a ; c
     kitty python3 -i ~/.config/python/pycalc.py
@@ -38,7 +38,7 @@ super + a ; s
     $BROWSER
 
 super + a ; m
-	thunderbird
+    thunderbird
 
 
 # === Dmenu Stuff ===
@@ -47,7 +47,7 @@ super + a ; u
 
 super + a ; b
     kitty btop
-	# $HOME/bin/rofi-bluetooth
+    # $HOME/bin/rofi-bluetooth
 
 # === System Controll ===
 XF86Audio{Raise,Lower}Volume
@@ -56,29 +56,23 @@ XF86AudioMute
     wpctl set-mute @DEFAULT_SINK@ toggle
 shift + XF86AudioMute
     wpctl set-volume @DEFAULT_SINK@ 50%
-XF86AudioPlay
-    playerctl play-pause
-XF86AudioStop
-    playerctl stop
-XF86AudioNext
-    playerctl next
-XF86AudioPrev
-    playerctl prev
+XF86Audio{Play,Stop,Next,Prev}
+    playerctl {play-pause,stop,next,prev} && ( sleep 0.1; notify-send -u low "$(playerctl status)" "$(playerctl metadata artist) - $(playerctl metadata title)" )
 
 XF86MonBrightness{Up,Down}
-	xbacklight -{inc,dec} 10 -time 1 -steps 1 & \
-	xob_show "$(xbacklight -get)" &
+    xbacklight -{inc,dec} 10 ; \
+    notify-send -u low "Brightness: " -h int:value:$(xbacklight -get)
 
 XF86TouchpadToggle
     tuxedo-touchpad-toggle
 
 Print
-	maim -s -u | xclip -selection clipboard -t image/png -in
+    maim -s -u | xclip -selection clipboard -t image/png -in
 
 shift + Print
     FN="Screenshot-$(date +%F-%T).png" ; \
     P="$HOME/Pictures/$FN"; \
-	maim -s -u $P ; \
+    maim -s -u $P ; \
     [ -e "$P" ] || exit 0; \
     A="$(notify-send "Screenshot taken" "Saved under: $FN" -u low -A open -i "$P")"; \
     [ -n "$A" ] && alacritty -e tmux new-session ~/.config/lf/tmux_lf.sh --command "select $P"

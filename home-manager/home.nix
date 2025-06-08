@@ -42,6 +42,7 @@
     xorg.xmodmap
 
     # Notification daemon & Battery Notifications
+    libnotify # for notify-send command
     dunst
     batsignal
 
