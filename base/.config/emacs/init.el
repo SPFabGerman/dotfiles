@@ -1792,3 +1792,35 @@ Also position fit window to BUFFER and select it."
   (setq flycheck-languagetool-server-command (list "languagetool-server" "--config"  (expand-file-name "languagetool-server-config" user-emacs-directory)))
   :config
   (flycheck-languagetool-setup))
+
+(use-package languagetool
+  :config
+  (setq languagetool-disabled-rules '("WHITESPACE_RULE" "EN_UNPAIRED_QUOTES" "MORFOLOGIK_RULE_EN_US" "COMMA_PARENTHESIS_WHITESPACE" "SENTENCE_WHITESPACE" "UNLIKELY_OPENING_PUNCTUATION" "ARROWS")))
+
+;; We redefine the server-start method to call a wrapper executable, instead of calling java directly.
+(defun languagetool-server-start ()
+  "Start the LanguageTool Server.
+
+It's not recommended to run this function more than once."
+  (interactive)
+  (unless (process-live-p languagetool-server-process)
+    (let ((buffer (get-buffer-create languagetool-server-output-buffer-name)))
+      ;; Clean the buffer before printing the LanguageTool Server Log
+      (with-current-buffer buffer
+        (erase-buffer))
+
+      ;; Start LanguageTool Server
+      (setq languagetool-server-process
+            (apply #'start-process
+                   "*LanguageTool Server*"
+                   buffer
+                   "languagetool-server"
+                   languagetool-server-arguments)) ;; TODO: This does not currently pass the port along
+
+      ;; Does not block Emacs when close and do not shutdown the server
+      (set-process-query-on-exit-flag languagetool-server-process nil))
+
+    ;; Start running the hint idle timer
+    (setq languagetool-core-hint-timer
+          (run-with-idle-timer languagetool-hint-idle-delay t
+                               languagetool-hint-function))))
