@@ -3,60 +3,109 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-TARGET="$HOME"
-STOWDIR="$HOME/dotfiles"
+# === STOW ===
 
-DEFAULT_PACKAGES=(base tuxedo private)
+STOW_DIR="$HOME/dotfiles"
+STOW_DEFAULT_PACKAGES=(base tuxedo private)
 
-function restow () {
-    packages=( ${DEFAULT_PACKAGES[@]} )
+# Calls stow to update all symlinks in HOME.
+# Arguments can be used to specify packages, otherwise use default packages.
+function dot-restow () {
+    packages=( ${STOW_DEFAULT_PACKAGES[@]} )
     if [[ $# -gt 0 ]]; then
         packages=( "$@" )
     fi
     
     # Construct command array manually, to avoid issues with word splitting with IFS
-    cmda=()
+    args=()
     for p in "${packages[@]}"; do
-        cmda=(${cmda[@]} -R "$p")
+        args=(${args[@]} -R "$p")
     done
 
-    stow -d "$STOWDIR" -t "$TARGET" ${cmda[@]}
+    stow -d "$STOW_DIR" -t "$HOME" ${args[@]}
 }
 
 function adopt-into () {
     # TODO: Automatically add new files to git repo?
     if [[ $# -lt 2 ]]; then
-        echo "Usage: dot adopt-into PACKAGE FILES"
+        echo "Usage: dot adopt PACKAGE FILES"
         exit 1
     fi
     package="$1"
     shift
-    filepaths=( $(realpath --no-symlinks -e --relative-to=$TARGET $@) )
+    filepaths=( $(realpath --no-symlinks -e --relative-to=$HOME $@) )
     reldirs=( $(dirname ${filepaths[@]}) )
 
-    # Make sure paths exist in STOWDIR
+    # Make sure paths exist in STOW_DIR
     for rd in "${reldirs[@]}"; do
-        mkdir -pv "$STOWDIR/$package/$rd"
+        mkdir -pv "$STOW_DIR/$package/$rd"
     done
 
-    # Move all files over into STOWDIR
+    # Move all files over into STOW_DIR
     for f in "${filepaths[@]}"; do
-        mv -v -i -T "$TARGET/$f" "$STOWDIR/$package/$f"
+        mv -v -i -T "$HOME/$f" "$STOW_DIR/$package/$f"
     done
 
-    restow "$package"
+    dot-restow "$package"
 }
+
+
+
+# === NIX ===
+
+NIXOS_DIR="$HOME/dotfiles/nixos"
+HOME_MANAGER_DIR="$HOME/dotfiles/home-manager"
+
+function dot-os () {
+    cd "$NIXOS_DIR"
+    nix flake update
+    if [[ $(type -P nh) ]]; then
+        nh os switch . -- "$@"
+    else
+        nixos-rebuild switch --use-remote-sudo --flake . "$@"
+    fi
+}
+
+function dot-home-manager () {
+    cd "$HOME_MANAGER_DIR"
+    nix flake update
+    if [[ $(type -P nh) ]]; then
+        nh home switch --ask . -- "$@"
+    else
+        home-manager --flake . "$@"
+    fi
+}
+
+
+
+# === MAIN ===
+
+function dot-help () {
+    echo "Available commands:"
+    echo "stow [PACKAGES] - Rerun stow with provided [PACKAGES] or use default: ${STOW_DEFAULT_PACKAGES[@]}"
+    echo "adopt PACKAGE FILES - Move [FILES] into stow [PACKAGE]."
+    echo "os [ARGS] - Rebuild NixOS"
+    echo "hm [ARGS] - Rebuild HomeManager"
+    exit 1
+}
+
+[[ $# -eq 0 ]] && (exec 1>&2; echo "No command provided." ; dot-help)
 
 CMD="$1"
 shift
 
 case "$CMD" in
-    restow)
-        restow "$@";;
-    adopt|adopt-into)
+    stow)
+        dot-restow "$@";;
+    adopt)
         adopt-into "$@";;
+    os)
+        dot-os "$@";;
+    hm)
+        dot-home-manager "$@";;
     *)
-        echo "Available commands: restow, adopt-into"
-        exit 1;;
+        exec 1>&2
+        echo "Command not recognized."
+        dot-help;;
 esac
 
