@@ -101,8 +101,9 @@
 
     # CLI Tools
     fzf # Fuzzy Finder
-    # Better File Viewer and Previewers
+    # Better File Viewer, diffs and Previewers
     bat 
+    difftastic
     ctpv
     poppler_utils # (needed by ctpv)
     eza # Better File Lister

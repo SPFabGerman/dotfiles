@@ -2,9 +2,8 @@
     graph = log --oneline --graph --decorate
     purr = pull --rebase
     sub = restore --staged
-    fzf-diff = !git status --porcelain | fzf --preview=\"git diff --color=always -- {2..}\" 
+    fzf = !git status --porcelain | fzf --preview=\"git diff --color=always -- {2..}\" 
     quicksave = !git add --all && git commit -m \"Update $(git diff --staged --name-only | paste -sd ',')\"
-    ; lf = !lf -command=\"enable_git_mode\"
 [core]
     editor = nvim
 [init]
@@ -13,8 +12,8 @@
     ff = only
 [push]
     autoSetupRemote = true
-[icdiff]
-    options = --highlight --line-numbers
+[diff]
+    external = difft
 [gpg]
     format = ssh
 [user]
