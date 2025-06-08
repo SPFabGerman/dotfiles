@@ -134,6 +134,7 @@
         de
       ]
     ))
+    languagetool
   ];
 
   nixpkgs.overlays = [

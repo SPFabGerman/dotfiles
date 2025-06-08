@@ -1276,6 +1276,7 @@ Ivy and Which-Key Posframes are currently disabled, since I think they aren't th
   (setq org-preview-latex-image-directory (no-littering-expand-var-file-name "ltximg/"))
   (setq org-image-actual-width 600)
   (setq org-src-ask-before-returning-to-edit-buffer nil)
+  (setq org-footnote-section nil) ;; Create footnotes at end of section, instead of at end of the document
 
   ;; Fontify seperator lines
   (add-hook 'org-font-lock-set-keywords-hook
@@ -1767,7 +1768,7 @@ This disables completion in math mode, since it doesn't work (always seems to fa
 *** Latex
 
 #+begin_src emacs-lisp
-(setq org-latex-listings t)
+(setq org-latex-src-block-backend 'listings)
 ;; TODO: Remove from snipit creation, remove geometry when exporting to beamer
 (setq org-latex-packages-alist
       '(("AUTO" "babel" t)
@@ -2453,7 +2454,7 @@ Currently disabled. I don't really need this.
   )
 #+end_src
 
-* Spelling
+* Spelling and Grammar Checking
 
 Change ISpell Buffer to display below the current window, instead of above.
 When Posframe is available, use it to display buffer directly under the cursor.
@@ -2495,6 +2496,15 @@ Also position fit window to BUFFER and select it."
   (interactive)
   (flyspell-mode -1)
   (flyspell-mode 1))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package flycheck-languagetool
+    :after flycheck
+    :init
+    (setq flycheck-languagetool-server-command (list "languagetool-server" "--config"  (expand-file-name "languagetool-server-config" user-emacs-directory)))
+    :config
+    (flycheck-languagetool-setup))
 #+end_src
 
 * EXWM

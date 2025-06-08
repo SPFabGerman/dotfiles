@@ -953,6 +953,7 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
   (setq org-preview-latex-image-directory (no-littering-expand-var-file-name "ltximg/"))
   (setq org-image-actual-width 600)
   (setq org-src-ask-before-returning-to-edit-buffer nil)
+  (setq org-footnote-section nil) ;; Create footnotes at end of section, instead of at end of the document
 
   ;; Fontify seperator lines
   (add-hook 'org-font-lock-set-keywords-hook
@@ -1260,7 +1261,7 @@ Also works for numbered lists."
 
 (setq org-confirm-babel-evaluate nil)
 
-(setq org-latex-listings t)
+(setq org-latex-src-block-backend 'listings)
 ;; TODO: Remove from snipit creation, remove geometry when exporting to beamer
 (setq org-latex-packages-alist
       '(("AUTO" "babel" t)
@@ -1784,3 +1785,10 @@ Also position fit window to BUFFER and select it."
   (interactive)
   (flyspell-mode -1)
   (flyspell-mode 1))
+
+(use-package flycheck-languagetool
+  :after flycheck
+  :init
+  (setq flycheck-languagetool-server-command (list "languagetool-server" "--config"  (expand-file-name "languagetool-server-config" user-emacs-directory)))
+  :config
+  (flycheck-languagetool-setup))
