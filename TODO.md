@@ -83,7 +83,6 @@
 - Find a way to fetch new git commits in the background after going into a git repository
 - Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
 - Maybe switch to btrfs for home partition?
-- Remove all things from build directory
 - Update dunst config
 - Report xmodmap bug in xinitrc file
 - Create Pull Request for changes in Awesome

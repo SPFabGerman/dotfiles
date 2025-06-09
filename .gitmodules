@@ -22,6 +22,3 @@
 [submodule "base/.config/zsh/zsh-autocomplete"]
 	path = base/.config/zsh/zsh-autocomplete
 	url = https://github.com/marlonrichert/zsh-autocomplete.git
-[submodule "tuxedo/build/tuxedo-touchpad-toggle"]
-	path = tuxedo/build/tuxedo-touchpad-toggle
-	url = https://github.com/jluttine/tuxedo-touchpad-switch.git
