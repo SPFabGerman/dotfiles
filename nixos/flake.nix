@@ -17,13 +17,23 @@
           ./localization.nix
 
           ./gaming-nvidia.nix
-          {
-            imports = [ tuxedo-nixos.nixosModules.default ];
-            hardware.tuxedo-drivers.enable = true;
-            hardware.tuxedo-control-center.enable = true;
-            # hardware.tuxedo-control-center.package = tuxedo-nixos.packages.x86_64-linux.default;
-            # services.upower.enable = true;
-          }
+
+          # Module for all Tuxedo code. TODO: Extract into it's own file.
+          (
+            let
+              pkgs = nixpkgs.legacyPackages.x86_64-linux;
+              tuxedo-touchpad-toggle = pkgs.callPackage ./tuxedo-touchpad-toggle/tuxedo-touchpad-toggle.nix { };
+            in
+            {
+              imports = [ tuxedo-nixos.nixosModules.default ];
+              hardware.tuxedo-drivers.enable = true;
+              hardware.tuxedo-control-center.enable = true;
+              # hardware.tuxedo-control-center.package = tuxedo-nixos.packages.x86_64-linux.default;
+              environment.systemPackages = [ tuxedo-touchpad-toggle ];
+              services.udev.packages = [ tuxedo-touchpad-toggle ];
+              # services.upower.enable = true;
+            }
+          )
         ];
       };
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;

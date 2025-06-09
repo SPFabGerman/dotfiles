@@ -6,7 +6,7 @@ IFS=$'\n\t'
 # === STOW ===
 
 STOW_DIR="$HOME/dotfiles"
-STOW_DEFAULT_PACKAGES=(base tuxedo private)
+STOW_DEFAULT_PACKAGES=(base private)
 
 # Calls stow to update all symlinks in HOME.
 # Arguments can be used to specify packages, otherwise use default packages.
