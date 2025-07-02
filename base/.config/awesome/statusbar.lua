@@ -6,7 +6,7 @@ local wibox = require("wibox")
 local charitable = require("charitable")
 
 local awesome_battery = require("awesome-wm-widgets.battery-widget.battery")
-local awesome_volume = require('awesome-wm-widgets.pactl-widget.volume')
+local awesome_volume = require('awesome-wm-widgets.wpctl-widget.volume')
 
 -- Widgets that are shared between all instances of a statusbar are created statically and reused for every bar.
 -- Widgets that are unique per statusbar are created dynamically as needed.
