@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
   imports = [ ./hardware-configuration.nix ]; # Include the results of the hardware scan.
 
@@ -63,6 +63,7 @@
   # Enable touchpad support (enabled default in most desktopManager).
   services.libinput.enable = true;
   services.libinput.touchpad.naturalScrolling = true;
+  services.libinput.touchpad.tappingDragLock = false;
 
   hardware.acpilight.enable = true;
 
@@ -117,6 +118,7 @@
     enable = true;
     dockerCompat = true;
   };
+  security.lsm = lib.mkForce [ ]; # Temporary workaround to make old distroboxes work again. See also https://discourse.nixos.org/t/distrobox-selinux-oci-permission-error/64943/15
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
