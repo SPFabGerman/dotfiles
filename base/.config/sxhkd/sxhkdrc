@@ -41,9 +41,8 @@ super + a ; m
     thunderbird
 
 
-# === Dmenu Stuff ===
 super + a ; u
-	$HOME/build/unicode_copy/unicode_copy.sh
+    rofimoji -f ~/.config/rofi/math-reduced.csv --selector-args="-theme ~/.config/rofi/grid.rasi -kb-row-left Left -kb-row-right Right -kb-move-char-back Control+b -kb-move-char-forward Control+f" --hidden-descriptions
 
 super + a ; b
     kitty btop

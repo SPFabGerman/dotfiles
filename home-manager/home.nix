@@ -40,6 +40,10 @@
     sxhkd
     playerctl
     xorg.xmodmap
+   
+    # Unicode selection
+    rofi
+    rofimoji
 
     # Notification daemon & Battery Notifications
     libnotify # for notify-send command
