@@ -38,6 +38,12 @@ if isInstalled "fzf"; then
 	--prompt='❯ ' --pointer='❯' --marker='❯' \
 	--color=16,border:8,gutter:-1,spinner:1,prompt:2,pointer:4,header:3,fg+:7,bg+:238 --ansi \
 	--bind 'change:top,ctrl-d:half-page-down,ctrl-u:half-page-up,alt-enter:replace-query,alt-p:toggle-preview,alt-s:toggle-sort,ctrl-k:clear-query,ctrl-g:top'"
+    export FZF_DEFAULT_COMMAND="find ~"
+    if isInstalled "fd"; then
+        # The exec-batch is useful to remove trailing slashes from directories.
+        # This works better with the fzf path matching.
+        export FZF_DEFAULT_COMMAND="fd --hidden --exec-batch printf '%s\n' {}"
+    fi
 fi
 
 # === Setup Default applications ===

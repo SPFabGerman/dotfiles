@@ -65,13 +65,9 @@
 
 - Maybe look into evil-helix?
 
-## SXHKD
-- Fix edit selector
-- Add keybinding to open files with mimeopen
-
 ## Other
 - Install remaining programs from Arch
-- Check usage and necessity of bfs
+- Find or create a better opener than mimeopen
 - Add a Display Manager
 - Networking System Tray
 - Add Bluetooth support
@@ -88,3 +84,10 @@
 - Create Pull Request for changes in Awesome
 - Install a git tui
 - Look into git hooks (see also https://pre-commit.com/)
+- Add LSP Servers
+
+## Wayland Blocks
+- Good window manager
+- Hotkeys
+- Ueberzug terminal images
+- Screenshots
