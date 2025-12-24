@@ -1,20 +1,21 @@
 source ~/.config/lf/common_init.lf
-source ~/.config/lf/bookmarks.lf
-&[[ -n "$TMUX" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/tmux_commands.lf")
+&[[ -n "$KITTY_WINDOW_ID" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/kitty_commands.lf")
+&[[ -n "$TMUX" ]] && [[ -z "$KITTY_WINDOW_ID" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/tmux_commands.lf")
 
 load-bookmarks
 map B edit-bookmarks
 
 # Previewer
+set preload false
 set previewer ctpv
 set cleaner ctpvclear
 &ctpv -s $id
 # This is more responsive than the included ctpvquit, which only acts after a small delay
 cmd on-quit &ctpv -e $id
 cmd preview-reset ${{
-    ctpv -e $id
-    sleep .1
-    ctpv -s $id &
+    # ctpv -e $id
+    # sleep .1
+    # ctpv -s $id &
 }}
 
 # Movement
@@ -31,7 +32,7 @@ map cd push :create-dir<space>
 map ca push :create-archive<space>
 
 # move and deletion of files
-map m rename
+# map m rename
 map l link
 map r trash
 map RR delete
@@ -50,11 +51,11 @@ map oe open-with-editor
 map oE open-with-external-editor
 map e edit
 
-# Tmux window mappings
+# Terminal multiplexer window mappings
 map w
-map ws tmux-splith
-map wv tmux-splitv
-map wc tmux-create
+map ws multiplexer-window-splith
+map wv multiplexer-window-splitv
+map wc multiplexer-window-create
 
 # Shells and Terminals
 map t terminal

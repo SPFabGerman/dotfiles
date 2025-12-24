@@ -1,5 +1,6 @@
 local awful = require("awful")
 local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
 local gears = require("gears")
 local naughty = require("naughty")
 
@@ -36,15 +37,55 @@ awesome.connect_signal("theme_refreshed", function ()
     if client.focus then client.focus.border_color = beautiful.border_focus end
 end)
 
+client.connect_signal("property::fullscreen", function (c) if not c.fullscreen then c.maximized = false end end)
+client.connect_signal("property::maximized", function (c) c.fullscreen = c.maximized end)
+
 -- Rounded corners
-local function rounded_corners_func (cr, w, h)
-    gears.shape.rounded_rect(cr, w, h, 8)
+local function rounded_corners_func (cr, w, h) gears.shape.rounded_rect(cr, w, h, dpi(10)) end
+local function update_rounded_corners (c)
+    if c.fullscreen then c.shape = nil else c.shape = rounded_corners_func end
 end
-client.connect_signal("manage", function(c) c.shape = rounded_corners_func end)
-client.connect_signal("property::fullscreen", function(c)
-    if c.fullscreen then
-        c.shape = nil
+client.connect_signal("manage", update_rounded_corners)
+client.connect_signal("property::fullscreen", update_rounded_corners)
+
+-- Size Hint and borderless fullscreen setup
+local function check_size_hints (c)
+    if c and c.floating and not c.fullscreen then
+        -- We honor size hints only if the client is floating. Otherwise it might behave weirdly with the tiling.
+        c.size_hints_honor = true
+        -- Check if we have a bordeless fullscreen and setup the client for it
+        if c.size_hints and
+            c.size_hints.max_width and c.size_hints.min_width and
+            c.size_hints.max_height and c.size_hints.min_height and
+            c.size_hints.max_width == c.size_hints.min_width and
+            c.size_hints.max_height == c.size_hints.min_height and
+            c.size_hints.max_width == c.screen.geometry.width and
+            c.size_hints.max_height == c.screen.geometry.height then
+            -- TODO: It might be easier to just set c.fullscreen = true, but I don't know if that has any unintended side effects,
+            -- because some programs go into fullscreen but don't adjust their size hints in any way. (e.g. Firefox)
+            c.border_width = 0
+            c.shape = nil
+            awful.placement.centered(c, {honor_workarea = false, honor_padding = false})
+        else
+            c.border_width = beautiful.border_width
+            c.shape = rounded_corners_func
+            -- TODO: Maybe if something is becoming floating, it would be good to give it a new (smaller) size or something?
+            -- But that would mess with programs that already set their own size. Can I somehow detect that?
+            local p = (awful.placement.no_overlap+awful.placement.no_offscreen)
+            -- I don't know why, but this has to be in a delayed call to work.
+            -- TODO: This creates problems when the state of the client changes between this run and the delayed call.
+            gears.timer.delayed_call(function ()
+                local is_valid = c and pcall(function() return c.valid end) and c.valid
+                if is_valid then
+                    p(c, {honor_workarea = true, margins = dpi(6)})
+                end
+            end)
+        end
     else
-        c.shape = rounded_corners_func
+        c.size_hints_honor = false
     end
-end)
+end
+
+client.connect_signal("manage", check_size_hints)
+client.connect_signal("property::floating", check_size_hints)
+client.connect_signal("property::size_hints", check_size_hints)

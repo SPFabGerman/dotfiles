@@ -52,6 +52,17 @@ if isInstalled "pacman"; then
     alias pmfl='pacman -Fl'
 fi
 
+alias s='systemctl'
+alias se='systemctl enable --now'
+alias sd='systemctl disable --now'
+alias ss='systemctl status'
+alias slt='systemctl list-timers --all'
+alias su='systemctl --user'
+alias sue='systemctl --user enable --now'
+alias sud='systemctl --user disable --now'
+alias sus='systemctl --user status'
+alias sult='systemctl --user list-timers --all'
+
 alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
 noexpand grep
 
@@ -114,10 +125,11 @@ alias -g -- --help='--help |& less'
 alias -g G='| grep'
 alias -g F='| fgrep'
 alias -g L='| less'
-alias -g E2O='2>&1' # Err to Out
-alias -g N='&>/dev/null' # All to null
-alias -g O2N='>/dev/null' # Out to null
-alias -g E2N='2>/dev/null' # Err to null
+alias -g ETO='2>&1' # Err to Out
+alias -g OTE='1>&2' # Out to Err
+alias -g ATN='&>/dev/null' # All to null
+alias -g OTN='>/dev/null' # Out to null
+alias -g ETN='2>/dev/null' # Err to null
 
 # auto open script files
 alias -s sh=bash

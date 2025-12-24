@@ -2,10 +2,14 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
 {
-  imports = [ ./hardware-configuration.nix ]; # Include the results of the hardware scan.
-
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
+{
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
@@ -14,8 +18,6 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  networking.hostName = "fabians-nix-tuxedo"; # Define your hostname.
 
   # Define user account
   users.users.fabian = {
@@ -144,11 +146,11 @@
     noto-fonts-color-emoji
 
     # I overwrite the default gnu-freefont with a otf version, since some programs (emacs) work better with it
-    (pkgs.callPackage ./gnu-freefont-otf.nix { })
+    (pkgs.callPackage ./gnu-freefont/gnu-freefont-otf.nix { })
 
     nerd-fonts.fira-code
     nerd-fonts.meslo-lg
-    vistafonts
+    vista-fonts
   ];
 
   # This value determines the NixOS release from which the default

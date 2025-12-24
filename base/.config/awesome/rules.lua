@@ -18,7 +18,14 @@ awful.rules.rules = {
         }
     },
 
-    -- Floating clients
+    -- Add titlebars to dialogs
+    -- This is reliant on a "requests:titlebars" signal handler. (Which is currently disabled.)
+    {
+        rule = { type = "dialog" },
+        properties = { titlebars_enabled = true }
+    },
+
+    -- Extra floating clients
     {
         rule_any = {
             instance = { "pinentry" },
@@ -28,7 +35,7 @@ awful.rules.rules = {
         properties = { floating = true }
     },
 
-    -- Fullscreen clients
+    -- Extra fullscreen clients
     {
         rule_any = {
             class = { "Nwg-bar", "Nwg-drawer" }
@@ -36,20 +43,12 @@ awful.rules.rules = {
         properties = { fullscreen = true }
     },
 
-    -- Sticky clients
+    -- Extra sticky clients
     {
         rule_any = {
             class = { "Xdragon" }
         },
         properties = { sticky = true }
-    },
-
-    -- Add titlebars to dialogs
-    {
-        rule_any = {
-            type = { "dialog" }
-        },
-        properties = { titlebars_enabled = true }
     },
 
 }

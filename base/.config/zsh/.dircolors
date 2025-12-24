@@ -107,13 +107,22 @@ EXEC 32
 .md 38;5;114
 .org 38;5;114
 
+# .pdf 38;5;174
+.pdf 38;5;9
+
 # Compilation files
 .o 38;5;8
 .pyc 38;5;8
 .lock 38;5;8
 
-# .pdf 38;5;174
-.pdf 38;5;9
+# Latex files
+.aux 38;5;8
+.bbl 38;5;8
+.bcf 38;5;8
+.blg 38;5;8
+.fdb_latexmk 38;5;8
+.fls 38;5;8
+.toc 38;5;8
 
 # === All Git Files === (orange)
 .git 38;5;215

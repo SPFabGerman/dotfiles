@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 {
   programs.steam.enable = true;
-  # programs.steam.gamescopeSession.enable = true; # Can fix resolution problems in some games (e.g. Upscaling)
+  programs.steam.gamescopeSession.enable = true; # Can fix resolution problems in some games (e.g. Upscaling)
   programs.gamemode.enable = true;
 
   hardware.graphics.enable = true; # (This should already be enabled by Steam)

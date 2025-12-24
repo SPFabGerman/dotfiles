@@ -168,6 +168,10 @@ So removing a use-package declaration, e.g. from your initialization file, marks
 
 (setq tab-always-indent nil)
 
+;; Continuation lines are (visually) prefixed with matching whitespace
+;; TODO: Disable for org-mode, as it already provides it's own method with org-indent.
+(global-visual-wrap-prefix-mode 1)
+
 ;; (use-package all-the-icons)
 (use-package nerd-icons)
 
@@ -771,7 +775,7 @@ A specification is a list (ID NEXT PREV [OTHER]).")
     "<down>"   'company-select-next
     "<up>"     'company-select-previous)
   :custom
-  (company-minimum-prefix-length 1)
+  (company-minimum-prefix-length 3)
   (company-idle-delay 0.2) ;; Maybe set to 0 or 0.01?
   (company-tooltip-align-annotations 't)
   (company-selection-wrap-around 't)
@@ -891,7 +895,8 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
   (org-fold-hide-drawer-all) ;; TODO: Why do I have to do this manually?
   (when (package-installed-p 'cdlatex)
     (require 'cdlatex)
-    (org-cdlatex-mode)))
+    (org-cdlatex-mode)
+    ))
 
 (defun fab/org-font-setup ()
   ;; Set faces for heading levels
@@ -1108,9 +1113,9 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
   "$" '(lambda () (interactive) ;; Use other delimiters, since they work better with highlighting
          (if (org-inside-LaTeX-fragment-p)
              (goto-char (or (search-forward "\\)" (line-end-position) t) (line-end-position))) ;; Another dollar "ends" math mode -> exit latex fragment
-           (insert "\\(\\)") (left-char 2)))
+           (insert "\\(\\)") (backward-char 2)))
   
-  "C-{" '(lambda () (interactive) (insert "\\{\\}") (left-char 2)))
+  "C-{" '(lambda () (interactive) (insert "\\{\\}") (backward-char 2)))
 
 (defun org-folded-p ()
   "Returns non-nil if point is on a folded headline or plain list item."
@@ -1298,6 +1303,7 @@ Also works for numbered lists."
                             (setq-local mouse-wheel-tilt-scroll 't)))
 
 (use-package tree-sitter
+  ;; TODO: Why is this a hook?
   :hook (prog-mode . global-tree-sitter-mode) ;; Turn on parsing by tree sitter
   :config
   (remove-hook 'prog-mode-hook #'global-tree-sitter-mode) ;; Remove hook, to avoid double trigger
@@ -1469,17 +1475,27 @@ If there are no errors, clears the error messages at point."
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook ((lsp-mode . evil-force-normal-state))
+
   :init
   (setq lsp-keymap-prefix "C-l")
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   ;; (setq lsp-signature-auto-activate nil)
   ;; (setq lsp-signature-render-documentation nil)
-  (setq lsp-modeline-diagnostics-enable nil) ;; Already provided by flycheck
   (setq lsp-inlay-hint-enable t
         lsp-update-inlay-hints-on-scroll nil ;; TODO / BUG: Enabling immediate updates seems to cause very high cpu usage on split windows. See also: https://github.com/emacs-lsp/lsp-mode/issues/4113
         lsp-idle-delay 0.01) ;; This somewhat compensates for that, by making updates a lot faster.
   (setq lsp-auto-execute-action nil)
   (setq lsp-modeline-code-action-fallback-icon (nerd-icons-codicon "nf-cod-github_action"))
+
+  ;; Disable some stuff that I don't think I need.
+  (setq lsp-modeline-diagnostics-enable nil) ;; Already provided by flycheck
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-inline-completion-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-enable-suggest-server-download nil)
+  (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-enable-xref nil)
+
   :config
   (lsp-enable-which-key-integration t)
   (fab/leader-def lsp-mode-map "l" (general-simulate-key "C-l" :which-key "LSP"))
@@ -1501,8 +1517,10 @@ If there are no errors, clears the error messages at point."
   :config
   (yas-reload-all))
 
-(use-package yasnippet-snippets
-  :after yasnippet)
+;; I have the default snippets currently disabled.
+;; They are not bad, but a bit too much for me. I prefer to write my own snippets when I need them.
+;; (use-package yasnippet-snippets
+;;   :after yasnippet)
 
 (use-package lsp-ui
   :after lsp-mode
@@ -1511,6 +1529,7 @@ If there are no errors, clears the error messages at point."
   :custom
   (lsp-ui-sideline-delay 0)
   (lsp-ui-sideline-show-code-actions nil)
+  (lsp-ui-sideline-show-diagnostics nil)
 
   (lsp-ui-doc-show-with-cursor nil)
   (lsp-ui-doc-include-signature 't) ;; TODO: Auswirkung unbekannt
@@ -1603,48 +1622,44 @@ When called with prefix ARG the default selection will be symbol at point."
   :load-path "~/.config/emacs/elisp-check"
   :autoload elisp-check-run)
 
-(use-package auctex
-  :hook (
-         ;; We do not need to call LaTeX-mode explicitly, as auctex takes care of the redirection automatically
-         ;; ((LaTeX-mode latex-mode) . lsp-deferred) ;; LSP currently disabled, as LSP server is not installed
-         ((LaTeX-mode latex-mode) . company-mode) ;; Needs to be explicitly called, since this is not a prog-mode
-         ((LaTeX-mode latex-mode) . TeX-source-correlate-mode))
-  :init
-  (setq TeX-auto-save t) ;; Automatically saves style information
-  (setq TeX-parse-self t) ;; Automatically parse new files
-  (setq-default TeX-master nil)) ;; Let AucTeX query for master file
+(use-package auctex)
 
-;; Provides better completion than default auctex capf, including automatic environments with \begENV and automatic math mode
-(use-package company-auctex
-  :after (auctex company)
-  :config
-  (company-auctex-init))
+(add-hook 'LaTeX-mode-hook (lambda () ;; LaTeX is not a prog-mode, but we want many of the prog-mode features, so we call the hook explicitly
+                             (run-hooks 'prog-mode-hook)
+                             ;; Afterwards we disable line truncation and horizontal scrolling again, since they are unwanted in a textual mode.
+                             ;; TODO: Maybe use kill-local-variable function?
+                             (setq truncate-lines nil)
+                             (setq-local mouse-wheel-tilt-scroll nil)))
 
-(use-package reftex
-  ;; :hook ((latex-mode LaTeX-mode) . reftex-mode)
-  :after auctex
-  :init
-  (setq reftex-plug-into-AUCTeX t)
-  :config
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex) ;; with AUCTeX LaTeX mode
-  (add-hook 'latex-mode-hook 'turn-on-reftex) ;; with Emacs latex mode
-  )
-
-(add-hook 'latex-mode-hook 'toggle-word-wrap)
 (add-hook 'LaTeX-mode-hook 'toggle-word-wrap)
+
+;; Also allow wrapping after ,
+;; This is usefull when listing certain stuff in a macro.
+(setq word-wrap-by-category t)
+(modify-category-entry ?, ?|)
 
 (defun fab/latex-prettify-symbols-setup ()
   (setq prettify-symbols-unprettify-at-point 't)
   (push '("\\hyph{}" . ?-) prettify-symbols-alist)
   (prettify-symbols-mode))
 
-(add-hook 'latex-mode-hook 'fab/latex-prettify-symbols-setup)
 (add-hook 'LaTeX-mode-hook 'fab/latex-prettify-symbols-setup)
 
+(use-package lsp-latex
+  :after auctex
+  :hook ((LaTeX-mode bibtex-mode) . lsp-deferred)
+  :config
+  (setq lsp-latex-experimental-label-reference-commands '("pref" "prettyref")) ;; This adds support for the prettyref package and a custom pref macro.
+  (setq lsp-latex-build-on-save t)
+  (setq lsp-latex-latex-formatter "latexindent") ;; The default value of texlab is currently not implemented.
+  (setq lsp-latex-hover-symbols "none") ;; This is already done better by prettify symbol
+  )
+
 (use-package cdlatex
+  :after auctex
   :hook
-  ((latex-mode LaTeX-mode) . cdlatex-mode)
-  ((latex-mode LaTeX-mode) . cdlatex-electricindex-mode)
+  (LaTeX-mode . cdlatex-mode)
+  (LaTeX-mode . cdlatex-electricindex-mode)
   :init
   (setq cdlatex-takeover-dollar nil
         cdlatex-takeover-parenthesis nil) ;; Disable some unneded features (needs to be set before loading)
@@ -1687,68 +1702,45 @@ When called with prefix ARG the default selection will be symbol at point."
   
   )
 
-(defun fab/cdlatex-enter-or-leave-math-mode ()
+(defun fab/latex-enter-or-leave-math-mode ()
   "When not in math mode, enter it.
-WHen in math mode, try to move cursor out of it.
+When in math mode, try to move cursor out of it.
 (The later only works for inline equations and is heuristic based,
 since it is possible that the math mode has not been closed yet.)"
   (interactive)
   (if (not (texmathp))
-      (cdlatex-ensure-math)
+      (progn
+        (insert "\\(\\)")
+        (backward-char 2))
     (goto-char (or (search-forward "\\)" (line-end-position) t) (line-end-position)))))
 
 (general-def cdlatex-mode-map
-  "$" #'fab/cdlatex-enter-or-leave-math-mode)
+  "$" #'fab/latex-enter-or-leave-math-mode)
 
 (add-hook 'cdlatex-tab-hook
           (lambda () (unless (and (texmathp) (not (curr-line-empty-p))) (indent-for-tab-command) t)))
 
-(advice-add #'cdlatex-turn-on-help :after
-            (lambda (&rest r)
-              (quit-windows-on " *CDLaTeX Help*" nil t)
+(advice-add #'cdlatex-turn-on-help :around
+            (lambda (oldfun &rest r)
+              ;; Notice that save-window-excursion can sometimes introduce bugs. But I haven't noticed any yet.
+              (save-window-excursion
+                (apply oldfun r))
               (posframe-show " *CDLaTeX Help*"
                              :poshandler 'posframe-poshandler-point-window-center
                              :border-width 1
                              :border-color "#ffffff")))
 
 (advice-add #'cdlatex-read-char-with-help :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
-(advice-add #'cdlatex-math-modify :after (lambda (&rest r) (posframe-hide " *CDLaTeX Help*")))
+
+(advice-add #'cdlatex-math-modify :around
+            (lambda (oldfun &rest r)
+              (if (texmathp)
+                  (progn
+                    (apply oldfun r)
+                    (posframe-hide " *CDLaTeX Help*"))
+                (self-insert-command 1))))
 
 (add-hook 'cdlatex-load-hook (lambda () (setf (alist-get "enumerate" cdlatex-env-alist-default) '("\\begin{enumerate}\n\\item ?\n\\end{enumerate}" "\\item ?"))))
-
-(use-package pdf-tools
-  :defer t ;; Package is loaded by `pdf-loader-install` on demand
-  :init
-  (pdf-loader-install t t) ;; Automatically installs server binary, if needed
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
-  :config
-  ;; WARNING: Code here may be executed twice. See also: https://github.com/emacs-evil/evil-collection/issues/752
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-  (add-hook 'pdf-view-mode-hook (lambda () (setq cursor-in-non-selected-windows nil)))
-  (add-hook 'pdf-view-mode-hook #'pdf-view-auto-slice-minor-mode))
-
-(defun pdf-tools-rebuild-server ()
-  "Force the rebuild of the server binary.
-Usefull if an update broke a dependency and the server needs to be rebuild."
-  (interactive)
-  (require 'pdf-tools)
-  (delete-file pdf-info-epdfinfo-program)
-  (pdf-tools-install t t))
-
-(add-to-list 'recentf-exclude ".*\\.pdf")
-
-(use-package tabnine
-  :hook (kill-emacs . tabnine-kill-process))
-
-;; Requirements for Copilot
-(use-package editorconfig)
-(use-package jsonrpc)
-
-(use-package copilot
-  :load-path "~/.config/emacs/copilot.el"
-  :config
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion))
 
 (with-eval-after-load 'ispell
   (defun ispell-display-buffer (buffer)
@@ -1785,42 +1777,3 @@ Also position fit window to BUFFER and select it."
   (interactive)
   (flyspell-mode -1)
   (flyspell-mode 1))
-
-(use-package flycheck-languagetool
-  :after flycheck
-  :init
-  (setq flycheck-languagetool-server-command (list "languagetool-server" "--config"  (expand-file-name "languagetool-server-config" user-emacs-directory)))
-  :config
-  (flycheck-languagetool-setup))
-
-(use-package languagetool
-  :config
-  (setq languagetool-disabled-rules '("WHITESPACE_RULE" "EN_UNPAIRED_QUOTES" "MORFOLOGIK_RULE_EN_US" "COMMA_PARENTHESIS_WHITESPACE" "SENTENCE_WHITESPACE" "UNLIKELY_OPENING_PUNCTUATION" "ARROWS")))
-
-;; We redefine the server-start method to call a wrapper executable, instead of calling java directly.
-(defun languagetool-server-start ()
-  "Start the LanguageTool Server.
-
-It's not recommended to run this function more than once."
-  (interactive)
-  (unless (process-live-p languagetool-server-process)
-    (let ((buffer (get-buffer-create languagetool-server-output-buffer-name)))
-      ;; Clean the buffer before printing the LanguageTool Server Log
-      (with-current-buffer buffer
-        (erase-buffer))
-
-      ;; Start LanguageTool Server
-      (setq languagetool-server-process
-            (apply #'start-process
-                   "*LanguageTool Server*"
-                   buffer
-                   "languagetool-server"
-                   languagetool-server-arguments)) ;; TODO: This does not currently pass the port along
-
-      ;; Does not block Emacs when close and do not shutdown the server
-      (set-process-query-on-exit-flag languagetool-server-process nil))
-
-    ;; Start running the hint idle timer
-    (setq languagetool-core-hint-timer
-          (run-with-idle-timer languagetool-hint-idle-delay t
-                               languagetool-hint-function))))

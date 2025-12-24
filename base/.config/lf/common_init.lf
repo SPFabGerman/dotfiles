@@ -107,26 +107,24 @@ cmd trash %{{
 }}
 
 cmd jump ${{
-    cd ~
-    # DIR=$(bfs ~ -type d 2>/dev/null | fzf --header='LF - Jump To: ' --preview='exa -aFT -L1 --icons --group-directories-first --color=always {}' --keep-right)
-    export FZF_DEFAULT_COMMAND=" "
-    RELOAD_CMD='bfs ~ -type d -iname "*$(echo {q} | cut -d " " -f 1)*" -printf "%P\n"'
-    PREVIEW_CMD='exa -aFT -L1 --icons --group-directories-first --color=always ./{}'
-    DIR=$(fzf --header='LF - Jump To: ' --preview="$PREVIEW_CMD" --bind "change:reload($RELOAD_CMD)" --exact --scheme=path --tiebreak=length,end,index)
-    [ "$DIR" ] && lf -remote "send $id cd \"$HOME/$DIR\""
+    export FZF_DEFAULT_COMMAND="fd --hidden -t d --search-path ~ --exec-batch printf '%s\n' {}"
+    PREVIEW_CMD='exa -a -F -T -L1 --icons --group-directories-first --color=always {}'
+    DIR=$(fzf --header='LF - Jump To:' --preview="$PREVIEW_CMD")
+    [ -n "$DIR" ] && lf -remote "send $id cd \"$DIR\""
 }}
 
 cmd search-deep ${{
-    DIR=$(bfs . 2>/dev/null | fzf --header='LF - Jump To: ' --scheme=path -d "/" -n -1)
-    [ "$DIR" ] && lf -remote "send $id select \"$DIR\""
+    # TODO: Add preview command
+    DIR=$(fzf --header='LF - Jump To:')
+    [ -n "$DIR" ] && lf -remote "send $id select \"$DIR\""
 }}
 
 cmd multi-select ${{
+    # TODO: Maybe change this to fd for more consistency
     export FZF_DEFAULT_COMMAND="find . -path './*'"
     RELOAD_CMD='find . -path {q}'
     PATTERN=$(fzf --header='Pattern:' --header-first --bind "change:reload($RELOAD_CMD)" -q "./*" --disabled --no-sort --print-query | head -n 1)
-    [ "$PATTERN" ] && lf -remote "send $id toggle $(find . -path "$PATTERN" -printf '"%P" ')"
-    stpvimgclr
+    [ -n "$PATTERN" ] && lf -remote "send $id toggle $(find . -path "$PATTERN" -printf '"%P" ')"
 }}
 
 cmd next-dir :{{
@@ -167,7 +165,7 @@ cmd move-from ${{
 
     DEST="$PWD"
     cd "${1/\~/$HOME}"
-    FILES="$(ls -t | fzf -m +s --header="Move from $1:")"
+    FILES="$(fzf -m --header="Move from $1:")"
     mv -t "$DEST" -i $FILES
     LAST="$(echo "$FILES" | tail -n 1)"
     lf -remote "send $id select \"$DEST/$LAST\""
@@ -195,12 +193,14 @@ cmd edit $$EDITOR "$f"
 cmd terminal $$SHELL
 cmd terminal-extern &unset LF_LEVEL; setsid -f $TERMINAL -e $SHELL
 
-# Setup stub tmux commands.
-# These commands may later be overwritten by tmux_commands.lf
-cmd _tmux_not_found :echoerr "Not in a TMUX session."
-cmd tmux-splith _tmux_not_found
-cmd tmux-splitv _tmux_not_found
-cmd tmux-create _tmux_not_found
+# Setup stub multiplexer commands.
+# These commands may later be overwritten by tmux_commands.lf or kitty_commands.lf
+cmd _inline_edit_start :set nopreview; set ratios 1:2
+cmd _inline_edit_stop :set preview; set ratios 1:2:2
+cmd _multiplexer_not_found :echoerr "Could not find a multiplexer."
+cmd multiplexer-window-splith _multiplexer_not_found
+cmd multiplexer-window-splitv _multiplexer_not_found
+cmd multiplexer-window-create _multiplexer_not_found
 
 
 

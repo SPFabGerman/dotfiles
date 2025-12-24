@@ -3,7 +3,7 @@
     purr = pull --rebase
     sub = restore --staged
     fzf = !git status --porcelain | fzf --preview=\"git diff --color=always -- {2..}\" 
-    quicksave = !git add --all && git commit -m \"Update $(git diff --staged --name-only | paste -sd ',')\"
+    quicksave = !git add --update && git commit -m \"Update $(git diff --staged --name-only | paste -sd ',')\"
 [core]
     editor = nvim
 [init]
@@ -12,8 +12,8 @@
     ff = only
 [push]
     autoSetupRemote = true
-[diff]
-    external = difft
+; [diff]
+;     external = difft
 [gpg]
     format = ssh
 [user]

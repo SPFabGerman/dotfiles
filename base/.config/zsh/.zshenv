@@ -11,3 +11,6 @@ source ~/.config/zsh/envvars.sh
 if [ -f /etc/NIXOS ]; then
     setopt no_global_rcs
 fi
+
+# Import PATH into users systemd process, so that services can rely on it
+systemctl --user import-environment PATH

@@ -1,0 +1,26 @@
+# This file sets up lf commands for integration with kitty.
+# It overrides some commands defined in common_init.lf
+# This file assumes lf is run in kitty, with remote commands enabled! If that is not the case, these commands will not work correctly!
+# (This assumption is made to keep the commands simple and without much interruption.)
+# Load this file with the following code, after loading common_init.lf:
+# $[[ -n "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/kitty_commands.lf"
+
+cmd multiplexer-window-splith $kitten @ launch --location=hsplit --cwd=current lf
+cmd multiplexer-window-splitv $kitten @ launch --location=vsplit --cwd=current lf
+cmd multiplexer-window-create $kitten @ launch --type=tab lf
+
+cmd open-with-editor $kitten @ launch --type=tab --cwd=current $EDITOR "$f"
+cmd edit :{{
+    # Run this command in lf, for slightly smoother transition
+    :_inline_edit_start
+    $kitten @ launch --location=vsplit --bias=40 --cwd=current sh -c "$EDITOR \"$f\"; lf -remote \"send $id _inline_edit_stop\""
+}}
+
+cmd terminal-extern $kitten @ launch --type=tab --cwd=current
+cmd terminal ${{
+    if ! [ -e "/tmp/lf.$USER.$id.zshfifo" ]; then
+        ENV="--env ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo --env ZSH_FIFO_REMOVE=1 --env ZSH_FIFO_REMOVE_LAST=1 --env id=$id"
+    fi
+    kitten @ launch --location=hsplit --bias=25 --cwd=current $ENV
+}}
+

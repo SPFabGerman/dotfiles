@@ -1,2 +1,9 @@
-set chafasixel
-# set forcechafa
+set forcekitty
+
+preview empty inode/x-empty {{
+    echo "--- Empty file ---"
+}}
+
+preview lua .lua {{
+    bat "${f}" --color always --style plain
+}}

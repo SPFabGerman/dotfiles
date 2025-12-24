@@ -37,7 +37,7 @@ if isInstalled "fzf"; then
 	export FZF_DEFAULT_OPTS="--info=inline --reverse --cycle \
 	--prompt='❯ ' --pointer='❯' --marker='❯' \
 	--color=16,border:8,gutter:-1,spinner:1,prompt:2,pointer:4,header:3,fg+:7,bg+:238 --ansi \
-	--bind 'change:top,ctrl-d:half-page-down,ctrl-u:half-page-up,alt-enter:replace-query,alt-p:toggle-preview,alt-s:toggle-sort,ctrl-k:clear-query,ctrl-g:top'"
+	--bind 'change:top,ctrl-d:half-page-down,ctrl-u:half-page-up,alt-p:toggle-preview,alt-s:toggle-sort,ctrl-k:clear-query,ctrl-g:top,ctrl-v:toggle-all'"
     export FZF_DEFAULT_COMMAND="find ~"
     if isInstalled "fd"; then
         # The exec-batch is useful to remove trailing slashes from directories.

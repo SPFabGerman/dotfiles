@@ -1,0 +1,22 @@
+diff --git a/sh/helpers.sh b/sh/helpers.sh
+index df51883..36d78c1 100644
+--- a/sh/helpers.sh
++++ b/sh/helpers.sh
+@@ -51,7 +51,7 @@ set_image_method() {
+ 	[ -n "${forcechafa}" ] && exists chafa && { image_method="${image_method_chafa}"; return 0; }
+ 
+ 	[ -n "${DISPLAY}" ] && [ -z "${WAYLAND_DISPLAY}" ] && exists ueberzug &&
+-		[ -n "${fifo}" ] && [ -e "${fifo}" ] &&
++		[ -n "${fifo}" ] &&
+ 		{ image_method="${image_method_ueberzug}"; return 0; }
+ 
+ 	is_kitty && { image_method="${image_method_kitty}"; return 0; }
+@@ -72,7 +72,7 @@ chafa_run() {
+ 	format='-f symbols'
+ 	autochafa && format=
+ 	chafasixel && format='-f sixels --polite on'
+-	chafa -s "${w}x${h}" "${format}" "${1}" | sed 's/#/\n#/g'
++	chafa -s "${w}x${h}" ${format} "${1}" | sed 's/#/\n#/g'
+ }
+ 
+ setup_fifo() {

@@ -22,13 +22,6 @@
       comment-nvim # TODO: Alternatives available
       tmux-nvim
       fzf-lua # TODO: Maybe switch out with telescope.nvim
-
-      # Completion
-      nvim-cmp
-      cmp-buffer
-      cmp-path
-      cmp-cmdline
-      cmp-nvim-lua
     ];
   };
 
@@ -40,7 +33,7 @@
     sxhkd
     playerctl
     xorg.xmodmap
-   
+
     # Unicode selection
     rofi
     rofimoji
@@ -56,7 +49,7 @@
     nwg-drawer # Application Launcher
     nwg-bar # Power Menu
     maim # Screenshots
-    xdragon # Drag-and-Drop of Files
+    dragon-drop # Drag-and-Drop of Files
 
     # Clipboard
     xclip
@@ -92,28 +85,30 @@
     nsxiv # Basic Image Viewer
     btop # System Resource Viewer
     evince # PDF Viewer
+    pdfslicer
     thunderbird # EMails
+    onlyoffice-desktopeditors
 
     # File Synchronization
     syncthing
     syncthingtray
 
     discord
-    telegram-desktop
     signal-desktop
     spotify
 
     # CLI Tools
     fzf # Fuzzy Finder
     # Better File Viewer, diffs and Previewers
-    bat 
+    bat
     difftastic
-    ctpv
-    poppler_utils # (needed by ctpv)
+    (pkgs.callPackage ./ctpv-fork/ctpv-fork.nix { })
+    poppler-utils # (needed by ctpv)
     eza # Better File Lister
     fd # File Find
     ripgrep
     perl540Packages.FileMimeInfo # Mimetype of files
+    handlr-regex
     entr # Running applications on file change
     renameutils
     trash-cli
@@ -121,6 +116,7 @@
     dust # Storage Usage Visualizer
     stow # Dotfile Management
     jq # JSON Query
+    (pkgs.callPackage ./git-user/git-user.nix { })
 
     # Nix Tools
     nixfmt-rfc-style
@@ -131,6 +127,8 @@
     # Programming Languages & Tools
     python3
     texliveFull
+    pplatex
+    texlab
 
     (aspellWithDicts (
       dicts: with dicts; [

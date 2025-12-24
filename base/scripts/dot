@@ -6,7 +6,7 @@ IFS=$'\n\t'
 # === STOW ===
 
 STOW_DIR="$HOME/dotfiles"
-STOW_DEFAULT_PACKAGES=(base private)
+STOW_DEFAULT_PACKAGES=(base private unused)
 
 # Calls stow to update all symlinks in HOME.
 # Arguments can be used to specify packages, otherwise use default packages.
@@ -58,6 +58,10 @@ HOME_MANAGER_DIR="$HOME/dotfiles/home-manager"
 
 function dot-os () {
     cd "$NIXOS_DIR"
+
+    nix fmt *.nix
+    git add .
+
     nix flake update
     if [[ $(type -P nh) ]]; then
         nh os switch . -- "$@"
@@ -68,12 +72,49 @@ function dot-os () {
 
 function dot-home-manager () {
     cd "$HOME_MANAGER_DIR"
+
+    nix fmt *.nix
+    git add .
+
     nix flake update
     if [[ $(type -P nh) ]]; then
         nh home switch --ask . -- "$@"
     else
-        home-manager --flake . "$@"
+        home-manager switch --flake . "$@"
     fi
+}
+
+function dot-home-manager-background () {
+    # nix-collect-garbage --delete-older-than "30d"
+    # Alternatively do
+    # nix-env --delete-generations 30d
+    # nix-env --delete-generations 30d -p ~/.local/state/nix/profiles/home-manager
+    # to only remove store roots and then let the actual cleanup happen somewhere else.
+    # Or just let this be done by a service independently.
+
+    cd "$HOME_MANAGER_DIR"
+    nix flake update
+    home-manager switch --flake . "$@"
+
+    # nix-store --optimise
+}
+
+
+function dot-cleanup-nix () {
+    sudo nix-collect-garbage --delete-older-than "30d" --dry-run
+    nix-collect-garbage --delete-older-than "30d" --dry-run
+
+    read -p "Proceed? [Y/n]" -n 1 yn
+    case "$yn" in
+        "" ) ;;
+        [Yy] ) ;;
+        [Nn] ) exit 1;;
+        * ) echo -e "\nPlease answer y or n." >&2; exit 1;;
+    esac
+
+    sudo nix-collect-garbage --delete-older-than "30d" --log-format bar
+    nix-collect-garbage --delete-older-than "30d" --log-format bar
+    nix-store --optimise --log-format bar
 }
 
 
@@ -86,6 +127,8 @@ function dot-help () {
     echo "adopt PACKAGE FILES - Move [FILES] into stow [PACKAGE]."
     echo "os [ARGS] - Rebuild NixOS"
     echo "hm [ARGS] - Rebuild HomeManager"
+    echo "hm-bg [ARGS] - Rebuild HomeManager as a background process"
+    echo "cleanup - Do a full system cleanup"
     exit 1
 }
 
@@ -103,6 +146,10 @@ case "$CMD" in
         dot-os "$@";;
     hm)
         dot-home-manager "$@";;
+    hm-bg)
+        dot-home-manager-background "$@";;
+    cleanup)
+        dot-cleanup-nix "$@";;
     *)
         exec 1>&2
         echo "Command not recognized."

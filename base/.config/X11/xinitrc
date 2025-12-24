@@ -35,9 +35,6 @@ udiskie &
 # Compositor
 picom &
 
-# Start Gnome Polkit for later authentication (needed by systemctl for example)
-# /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-
 # Autostart applications
 dex -a -e Awesome --term kitty
 
