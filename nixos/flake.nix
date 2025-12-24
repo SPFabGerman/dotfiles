@@ -21,6 +21,8 @@
           }
           ./system.nix
           ./localization.nix
+          ./x11.nix
+          ./programs.nix
           ./auto-upgrade.nix
 
           ./gaming-nvidia.nix
