@@ -73,7 +73,6 @@ fi
 
 if isInstalled "nh"; then
     export NH_OS_FLAKE=~/dotfiles/nixos/
-    export NH_HOME_FLAKE=~/dotfiles/home-manager/
 fi
 
 # === Change config file locations ===

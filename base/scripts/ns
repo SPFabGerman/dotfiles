@@ -10,7 +10,7 @@ declare -a INDEXES=(
     "all ctrl-a"
     "nixpkgs ctrl-p"
     "nixos ctrl-o"
-    "home-manager ctrl-h"
+    # "home-manager ctrl-h"
 )
 
 OPEN_SOURCE_KEY="ctrl-s"

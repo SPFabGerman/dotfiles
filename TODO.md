@@ -7,7 +7,6 @@
 - Maybe disable channels entirely?
 - make nix store it's own partition, so that it is reusable by other operating systems
 - add pplatex symlinks
-- Remove HomeManager
 
 ## ZSH
 - Go through defined options and clean some up
