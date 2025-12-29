@@ -60,7 +60,7 @@ zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
 COMPLETION_ACTIVE=0
 complete-with-dots () {
     COMPLETION_ACTIVE=1
-    _stop_line_preview
+   _remove_preview 
 
     # turn off line wrapping and Show dots when waiting for completion
     printf '\e[?7l%s\e[?7h' "[38;5;7m…[00m"
@@ -69,7 +69,6 @@ complete-with-dots () {
     zle redisplay
 
     COMPLETION_ACTIVE=0
-    _start_line_preview
 }
 zle -N complete-with-dots
 bindkey -M emacs "^I" complete-with-dots

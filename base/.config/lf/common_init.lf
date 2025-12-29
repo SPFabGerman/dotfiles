@@ -8,9 +8,6 @@ set ratios 1:2:2
 set icons
 set truncatechar 󰇘
 
-# Show Number of Files in Dir, when Displaying Size (set info size)
-set dircounts
-
 # Enable Hidden Files by Default
 # set hidden
 # Custom Hidden Files (don't show git Directories)
@@ -25,7 +22,8 @@ set mouse
 map <m-up> scroll-up
 map <m-down> scroll-down
 
-# Reload files every second
+# Reload files on change and also every second as a failsafe
+set watch true
 set period 1
 
 # Jump when searching and filter down while typing
@@ -48,9 +46,9 @@ set dupfilefmt "%b.~%n~%e"
 
 # === Common Mappings ===
 
-# Command Mode Mappings to access history
-cmap <up> cmd-history-prev
-cmap <down> cmd-history-next
+# Enable menu completion
+cmap <tab> cmd-menu-complete
+cmap <backtab> cmd-menu-complete-back
 
 # Combine Commands with simmilar use cases
 map <c-r> :redraw;reload
@@ -121,6 +119,7 @@ cmd search-deep ${{
 
 cmd multi-select ${{
     # TODO: Maybe change this to fd for more consistency
+    # TODO: Maybe it's better to just toggle all that have been selected by fzf for more consistent usage
     export FZF_DEFAULT_COMMAND="find . -path './*'"
     RELOAD_CMD='find . -path {q}'
     PATTERN=$(fzf --header='Pattern:' --header-first --bind "change:reload($RELOAD_CMD)" -q "./*" --disabled --no-sort --print-query | head -n 1)

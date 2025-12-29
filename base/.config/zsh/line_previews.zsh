@@ -1,5 +1,6 @@
 # === Preview Generator Functions ===
 
+# TODO: Cleanup and document code better. Also split this into different functions for normal and global aliases. (Global aliases can be simplified, as a full expansion is much more complicated there.)
 alias_preview_expansion () {
 	local WORD="$1"
 	local ORIG="$WORD"
@@ -7,6 +8,11 @@ alias_preview_expansion () {
 	local FP=""
 	local END=""
 	local FINAL=""
+
+	local ISFIRST=1 # Is first word in line
+	if [[ "$LBUFFER" = *" "* ]]; then
+		ISFIRST=0
+	fi
 
 	# Expand alias
 	while [[ ("$WORD" != "") && ! ($WORD =~ "^(${(j:|:)no_alias_expand})\$") && ! ("$WORD" =~ '\^\\.*') && ("$PWORD" != "$WORD") ]]; do
@@ -46,7 +52,7 @@ history_preview () {
 maybe_expand_history_preview () {
     # Only expand if we are on the far right and see a history preview
     if [[ -z "$RBUFFER" && "$_LINE_PREVIEW_CURRENT" = "history" ]]; then
-        _remove_preview_highlight
+        _remove_preview
         LBUFFER="$(history_preview)"
     fi
 }
@@ -57,31 +63,23 @@ zle -N maybe_expand_history_preview
 # === Preview Logic ===
 
 _LINE_PREVIEW_CURRENT="none"
-_LINE_PREVIEW_STOPPED=0
 
-_remove_preview_highlight () {
-    emulate -L zsh -o EXTENDED_GLOB
-    local updated_highlight="${#BUFFER} [[:digit:]]## fg=8"
-    region_highlight[$region_highlight[(i)$updated_highlight]]=()
+_remove_preview () {
+    local preview_highlight_key="* memo=line-preview"
+    region_highlight[(r)$preview_highlight_key]=()
+    unset POSTDISPLAY
+    _LINE_PREVIEW_CURRENT="none"
 }
 
 _create_line_preview () {
-    # Cancel preview if line is accepted and cleared
-    if [[ "$_LINE_PREVIEW_STOPPED" = 1 ]]; then
-        return 0
-    fi
-
-	local ISFIRST=1 # Is first word in line
-	if [[ "$LBUFFER" = *" "* ]]; then
-		ISFIRST=0
-	fi
-
 	# Find current word
 	local LW=${LBUFFER##* } # Left part of the current word
 	local RW=${RBUFFER%% *} # Right part of the current word
 	local WORD="${LW}${RW}" # Original Word
     local FINAL=""
-    _LINE_PREVIEW_CURRENT="none"
+
+    # Remove old preview
+    _remove_preview
 
     # Only expand if we are on a word
     if [[ -n "$WORD" ]]; then
@@ -102,30 +100,15 @@ _create_line_preview () {
         fi
     fi
 
-    _remove_preview_highlight
-    unset POSTDISPLAY
 	if [[ "$FINAL" ]]; then
 		POSTDISPLAY="$FINAL"
-		region_highlight+=("${#BUFFER} $(($#BUFFER + $#POSTDISPLAY)) fg=8")
+		region_highlight+=("${#BUFFER} $(($#BUFFER + $#POSTDISPLAY)) fg=8 memo=line-preview")
 	fi
 }
 
-_stop_line_preview () {
-    _remove_preview_highlight
-    unset POSTDISPLAY
-    _LINE_PREVIEW_CURRENT="none"
-    _LINE_PREVIEW_STOPPED=1
-}
-
-_start_line_preview () {
-	_LINE_PREVIEW_STOPPED=0
-}
-
 autoload -Uz add-zle-hook-widget
+zle -N _remove_preview
 zle -N _create_line_preview
-zle -N _stop_line_preview
-zle -N _start_line_preview
 add-zle-hook-widget zle-line-pre-redraw _create_line_preview
-add-zle-hook-widget zle-line-finish _stop_line_preview
-add-zle-hook-widget zle-line-init _start_line_preview
+add-zle-hook-widget zle-line-finish _remove_preview
 

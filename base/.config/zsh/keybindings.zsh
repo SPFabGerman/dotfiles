@@ -30,9 +30,9 @@ bindkey '^E' edit-command-line
 better-dot-insert () {
     # TODO: Check if we really have a directory
     if [[ $LBUFFER = *.. ]]; then
-        LBUFFER+=/..
+        zle -U "/.."
     else
-        LBUFFER+=.
+        zle self-insert
     fi
 }
 zle -N better-dot-insert

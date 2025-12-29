@@ -25,11 +25,6 @@ cmd edit :{{
     $tmux split-window -h -l 40% "$EDITOR \"$f\"; lf -remote \"send $id _inline_edit_stop\""
 }}
 
-cmd terminal &{{
-    if ! [ -e "/tmp/lf.$USER.$id.zshfifo" ]; then
-        ENV="-e ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo -e ZSH_FIFO_REMOVE=1 -e ZSH_FIFO_REMOVE_LAST=1 -e id=$id"
-    fi
-    tmux split-window -v -l 25% $ENV $SHELL
-}}
 cmd terminal-extern &tmux new-window $SHELL
+cmd terminal &tmux split-window -v -l 25% -e ZSH_FOLLOW_CWD_OF_PID=$id $SHELL
 

@@ -28,8 +28,8 @@ else
     # eval "$(starship init zsh)"
 fi
 
-# Load Syntax Highlighting last, since otherwise it interferes with alot of stuff
-source "$ZDOTDIR/F-Sy-H/F-Sy-H.plugin.zsh"
-
-# Remove arguments, that have remained from somewhere
-shift $#
+# Syntax Highlighting has to be loaded last
+source /run/current-system/sw/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ZSH_HIGHLIGHT_STYLES[path]='fg=yellow,underline'
+ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=cyan'
+ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=cyan'

@@ -7,16 +7,6 @@ function noexpand () {
 
 
 
-function generate-bookmark-aliases () {
-    # This is a function, so that variables remain local and aliases can be updated later manually.
-    [[ -f ~/.config/bookmarks ]] && sed '/^$/d' ~/.config/bookmarks | while read line; do
-        local M="$(echo "$line" | cut -d " " -f 1)"
-        local D="$(echo "$line" | cut -d " " -f 2)"
-        alias b${M}="cd ${D}"
-    done
-}
-generate-bookmark-aliases
-
 # Reset Shell
 alias esh='exec $SHELL'
 

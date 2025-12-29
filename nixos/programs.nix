@@ -11,6 +11,8 @@
 
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
+  # This symlinks the zsh-syntax-highlighting package to /run/current-system/sw/share/zsh-syntax-highlighting/
+  environment.pathsToLink = [ "/share/zsh-syntax-highlighting" ];
 
   programs.git.enable = true;
 
@@ -102,6 +104,7 @@
       # Shell Customization
       oh-my-posh # Shell Prompt
       zsh-completions
+      zsh-syntax-highlighting
       tmux
 
       # Basic Applications
@@ -153,8 +156,10 @@
 
       # Programming Languages & Tools
       python3
+      go
+      gopls
       texliveFull
-      pplatex
+      (pkgs.callPackage ./pplatex/pplatex.nix { })
       texlab
 
       (aspellWithDicts (

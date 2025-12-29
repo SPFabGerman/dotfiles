@@ -13,4 +13,4 @@ if [ -f /etc/NIXOS ]; then
 fi
 
 # Import PATH into users systemd process, so that services can rely on it
-systemctl --user import-environment PATH
+# systemctl --user import-environment PATH

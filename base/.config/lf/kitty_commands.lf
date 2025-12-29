@@ -17,10 +17,5 @@ cmd edit :{{
 }}
 
 cmd terminal-extern $kitten @ launch --type=tab --cwd=current
-cmd terminal ${{
-    if ! [ -e "/tmp/lf.$USER.$id.zshfifo" ]; then
-        ENV="--env ZSH_FIFO=/tmp/lf.$USER.$id.zshfifo --env ZSH_FIFO_REMOVE=1 --env ZSH_FIFO_REMOVE_LAST=1 --env id=$id"
-    fi
-    kitten @ launch --location=hsplit --bias=25 --cwd=current $ENV
-}}
+cmd terminal $kitten @ launch --location=hsplit --bias=25 --cwd=current --env ZSH_FOLLOW_CWD_OF_PID=$id
 

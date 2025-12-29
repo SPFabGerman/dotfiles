@@ -1,9 +1,4 @@
 source ~/.config/lf/common_init.lf
-&[[ -n "$KITTY_WINDOW_ID" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/kitty_commands.lf")
-&[[ -n "$TMUX" ]] && [[ -z "$KITTY_WINDOW_ID" ]] && (sleep 1; lf -remote "send $id source ~/.config/lf/tmux_commands.lf")
-
-load-bookmarks
-map B edit-bookmarks
 
 # Previewer
 set preload false
@@ -12,11 +7,6 @@ set cleaner ctpvclear
 &ctpv -s $id
 # This is more responsive than the included ctpvquit, which only acts after a small delay
 cmd on-quit &ctpv -e $id
-cmd preview-reset ${{
-    # ctpv -e $id
-    # sleep .1
-    # ctpv -s $id &
-}}
 
 # Movement
 map j jump
@@ -32,7 +22,7 @@ map cd push :create-dir<space>
 map ca push :create-archive<space>
 
 # move and deletion of files
-# map m rename
+map m rename
 map l link
 map r trash
 map RR delete
@@ -62,55 +52,59 @@ map t terminal
 map T terminal-extern
 
 # Different sorting for directories
-cmd _sort-default :{{
-    set dirfirst
-    set sortby natural
-    set noreverse
+setlocal ~/Downloads dirfirst false
+setlocal ~/Downloads sortby time
+setlocal ~/Downloads reverse true
+
+# File information
+set info custom
+# We need to call this code directly to avoid issues with quoting of shell arguments and parameters
+# (Because of the many layers between, quoting $@ correctly is surprisingly complicated.)
+cmd on-load &{{
+    # Add Git information
+    # Abort early if we have suspicions that the directory is not a git directory.
+    cd "$(dirname "$1")" || exit 1
+    [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = true ] || exit 0
+
+    cmds=""
+
+    for file in "$@"; do
+        case "$file" in
+            */.git|*/.git/*) continue;;
+        esac
+
+       # The head is essentially a workaround to check directories.
+       # git status only lists individual files of directories, so we simply take the first result for the directory too.
+       # TODO: A better approach would probably be some kind of summary, but that is more complicated.
+       status=$(git status --porcelain --ignored -- "$(realpath "$file")" | cut -c1-2 | head -n1)
+
+       if [ -n "$status" ]; then
+           cmds="${cmds}addcustominfo \"${file}\" \"$status\"; "
+       else
+           cmds="${cmds}addcustominfo \"${file}\" ''; "
+       fi
+   done
+
+   if [ -n "$cmds" ]; then
+       lf -remote "send $id :$cmds"
+   fi
 }}
 
-cmd _sort-Downloads :{{
-    set nodirfirst
-    set sortby time
-    set reverse
-    top
-}}
-
-cmd sort-dir &{{
-# Use custom commands, so that they are executed at once, without the display updating inbetween
-    if [ "${PWD/$HOME/"~"}" = "~/Downloads" ]; then
-        lf -remote "send $id _sort-Downloads"
-    else
-        lf -remote "send $id _sort-default"
-    fi
-
-}}
+# Setup custom status line, based on the eza color scheme
+set timefmt "Mon _2 Jan 2006 15:04:05"
+set rulerfile true
 
 # Movement related functions
 cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --shell universal --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | sed 's/\o33\[K\o33\[0J//g')\""
-map <c-r> :preview-reset;redraw;reload;update-prompt
+cmd update-terminal-title &lf -remote "send $id tty-write \"\033]2;${PWD/$HOME/"~"}\a\""
+map <c-r> :redraw;reload;update-prompt;update-terminal-title
 
-cmd on-select &{{
-    exa-help () {
-        timeout 0.05s exa -l --color=always --icons -F --git -d --total-size "$1" || exa -l --color=always --icons -F --git -d "$1"
-    }
-    lf -remote "send $id set statfmt \" $(exa-help "$f")\""
+cmd pre-cd :setfilter ""
+cmd on-cd :update-prompt;update-terminal-title
+cmd on-focus-gained on-cd
+
+cmd on-init :{{
+    &[[ -n "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/kitty_commands.lf"
+    &[[ -n "$TMUX" ]] && [[ -z "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
+    on-cd
 }}
-
-cmd pre-cd :{{
-    setfilter ""
-}}
-
-cmd on-cd :{{
-    &{{
-        printf "\033]2;%s\a" "${PWD/$HOME/"~"}" > /dev/tty
-        if [ -p "/tmp/lf.$USER.$id.zshfifo" ]; then
-            echo "cd \"$PWD\"; clear" > /tmp/lf.$USER.$id.zshfifo &
-        fi
-    }}
-    update-prompt
-    sort-dir
-}}
-
-# TODO: Make sure lf server is ready to recieve remote commands, before calling this
-on-cd
-

@@ -16,9 +16,3 @@
 [submodule "base/.config/emacs/org-pretty-table"]
 	path = base/.config/emacs/org-pretty-table
 	url = https://github.com/Fuco1/org-pretty-table.git
-[submodule "base/.config/zsh/F-Sy-H"]
-	path = base/.config/zsh/F-Sy-H
-	url = https://github.com/zdharma/fast-syntax-highlighting.git
-[submodule "base/.config/zsh/zsh-autocomplete"]
-	path = base/.config/zsh/zsh-autocomplete
-	url = https://github.com/marlonrichert/zsh-autocomplete.git

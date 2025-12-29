@@ -2,11 +2,10 @@
 
 - Add a Readme
 
-## NixOS and HomeManager
-- Change Gnome Polkit from Autostart to systemd service (see wiki)
+## NixOS
 - Maybe disable channels entirely?
 - make nix store it's own partition, so that it is reusable by other operating systems
-- add pplatex symlinks
+- Push pplatex changes
 
 ## ZSH
 - Go through defined options and clean some up
@@ -14,17 +13,36 @@
 - Check that no aliases are used in init files; define aliases only at end and disable alias expansion for initialization
 - Seperate code used by zshrc and zshenv, to avoid double loading
 - Make forward slash (and maybe other things too) a word seperator
-- Find a better way to handle cleanhome.zsh code
-- Look for alternatives to F-Sy-H
-- Try out zoxide
+- Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)
 
 - Maybe try out fish?
+- Maybe try out zoxide?
+- Maybe try out zsh-autocomplete?
+
+## Kitty
+- Setup shell integration
 
 ## LF
-- Make previewer reload on file change
-- Remove zsh-fifo and implement this in a better, more simplistic way
+Config changes:
 - Free up hjkl keys for movement
 - Add a way to toggle numbers for faster jumps
+- Check out different modes?
+
+Code Fixes:
+- Fix searchmethod / filtermethod have different behaviours for glob and regex matching. One matches entire name, one only substring.
+- Fix Permission Bits, group / user, time in ruler, when a symbolic link is selected for parity with other tools (However, Permission Bits are generally fixed with only few exceptions and only user / group are sometimes relevant and cannot be changed on every system.) (See https://www.man7.org/linux//man-pages/man7/symlink.7.html) (Add option?)
+- Optimize calcdirsize by also saving values for subdirs
+- Fix calcdirsize aborting on one unreadable file (maybe with an option to either abort with error, ignore silently or somehow inform the user?)
+- Add configurable timeout for automatic calcdirsize operations
+- Also allow calcdirsize and custom info to be displayed in ruler (in generall make parity between ruler and info column)
+- Fix Size in ruler not displayed when on empty file because it is treated as an empty value (probably in default example file)
+- Add on-cd to on-init to documentation
+- Add error information to logs (particularly from parsing rulerfile)
+- When in command mode and hitting / switch to search, for parity with $ etc. (but this breaks current backspace behaviour of /)
+- Maybe talk about deprecating setfilter, as it can be trivially achieved by applying arguments to filter (check that in the code) and using a push command or inline by using a cmap command and deleting the current text
+- Fix issue when arguments are applied to filter the incfilter is not updated initially.
+- Add feature where arguments can be applied to filter command to search and other commands too (possibly even single letter commands like mark-load)
+- Add realpath fix for git information to documentation
 
 ## Emacs
 - Rework keybindings for Indentation und Completion
@@ -57,5 +75,7 @@
 - Report xmodmap bug in xinitrc file
 - Install a git tui
 - Look into git hooks (see also https://pre-commit.com/)
-- Look into ways to handle common widgets outside of Awesome (e.g. eww)
+- Look into ways to create widgets window-manager agnostic (e.g. eww)
 - Try out Wayland + Cosmic Desktop
+- Checkout new FZF options
+- Find a way to do nightly commits of the dotfiles repo to avoid accidental loss of data.
