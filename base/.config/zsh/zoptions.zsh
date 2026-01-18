@@ -15,3 +15,5 @@ setopt long_list_jobs
 # enable prompt substitution
 setopt prompt_subst
 
+# Allow * to match files starting with .
+# setopt glob_dots

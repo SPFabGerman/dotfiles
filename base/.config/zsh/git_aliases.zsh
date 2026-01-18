@@ -50,6 +50,8 @@ alias gds='git diff --staged'
 alias gdup='git diff @{upstream}'
 alias gdw='git diff --word-diff'
 
+alias gdt='git difft'
+
 alias gf='git fetch'
 alias gfa='git fetch --all --prune --jobs=10' \
 alias gfo='git fetch origin'

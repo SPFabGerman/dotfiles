@@ -2249,12 +2249,14 @@ This here only sets up a very basic Auctex environment.
 
 TODO: Maybe instead add this to =text-mode-hook=?
 #+begin_src emacs-lisp
-  (add-hook 'LaTeX-mode-hook 'toggle-word-wrap)
-
-  ;; Also allow wrapping after ,
-  ;; This is usefull when listing certain stuff in a macro.
-  (setq word-wrap-by-category t)
-  (modify-category-entry ?, ?|)
+  (add-hook 'LaTeX-mode-hook (lambda ()
+                               (toggle-word-wrap)
+                               ;; Also allow wrapping after ,
+                               ;; This is usefull when listing certain stuff in a macro.
+                               (setq-local word-wrap-by-category t)
+                               (let ((ct (copy-category-table (category-table))))
+                                 (modify-category-entry ?, ?| ct)
+                                 (set-category-table ct))))
 #+end_src
 
 TODO: Can this be added to a mode specific list?
@@ -2431,27 +2433,26 @@ Remove automatic insertion of label in =enumerate= environment.
 
 *** PDF Support
 
-#+begin_src emacs-lisp :tangle no
-(use-package pdf-tools
-  :defer t ;; Package is loaded by `pdf-loader-install` on demand
-  :init
-  (pdf-loader-install t t) ;; Automatically installs server binary, if needed
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
-  :config
-  ;; WARNING: Code here may be executed twice. See also: https://github.com/emacs-evil/evil-collection/issues/752
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-  (add-hook 'pdf-view-mode-hook (lambda () (setq cursor-in-non-selected-windows nil)))
-  (add-hook 'pdf-view-mode-hook #'pdf-view-auto-slice-minor-mode))
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :defer t
+    :init
+    (pdf-loader-install)
+    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+    :config
+    ;; WARNING: Code here may be executed twice. See also: https://github.com/emacs-evil/evil-collection/issues/752
+    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+    (add-hook 'pdf-view-mode-hook (lambda () (setq cursor-in-non-selected-windows nil))))
 
-(defun pdf-tools-rebuild-server ()
-  "Force the rebuild of the server binary.
-Usefull if an update broke a dependency and the server needs to be rebuild."
-  (interactive)
-  (require 'pdf-tools)
-  (delete-file pdf-info-epdfinfo-program)
-  (pdf-tools-install t t))
+  (defun pdf-tools-rebuild-server ()
+    "Force the rebuild of the server binary.
+  Usefull if an update broke a dependency and the server needs to be rebuild."
+    (interactive)
+    (require 'pdf-tools)
+    (delete-file pdf-info-epdfinfo-program)
+    (pdf-tools-install))
 
-(add-to-list 'recentf-exclude ".*\\.pdf")
+  (add-to-list 'recentf-exclude ".*\\.pdf")
 #+end_src
 
 ** Jupyter Support
@@ -2581,6 +2582,13 @@ Also position fit window to BUFFER and select it."
   (interactive)
   (flyspell-mode -1)
   (flyspell-mode 1))
+#+end_src
+
+BUG: Normally this is set to ='tex= for TeX-mode buffers.
+However that leads to =aspell= crashing on my system, for some reason.
+This changes it to just use the default parsing of nroff, even in TeX-mode buffers.
+#+begin_src emacs-lisp
+(add-hook 'TeX-mode-hook (lambda () (setq ispell-parser 'nroff)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no

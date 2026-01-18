@@ -58,10 +58,10 @@ NIXOS_DIR="$HOME/dotfiles/nixos"
 function dot-nixos () {
     cd "$NIXOS_DIR"
 
-    nix fmt *.nix
+    nix fmt **/*.nix
+    nix flake update
     git add .
 
-    nix flake update
     if [[ $(type -P nh) ]]; then
         nh os switch . -- "$@"
     else

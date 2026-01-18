@@ -5,17 +5,17 @@
 # Load this file with the following code, after loading common_init.lf:
 # $[[ -n "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/kitty_commands.lf"
 
-cmd multiplexer-window-splith $kitten @ launch --location=hsplit --cwd=current lf
-cmd multiplexer-window-splitv $kitten @ launch --location=vsplit --cwd=current lf
-cmd multiplexer-window-create $kitten @ launch --type=tab lf
+cmd multiplexer-window-splith $kitten @ launch --no-response --location=hsplit --cwd=current lf
+cmd multiplexer-window-splitv $kitten @ launch --no-response --location=vsplit --cwd=current lf
+cmd multiplexer-window-create $kitten @ launch --no-response --type=tab lf
 
-cmd open-with-editor $kitten @ launch --type=tab --cwd=current $EDITOR "$f"
+cmd open-with-editor $kitten @ launch --no-response --type=tab --cwd=current $EDITOR "$f"
 cmd edit :{{
     # Run this command in lf, for slightly smoother transition
     :_inline_edit_start
-    $kitten @ launch --location=vsplit --bias=40 --cwd=current sh -c "$EDITOR \"$f\"; lf -remote \"send $id _inline_edit_stop\""
+    $kitten @ launch --no-response --location=vsplit --bias=40 --cwd=current sh -c "$EDITOR \"$f\"; lf -remote \"send $id _inline_edit_stop\""
 }}
 
-cmd terminal-extern $kitten @ launch --type=tab --cwd=current
-cmd terminal $kitten @ launch --location=hsplit --bias=25 --cwd=current --env ZSH_FOLLOW_CWD_OF_PID=$id
+cmd terminal-extern $kitten @ launch --no-response --type=tab --cwd=current
+cmd terminal $kitten @ launch --no-response --location=hsplit --bias=25 --cwd=current --env ZSH_FOLLOW_CWD_OF_PID=$id
 

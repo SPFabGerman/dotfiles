@@ -1631,12 +1631,14 @@ When called with prefix ARG the default selection will be symbol at point."
                              (setq truncate-lines nil)
                              (setq-local mouse-wheel-tilt-scroll nil)))
 
-(add-hook 'LaTeX-mode-hook 'toggle-word-wrap)
-
-;; Also allow wrapping after ,
-;; This is usefull when listing certain stuff in a macro.
-(setq word-wrap-by-category t)
-(modify-category-entry ?, ?|)
+(add-hook 'LaTeX-mode-hook (lambda ()
+                             (toggle-word-wrap)
+                             ;; Also allow wrapping after ,
+                             ;; This is usefull when listing certain stuff in a macro.
+                             (setq-local word-wrap-by-category t)
+                             (let ((ct (copy-category-table (category-table))))
+                               (modify-category-entry ?, ?| ct)
+                               (set-category-table ct))))
 
 (defun fab/latex-prettify-symbols-setup ()
   (setq prettify-symbols-unprettify-at-point 't)
@@ -1742,6 +1744,26 @@ since it is possible that the math mode has not been closed yet.)"
 
 (add-hook 'cdlatex-load-hook (lambda () (setf (alist-get "enumerate" cdlatex-env-alist-default) '("\\begin{enumerate}\n\\item ?\n\\end{enumerate}" "\\item ?"))))
 
+(use-package pdf-tools
+  :defer t
+  :init
+  (pdf-loader-install)
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+  :config
+  ;; WARNING: Code here may be executed twice. See also: https://github.com/emacs-evil/evil-collection/issues/752
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+  (add-hook 'pdf-view-mode-hook (lambda () (setq cursor-in-non-selected-windows nil))))
+
+(defun pdf-tools-rebuild-server ()
+  "Force the rebuild of the server binary.
+Usefull if an update broke a dependency and the server needs to be rebuild."
+  (interactive)
+  (require 'pdf-tools)
+  (delete-file pdf-info-epdfinfo-program)
+  (pdf-tools-install))
+
+(add-to-list 'recentf-exclude ".*\\.pdf")
+
 (with-eval-after-load 'ispell
   (defun ispell-display-buffer (buffer)
     "Show BUFFER in new window above selected one.
@@ -1777,3 +1799,5 @@ Also position fit window to BUFFER and select it."
   (interactive)
   (flyspell-mode -1)
   (flyspell-mode 1))
+
+(add-hook 'TeX-mode-hook (lambda () (setq ispell-parser 'nroff)))

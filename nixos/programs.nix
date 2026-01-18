@@ -109,6 +109,7 @@
 
       # Basic Applications
       pulsemixer # Volume Manager
+      wiremix
       lf # File Management
       myneovim
       emacs-gtk # Editor
@@ -137,7 +138,7 @@
       eza # Better File Lister
       fd # File Find
       ripgrep
-      perl540Packages.FileMimeInfo # Mimetype of files
+      perl5Packages.FileMimeInfo # Mimetype of files
       handlr-regex
       entr # Running applications on file change
       renameutils
@@ -149,7 +150,7 @@
       (pkgs.callPackage ./git-user/git-user.nix { })
 
       # Nix Tools
-      nixfmt-rfc-style
+      nixfmt
       nh
       nix-search-tv
       nix-tree
