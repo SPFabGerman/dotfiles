@@ -2,6 +2,10 @@
 
 - Add a Readme
 
+## Things to try out
+- Serious Neovim setup
+- Wayland with Niri or Cosmic Desktop
+
 ## NixOS
 - Maybe disable channels entirely?
 - make nix store it's own partition, so that it is reusable by other operating systems
@@ -13,11 +17,13 @@
 - Check that no aliases are used in init files; define aliases only at end and disable alias expansion for initialization
 - Seperate code used by zshrc and zshenv, to avoid double loading
 - Make forward slash (and maybe other things too) a word seperator
-- Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)
 
-- Maybe try out fish?
 - Maybe try out zoxide?
 - Maybe try out zsh-autocomplete?
+
+## Fish
+- Add preview for abbreviations
+- Add CWD follower
 
 ## Kitty
 - Setup shell integration
@@ -51,10 +57,6 @@ Code Fixes:
 - Extend error lens support for other things too (Spellchecking)
 - Add Grammar checking support
 
-## Neovim
-- Cleanup config
-- Update plugins to modern standards (surround, comments, completion, ...; see home.nix; maybe use mini.nvim?)
-
 ## Other
 - Find or create a better opener than mimeopen
 - Add a Display Manager
@@ -71,6 +73,7 @@ Code Fixes:
 - Install a git tui
 - Look into git hooks (see also https://pre-commit.com/)
 - Look into ways to create widgets window-manager agnostic (e.g. eww)
-- Try out Wayland + Cosmic Desktop
 - Checkout new FZF options
 - Find a way to do nightly commits of the dotfiles repo to avoid accidental loss of data.
+- Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)
+- Handle environment variables shell agnostic, for example with .env files and PAM\_ENV?

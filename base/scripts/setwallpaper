@@ -14,10 +14,12 @@ else
     args=("$@")
 fi
 
-wal --cols16 lighten --recursive -st "${args[@]}"
+wal --cols16 lighten --recursive -st -n "${args[@]}"
 
 # Create a wallpaper symlink for easier access
 ln -sf "$(cat ~/.cache/wal/wal)" ~/.cache/wal/wallpaper
+
+xwallpaper --zoom ~/.cache/wal/wallpaper
 
 # Reload programs
 if pgrep awesome >/dev/null; then

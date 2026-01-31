@@ -25,4 +25,8 @@
     enable = true;
     finegrained = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    (olympus.override { celesteWrapper = "steam-run"; })
+  ];
 }

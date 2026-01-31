@@ -9,10 +9,15 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Disable default aliases. For some shells these can overwrite user configuration.
+  environment.shellAliases = lib.mkForce {};
+
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   # This symlinks the zsh-syntax-highlighting package to /run/current-system/sw/share/zsh-syntax-highlighting/
   environment.pathsToLink = [ "/share/zsh-syntax-highlighting" ];
+
+  programs.fish.enable = true;
 
   programs.git.enable = true;
 
@@ -105,6 +110,8 @@
       oh-my-posh # Shell Prompt
       zsh-completions
       zsh-syntax-highlighting
+      fishPlugins.foreign-env
+      fishPlugins.autopair
       tmux
 
       # Basic Applications
@@ -139,7 +146,6 @@
       fd # File Find
       ripgrep
       perl5Packages.FileMimeInfo # Mimetype of files
-      handlr-regex
       entr # Running applications on file change
       renameutils
       trash-cli
@@ -170,13 +176,8 @@
         ]
       ))
       languagetool
+      ltex-ls-plus
     ];
-
-  nixpkgs.overlays = [
-    (final: prev: {
-      ueberzug = prev.ueberzugpp;
-    })
-  ];
 
   security.polkit.enable = true;
 

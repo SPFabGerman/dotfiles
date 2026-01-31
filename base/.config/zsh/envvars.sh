@@ -78,7 +78,7 @@ fi
 # === Change config file locations ===
 
 # Don't set environment variables, if we are NixOS, since some of these need to be set by Nix and are otherwise easily wrong
-if [ "$HOST" != "fabians-nix-tuxedo" ]; then
+if [ "$(hostname)" != "fabians-nix-tuxedo" ]; then
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
@@ -98,8 +98,8 @@ export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export KDEHOME="$XDG_CONFIG_HOME/kde"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"
-export TERMINFO="$XDG_DATA_HOME/terminfo"
-export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
+# export TERMINFO="$XDG_DATA_HOME/terminfo"
+# export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 export TEXMFHOME="$XDG_DATA_HOME/texmf"
 export TEXMFVAR="$XDG_CACHE_HOME/texlive/texmf-var"
 export TEXMFCONFIG="$XDG_CONFIG_HOME/texlive/texmf-config"
