@@ -1,5 +1,3 @@
-alias eza "eza -F --icons --group-directories-first -h"
-alias ls "eza"
 abbr -a ll "ls -la"
 
 abbr -a v "nvim"
@@ -18,14 +16,7 @@ abbr -a sult 'systemctl --user list-timers --all'
 abbr -a ipa "ip addr"
 abbr -a ipl "ip link"
 
-alias watch "watch -c"
-
 abbr -a rm "trash-put"
-alias cp "cp -iv"
-alias mv "mv -iv"
-alias ln 'ln -siv'
-alias mkdir 'mkdir -pv'
-alias pkill 'pkill -e'
 
 abbr -a --position anywhere L "| less"
 abbr -a --position anywhere G "| grep"
