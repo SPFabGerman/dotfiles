@@ -1,79 +1,73 @@
 {
-  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
-  "transient_prompt": {
-    "template": " {{if eq .PWD \"~\" }}~{{else}}{{ .Folder }}{{end}} ❯ ",
-    "foreground": "lightGreen",
-    "background": "transparent"
-  },
-  "blocks": [
-    {
-      "type": "prompt",
-      "alignment": "left",
-      "segments": [
-        {
-          "properties": {
-            "home_icon": "~",
-            "style": "full"
-          },
-          "leading_diamond": "\u2591\u2592\u2593",
-          "template": " <b>{{ .Path }}</b> ",
-          "foreground": "lightWhite",
-          "background": "blue",
-          "type": "path",
-          "style": "diamond"
-        },
-        {
-          "properties": {
-            "branch_gone_icon": "\u21a5 ",
-            "branch_icon": "\uf126 ",
-            "branch_identical_icon": "",
-            "fetch_stash_count": true,
-            "fetch_status": true,
-            "fetch_upstream_icon": true,
-            "git_icon": "\uf1d3"
-          },
-          "leading_diamond": "<parentBackground,background>\ue0c6</>",
-          "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{ if or (.Ahead) (.Behind) }}{{ .BranchStatus }}{{ end }}{{ if .Working.Added }} U{{ .Working.Added }}{{ end }}{{ if .Working.Modified }} M{{ .Working.Modified }}{{ end }}{{ if .Working.Deleted }} D{{ .Working.Deleted }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Added }} A{{ .Staging.Added }}{{ end }}{{ if .Staging.Modified }} S{{ .Staging.Modified }}{{ end }}{{ if .Staging.Deleted }} R{{ .Staging.Deleted }}{{ end }}{{ if .StashCount }} \uf692{{ .StashCount }}{{ end }} ",
-          "foreground": "black",
-          "background": "green",
-          "type": "git",
-          "style": "diamond",
-          "background_templates": [
-            "{{ if or (.Working.Modified) (.Working.Deleted) (.Staging.Changed) }}yellow{{ end }}"
-          ]
-        },
-        {
-          "leading_diamond": "<parentBackground,background>\ue0c6</>",
-          "template": " # ",
-          "foreground": "lightWhite",
-          "background": "cyan",
-          "type": "root",
-          "style": "diamond"
-        },
-        {
-          "template": "\ue0cc",
-          "foreground": "parentBackground",
-          "type": "text",
-          "style": "plain"
-        }
-      ]
+    "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+    "transient_prompt": {
+        "template": " {{if eq .PWD \"~\" }}~{{else}}{{ .Folder }}{{end}} ❯ ",
+        "foreground": "lightGreen",
+        "background": "transparent"
     },
-    {
-      "type": "rprompt",
-      "alignment": "right",
-      "segments": [
+    "blocks": [
         {
-          "leading_diamond": "\ue0d4",
-          "trailing_diamond": "\u2593\u2592\u2591",
-          "template": " {{ if gt .Code 0 }}\uf00d{{ .Code }}{{ else }}\uf42e{{ end }} ",
-          "foreground": "lightYellow",
-          "background": "red",
-          "type": "exit",
-          "style": "diamond"
+            "type": "prompt",
+            "alignment": "right",
+            "filler": "<black>═</>",
+            "force": true
+        },
+        {
+            "type": "prompt",
+            "alignment": "left",
+            "newline": true,
+            "leading_diamond": "\u2591\u2592\u2593",
+            "trailing_diamond": "\ue0cc",
+            "segments": [
+                {
+                    "type": "path",
+                    "style": "diamond",
+                    "foreground": "lightWhite",
+                    "background": "blue",
+                    "template": " <b>{{ .Path }}</b> ",
+                    "properties": {
+                        "home_icon": "~",
+                        "style": "full"
+                    }
+                },
+                {
+                    "type": "git",
+                    "style": "diamond",
+                    "leading_diamond": "<parentBackground,background>\ue0c6</>",
+                    "foreground": "black",
+                    "background": "green",
+                    "background_templates": [
+                        "{{ if or (.Working.Modified) (.Working.Deleted) (.Staging.Changed) }}yellow{{ end }}"
+                    ],
+                    "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{ if or (.Ahead) (.Behind) }}{{ .BranchStatus }}{{ end }}{{ if .Working.Added }} U{{ .Working.Added }}{{ end }}{{ if .Working.Modified }} M{{ .Working.Modified }}{{ end }}{{ if .Working.Deleted }} D{{ .Working.Deleted }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Added }} A{{ .Staging.Added }}{{ end }}{{ if .Staging.Modified }} S{{ .Staging.Modified }}{{ end }}{{ if .Staging.Deleted }} R{{ .Staging.Deleted }}{{ end }}{{ if .StashCount }} \uf692{{ .StashCount }}{{ end }} ",
+                    "properties": {
+                        "branch_gone_icon": "\u21a5 ",
+                        "branch_icon": "\uf126 ",
+                        "branch_identical_icon": "",
+                        "fetch_stash_count": true,
+                        "fetch_status": true,
+                        "fetch_upstream_icon": true,
+                        "git_icon": "\uf1d3"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "rprompt",
+            "alignment": "right",
+            "leading_diamond": "\ue0d4",
+            "trailing_diamond": "\u2593\u2592\u2591",
+            "segments": [
+                {
+                    "type": "exit",
+                    "style": "diamond",
+                    "foreground": "lightYellow",
+                    "background": "red",
+                    "template": " {{ with .Code }}\uf00d {{ . }}{{ end }} "
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "version": 3,
-  "final_space": true
+    ],
+    "final_space": true,
+    "version": 3
 }

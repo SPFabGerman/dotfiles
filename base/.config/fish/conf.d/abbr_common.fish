@@ -15,9 +15,6 @@ abbr -a sud 'systemctl --user disable --now'
 abbr -a sus 'systemctl --user status'
 abbr -a sult 'systemctl --user list-timers --all'
 
-abbr -a ipa "ip addr"
-abbr -a ipl "ip link"
-
 alias watch "watch -c"
 
 abbr -a rm "trash-put"

@@ -16,16 +16,10 @@ unset config_file
 # Load Prompt
 if [[ ! -o login ]]; then
     # eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh-theme-powerlevel.omp.json)"
-    # enable transientprompt manually, to not overwrite hooks
-    # add-zle-hook-widget zle-line-init _posh-zle-line-init # enable_poshtransientprompt
 
-    # use custom enabler, for better integration with rest of shell config
-    # (see also omp_prompt_setup.zsh and prompt_filler.zsh file)
+    # instead use custom enabler, for better integration with rest of shell config
+    # (see also omp_prompt_setup.zsh file)
     omp-enable
-    setup_prompt_filler
-else
-    # On Login shells load starship
-    # eval "$(starship init zsh)"
 fi
 
 # Syntax Highlighting has to be loaded last

@@ -13,9 +13,7 @@
 
 ## ZSH
 - Go through defined options and clean some up
-- Simplify line above prompt to avoid visual issues when resizing
 - Check that no aliases are used in init files; define aliases only at end and disable alias expansion for initialization
-- Seperate code used by zshrc and zshenv, to avoid double loading
 - Make forward slash (and maybe other things too) a word seperator
 
 - Maybe try out zoxide?
@@ -23,10 +21,7 @@
 
 ## Fish
 - Add preview for abbreviations
-- Add CWD follower
-
-## Kitty
-- Setup shell integration
+- Add CWD follower (A good implementation requires the fish\_focus\_in event, which needs https://github.com/fish-shell/fish-shell/issues/12273 to be adressed first.)
 
 ## LF
 Config changes:
@@ -52,7 +47,6 @@ Code Fixes:
 - Add bindings to evaluate ELips code
 - Rework all org-mode keybindings
 - Implement flymake handling keybindings
-- PDF-View Mode: Add continues scrolling, if possible
 - Factor out code for error-lens and jumplist into their own plugins
 - Extend error lens support for other things too (Spellchecking)
 - Add Grammar checking support
@@ -63,17 +57,16 @@ Code Fixes:
 - Networking System Tray
 - Add Bluetooth support
 - Setup way to duplicate screen
-- Find an alternative to fzfp from stpv
 - dot script: add code to update all git submodules
 - Find a way to fetch new git commits in the background after going into a git repository
 - Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
 - Maybe switch to btrfs for home partition?
 - Update dunst config
 - Report xmodmap bug in xinitrc file
-- Install a git tui
 - Look into git hooks (see also https://pre-commit.com/)
 - Look into ways to create widgets window-manager agnostic (e.g. eww)
 - Checkout new FZF options
 - Find a way to do nightly commits of the dotfiles repo to avoid accidental loss of data.
 - Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)
-- Handle environment variables shell agnostic, for example with .env files and PAM\_ENV?
+- Setup ssh agent
+- Setup signing of git commits

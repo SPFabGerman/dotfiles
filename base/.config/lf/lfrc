@@ -75,7 +75,7 @@ cmd update-git-info &{{
         # The head is essentially a workaround to check directories.
         # git status only lists individual files of directories, so we simply take the first result for the directory too.
         # TODO: A better approach would probably be some kind of summary, but that is more complicated.
-        status=$(git status --porcelain --ignored -- "$(realpath "$file")" | cut -c1-2 | head -n1)
+        status=$(git status --porcelain -- "$(realpath "$file")" | cut -c1-2 | head -n1)
 
         if [ -n "$status" ]; then
             cmds="${cmds}addcustominfo \"${file}\" \"$status\"; "
@@ -94,7 +94,7 @@ set timefmt "Mon _2 Jan 2006 15:04:05"
 set rulerfile true
 
 # Movement related functions
-cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --shell universal --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | sed 's/\o33\[K\o33\[0J//g')\""
+cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | tail -n 1)\""
 cmd update-terminal-title &lf -remote "send $id tty-write \"\033]2;${PWD/$HOME/"~"}\a\""
 map <c-r> :redraw;reload;update-prompt;update-terminal-title;update-git-info
 

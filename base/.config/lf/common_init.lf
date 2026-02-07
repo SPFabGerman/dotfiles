@@ -112,8 +112,7 @@ cmd jump ${{
 }}
 
 cmd search-deep ${{
-    # TODO: Add preview command
-    DIR=$(fzf --header='LF - Jump To:')
+    DIR=$(fzf --header='LF - Jump To:' --preview='fzf-preview {}')
     [ -n "$DIR" ] && lf -remote "send $id select \"$DIR\""
 }}
 
@@ -164,7 +163,7 @@ cmd move-from ${{
 
     DEST="$PWD"
     cd "${1/\~/$HOME}"
-    FILES="$(fzf -m --header="Move from $1:")"
+    FILES="$(fzf -m --header="Move from $1:" --preview='fzf-preview {}')"
     mv -t "$DEST" -i $FILES
     LAST="$(echo "$FILES" | tail -n 1)"
     lf -remote "send $id select \"$DEST/$LAST\""
@@ -200,10 +199,6 @@ cmd _multiplexer_not_found :echoerr "Could not find a multiplexer."
 cmd multiplexer-window-splith _multiplexer_not_found
 cmd multiplexer-window-splitv _multiplexer_not_found
 cmd multiplexer-window-create _multiplexer_not_found
-
-
-cmd hidelatexfiles :set hiddenfiles ".git:.#*:*.aux:*.bbl:*.bcf:*.blg:*.fdb_latexmk:*.fls:*.toc:*.out"
-
 
 
 # === Common Extensions ===

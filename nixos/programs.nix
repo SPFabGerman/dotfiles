@@ -137,6 +137,7 @@
 
       # CLI Tools
       fzf # Fuzzy Finder
+      fzf-preview
       # Better File Viewer, diffs and Previewers
       bat
       difftastic
@@ -154,6 +155,7 @@
       stow # Dotfile Management
       jq # JSON Query
       (pkgs.callPackage ./git-user/git-user.nix { })
+      lazygit
 
       # Nix Tools
       nixfmt

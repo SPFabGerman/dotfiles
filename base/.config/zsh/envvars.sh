@@ -1,17 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-#  _____             __     __             
-# | ____|_ ____   __ \ \   / /_ _ _ __ ___ 
-# |  _| | '_ \ \ / /  \ \ / / _` | '__/ __|
-# | |___| | | \ V /    \ V / (_| | |  \__ \
-# |_____|_| |_|\_/      \_/ \__,_|_|  |___/
-
-# In this file all Shell and Enviroment Variables are set up.
-# Runs very early (most times it is the first thing) on initialization.
-
-# A Helper function, to test if a programm can be run (is installed)
-function isInstalled(){
-	which "$1" 1&>/dev/null
+# A helper function to test if a program is available
+function is-installed () {
+	command -v "$1" &>/dev/null
 }
 
 # Overwrite LC_TIME (ly does currently not setup locale correctly, see also https://github.com/fairyglade/ly/issues/278)
@@ -33,34 +24,38 @@ export LESS="-R --use-color -i -j.25 -a --mouse"
 export WATCH_INTERVAL=1
 
 # Setup FZF
-if isInstalled "fzf"; then
-	export FZF_DEFAULT_OPTS="--info=inline --reverse --cycle \
-	--prompt='❯ ' --pointer='❯' --marker='❯' \
-	--color=16,border:8,gutter:-1,spinner:1,prompt:2,pointer:4,header:3,fg+:7,bg+:238 --ansi \
-	--bind 'change:top,ctrl-d:half-page-down,ctrl-u:half-page-up,alt-p:toggle-preview,alt-s:toggle-sort,ctrl-k:clear-query,ctrl-g:top,ctrl-v:toggle-all'"
+if is-installed "fzf"; then
+    export FZF_DEFAULT_OPTS="--info=inline-right --reverse --cycle
+    --prompt='❯ ' --pointer='❯' --marker='❯' --gutter=' '
+    --color=16,border:8,gutter:-1,spinner:1,prompt:2,pointer:4,header:3,fg+:7,bg+:238
+    --bind 'change:top,ctrl-d:half-page-down,ctrl-u:half-page-up,alt-p:toggle-preview,alt-s:toggle-sort,ctrl-k:clear-query,ctrl-g:top,ctrl-v:toggle-all'
+    --preview-window 'right,<60(bottom)'"
     export FZF_DEFAULT_COMMAND="find ~"
-    if isInstalled "fd"; then
+    if is-installed "fd"; then
         # The exec-batch is useful to remove trailing slashes from directories.
         # This works better with the fzf path matching.
-        export FZF_DEFAULT_COMMAND="fd --hidden --exec-batch printf '%s\n' {}"
+        export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exec-batch printf '%s\n' {}"
+    fi
+    if is-installed "fzf-preview" && is-installed "kitty"; then
+        export FZF_PREVIEW_IMAGE_HANDLER=kitty
     fi
 fi
 
 # === Setup Default applications ===
 
 export EDITOR="nvim"
-if isInstalled "emacs"; then
+if is-installed "emacs"; then
     # Speeds up emacs LSP implementation
     export LSP_USE_PLISTS=true
 fi
 export PAGER="less"
 export BROWSER="firefox"
 
-if isInstalled "alacritty"; then
+if is-installed "alacritty"; then
 	export TERMINAL="alacritty"
 fi
 
-if isInstalled "kitty"; then
+if is-installed "kitty"; then
 	export TERMINAL="kitty"
 fi
 
@@ -71,7 +66,7 @@ if pgrep ssh-agent &>/dev/null && [[ -z "$SSH_AUTH_SOCK" ]]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
 
-if isInstalled "nh"; then
+if is-installed "nh"; then
     export NH_OS_FLAKE=~/dotfiles/nixos/
 fi
 
@@ -93,7 +88,7 @@ export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME/java"
 export MPLAYER_HOME="$XDG_CONFIG_HOME/mplayer"
 export GOPATH="$XDG_DATA_HOME/go"
 export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
-isInstalled go && ( [[ $PATH =~ $(go env GOPATH)/bin ]] || PATH="$(go env GOPATH)/bin:$PATH" )
+is-installed go && ( [[ $PATH =~ $(go env GOPATH)/bin ]] || PATH="$(go env GOPATH)/bin:$PATH" )
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export KDEHOME="$XDG_CONFIG_HOME/kde"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"

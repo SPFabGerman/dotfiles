@@ -25,7 +25,7 @@ super + f
 
 super + e
 # Note: Depending on the terminal emulator and it's settings, the become(nohup ...) approach here might not close the terminal appropriately.
-    kitty fzf --bind 'enter:become(nohup mimeopen -n \{\} > /dev/null)' --bind "ctrl-e:become($EDITOR \{\})" --bind 'ctrl-o:become(lf \{\})'
+    kitty fzf --preview='fzf-preview \{\}' --bind 'enter:become(nohup mimeopen -n \{\} > /dev/null)' --bind "ctrl-e:become($EDITOR \{\})" --bind 'ctrl-o:become(lf \{\})'
 #     kitty fzf --bind 'enter:execute-silent(setsid -f handlr -t false open \{\} &)+abort' --bind "ctrl-e:become($EDITOR \{\})"
 
 super + a ; s

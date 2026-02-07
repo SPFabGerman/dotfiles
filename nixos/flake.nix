@@ -18,6 +18,7 @@
         modules = [
           {
             networking.hostName = "fabians-nix-tuxedo";
+            system.stateVersion = "24.11"; # DO NOT CHANGE
           }
           ./system.nix
           ./localization.nix

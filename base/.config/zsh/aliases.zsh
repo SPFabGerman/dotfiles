@@ -10,10 +10,10 @@ function noexpand () {
 # Reset Shell
 alias esh='exec $SHELL'
 
-isInstalled doas && alias sudo='doas'
+is-installed doas && alias sudo='doas'
 
 # Cleaner ls
-if isInstalled "eza"; then
+if is-installed "eza"; then
     alias eza='eza -F --icons --group-directories-first -h'
     alias exa='eza'
     alias ls='eza'
@@ -23,12 +23,12 @@ alias ll='ls -la'
 alias lt='ls -lT'
 alias lT='ls -laT'
 
-if isInstalled "nvim"; then
+if is-installed "nvim"; then
     alias vim='nvim'
     alias v='nvim'
 fi
 
-if isInstalled "pacman"; then
+if is-installed "pacman"; then
     alias pm='pacman'
     alias pms='sudo pacman -S'
     alias pmss='pacman -Ss'
@@ -56,14 +56,14 @@ alias sult='systemctl --user list-timers --all'
 alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
 noexpand grep
 
-if isInstalled difft; then
+if is-installed difft; then
     alias diff='difft'
 else
     alias diff='diff --color'
     noexpand diff
 fi
 
-isInstalled bat && alias cat="bat"
+is-installed bat && alias cat="bat"
 
 alias rm="trash-put"
 alias cp='cp -iv'
@@ -81,26 +81,26 @@ alias where="builtin whence -cas"
 alias which="where"
 noexpand where
 
-isInstalled "qmv" && alias qmv='qmv -f do'
+is-installed "qmv" && alias qmv='qmv -f do'
 noexpand qmv
 
-isInstalled "dust" && alias dust="dust -r"
+is-installed "dust" && alias dust="dust -r"
 noexpand dust
 
-if isInstalled "python"; then
+if is-installed "python"; then
     alias py='python'
     alias -s py=python
 fi
 
-if isInstalled "xclip"; then
+if is-installed "xclip"; then
     function clipcopy() { xclip -in -selection clipboard < "${1:-/dev/stdin}"; }
     function clippaste() { xclip -out -selection clipboard; }
-elif isInstalled "xsel"; then
+elif is-installed "xsel"; then
     function clipcopy() { xsel --clipboard --input < "${1:-/dev/stdin}"; }
     function clippaste() { xsel --clipboard --output; }
 fi
 
-if isInstalled "gcc"; then
+if is-installed "gcc"; then
     alias gcc='gcc -Wall'
     alias gdb='gdb -q'
     noexpand gcc gdb
