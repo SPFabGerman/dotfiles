@@ -91,7 +91,7 @@ cmd update-git-info &{{
 
 # Setup custom status line, based on the eza color scheme
 set timefmt "Mon _2 Jan 2006 15:04:05"
-set rulerfile true
+set rulerfile ~/.config/lf/ruler
 
 # Movement related functions
 cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | tail -n 1)\""

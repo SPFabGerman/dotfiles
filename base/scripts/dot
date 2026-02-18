@@ -3,9 +3,21 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+if [[ ! -v DOT_DIR ]] && ! DOT_DIR="$(git -C "$(dirname $0)" rev-parse --show-toplevel)"; then
+    echo "Could not find git directory to operate from." 1>&2
+    echo "Set directory with DOT_DIR." 1>&2
+    exit 1
+fi
+
+if [[ ! -d "$DOT_DIR" ]]; then
+    echo "DOT_DIR is not a valid directory." 1>&2
+    echo "DOT_DIR=$DOT_DIR" 1>&2
+    exit 1
+fi
+
 # === STOW ===
 
-STOW_DIR="$HOME/dotfiles"
+STOW_DIR="$DOT_DIR"
 STOW_DEFAULT_PACKAGES=(base private unused)
 
 # Calls stow to update all symlinks in HOME.
@@ -15,7 +27,7 @@ function dot-restow () {
     if [[ $# -gt 0 ]]; then
         packages=( "$@" )
     fi
-    
+
     # Construct command array manually, to avoid issues with word splitting with IFS
     args=()
     for p in "${packages[@]}"; do
@@ -26,6 +38,9 @@ function dot-restow () {
 }
 
 function adopt-into () {
+    # TODO: This currently fails if run from inside the dotfiles directory.
+    echo "Currently unsupported!" 1>&2
+    return 1
     # TODO: Automatically add new files to git repo?
     if [[ $# -lt 2 ]]; then
         echo "Usage: dot adopt PACKAGE FILES"
@@ -53,12 +68,14 @@ function adopt-into () {
 
 # === NIX ===
 
-NIXOS_DIR="$HOME/dotfiles/nixos"
+NIXOS_DIR="$DOT_DIR/nixos"
 
 function dot-nixos () {
+	# TODO: Don't use cd. It can have unexpected side effects if things happen after this function.
     cd "$NIXOS_DIR"
 
-    nix fmt **/*.nix
+    # TODO: Use ** expression. (Needs an option enabled?)
+    nix fmt *.nix */*.nix
     nix flake update
     git add .
 

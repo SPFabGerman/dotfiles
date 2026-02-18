@@ -5,8 +5,8 @@
 # Load this file with the following code, after loading common_init.lf:
 # $[[ -n "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/kitty_commands.lf"
 
-cmd multiplexer-window-splith $kitten @ launch --no-response --location=hsplit --cwd=current lf
-cmd multiplexer-window-splitv $kitten @ launch --no-response --location=vsplit --cwd=current lf
+cmd multiplexer-window-splith $kitten @ launch --no-response --location=hsplit --bias=50 --cwd=current lf
+cmd multiplexer-window-splitv $kitten @ launch --no-response --location=vsplit --bias=50 --cwd=current lf
 cmd multiplexer-window-create $kitten @ launch --no-response --type=tab lf
 
 cmd open-with-editor $kitten @ launch --no-response --type=tab --cwd=current $EDITOR "$f"

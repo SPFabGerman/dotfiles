@@ -29,24 +29,18 @@
             {{. | printf " %8s" -}}
         {{end -}}
     {{end -}}
-    {{if (and (or .Size (eq .Size 0)) (eq (substr $stat.Permissions 0 1) "-")) -}}
-        {{with .Size -}}
-            {{printf " " -}}
-            {{if (lt . 1024) -}}
-                {{printf "\033[38;5;2m" -}}
-            {{else if (lt . 1048576) -}}
-                {{printf "\033[38;5;10m" -}}
-            {{else if (lt . 1073741824) -}}
-                {{printf "\033[38;5;11m" -}}
-            {{else if (lt . 1099511627776) -}}
-                {{printf "\033[38;5;9m" -}}
-            {{end -}}
-            {{. | humanize | printf "%5s\033[0m" -}}
-        {{else -}}
-            {{printf " \033[38;5;8m%5s\033[0m" "0" -}}
+    {{with (or .DirSize .Size) -}}
+        {{printf " " -}}
+        {{if (lt . 1024) -}}
+            {{printf "\033[38;5;2m" -}}
+        {{else if (lt . 1048576) -}}
+            {{printf "\033[38;5;10m" -}}
+        {{else if (lt . 1073741824) -}}
+            {{printf "\033[38;5;11m" -}}
+        {{else if (lt . 1099511627776) -}}
+            {{printf "\033[38;5;9m" -}}
         {{end -}}
-    {{else -}}
-        {{"-" | printf " \033[38;5;8m%5s\033[0m" -}}
+        {{. | humanize | printf "%5s\033[0m" -}}
     {{end -}}
     {{.ModTime | printf " \033[38;5;4m%s\033[0m" -}}
     {{with .Target}} {{printf "\033[38;5;8m->\033[0m"}} {{. | printf "\033[38;5;5m%s\033[0m"}}{{end -}}
