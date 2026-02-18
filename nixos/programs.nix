@@ -10,7 +10,7 @@
   nixpkgs.config.allowUnfree = true;
 
   # Disable default aliases. For some shells these can overwrite user configuration.
-  environment.shellAliases = lib.mkForce {};
+  environment.shellAliases = lib.mkForce { };
 
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
@@ -39,16 +39,14 @@
         autowrapRuntimeDeps = true; # Add plugin dependencies to PATH
         wrapRc = false;
         plugins = with pkgs.vimPlugins; [
-          lualine-nvim
-          gitsigns-nvim
-          which-key-nvim
-          nvim-web-devicons # TODO: Maybe switch to or add mini.icons?
+          nvim-lspconfig
+          nvim-treesitter.withAllGrammars
+          mini-nvim
+          telescope-nvim
+          telescope-ui-select-nvim
+          telescope-fzf-native-nvim
+          gruvbox-nvim
           toggleterm-nvim
-          surround-nvim # TODO: Seems to be somewhat out of date, with newer alternatives available.
-          nvim-autopairs
-          comment-nvim # TODO: Alternatives available
-          tmux-nvim
-          fzf-lua # TODO: Maybe switch out with telescope.nvim
         ];
       };
     in
@@ -65,7 +63,7 @@
       # Hotkeys, Media Control & Key Remapping
       sxhkd
       playerctl
-      xorg.xmodmap
+      xmodmap
 
       # Unicode selection
       rofi
@@ -167,6 +165,7 @@
       python3
       go
       gopls
+      lua-language-server
       texliveFull
       (pkgs.callPackage ./pplatex/pplatex.nix { })
       texlab
