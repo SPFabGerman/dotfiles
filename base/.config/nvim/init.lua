@@ -1,70 +1,41 @@
--- Set <space> as the leader key
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+-- This configuration is not strictly standalone.
+-- Plugins are installed through NixOS and this configuration assumes all necessary plugins are already available.
+-- There are no fallbacks and no automatic installation of missing plugins.
+-- In particular we heavily rely on mini.nvim for many common editing features and nvim-lspconfig and nvim-treesitter for LSP and TreeSitter configurations.
+-- (For a list of all installed plugins see [nixos/programs.nix].)
 
--- {{{ Options
+-- Set some common options and keymappings.
+-- TODO: Add mappings for moving visual lines in insert mode, but remove mappings for normal mode.
+require('mini.basics').setup({
+  options = { extra_ui = true },
+})
+
+-- {{{ Extra Options
 -- See `:help option-list`
-
--- Keep signcolumn on by default
-vim.o.signcolumn = 'yes'
-
--- Make line numbers default
-vim.o.number = true
 vim.o.relativenumber = true
-
--- Enable mouse mode, can be useful for resizing splits for example!
-vim.o.mouse = 'a'
 
 vim.o.title = true
 vim.o.titlestring = "%t%( %M%)"
-
--- Don't show the mode, since it's already in the status line
-vim.o.showmode = false
 
 -- Sync clipboard between OS and Neovim.
 -- Schedule the setting after `UiEnter` because it can increase startup-time.
 vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 
--- Keep indentation on line break
-vim.o.breakindent = true
-
--- Case-insensitive searching
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
 
--- Decrease mapped sequence wait time
--- vim.o.timeoutlen = 300
-
--- Configure how new splits should be opened
-vim.o.splitbelow = true
-vim.o.splitright = true
-
 vim.o.winborder = "rounded"
-
--- Show which line your cursor is on
-vim.o.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 3
 
--- Disable visual wrapping of text
-vim.o.wrap = false
-
 -- Sets how neovim will display certain whitespace characters in the editor.
-vim.o.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣', precedes = '⇠', extends = '⇢' }
 
 -- Better indentation and tab lengths
 vim.o.tabstop = 4
--- vim.o.softtabstop = 4
 vim.o.shiftwidth = 2
 vim.o.expandtab = true
-
--- Fall back to C-like indenting if no `indentexpr` is defined.
-vim.o.smartindent = true
 
 -- If performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s).
@@ -72,73 +43,47 @@ vim.o.confirm = true
 -- }}}
 
 -- {{{ Basic Keymaps
-
 vim.keymap.set('n', 'U', '<C-R>')
-vim.keymap.set({'n', 'v'}, 'x', '"_x')
+vim.keymap.set({'n', 'x'}, 'x', '"_x')
 
-vim.keymap.set('v', 'p', 'P')
-vim.keymap.set('v', 'P', 'p')
+-- By default don't replace clipboard with replaced text when pasting in visual mode
+vim.keymap.set('x', 'p', 'P')
+vim.keymap.set('x', 'P', 'p')
 
-vim.keymap.set('v', '<C-Up>', ":m-2<CR>gv=gv")
-vim.keymap.set('v', '<C-Down>', ":m'>+1<CR>gv=gv")
-vim.keymap.set('v', '=', '=gv')
-vim.keymap.set('v', '<', '<gv')
-vim.keymap.set('v', '>', '>gv')
+-- vim.keymap.set('x', '<C-Up>', ":m-2<CR>gv=gv")
+-- vim.keymap.set('x', '<C-Down>', ":m'>+1<CR>gv=gv")
+-- vim.keymap.set('x', '=', '=gv')
+-- vim.keymap.set('x', '<', '<gv')
+-- vim.keymap.set('x', '>', '>gv')
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 -- See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Diagnostic Config & Keymaps
--- See :help vim.diagnostic.Opts
-vim.diagnostic.config {
-  update_in_insert = false,
-  severity_sort = true,
-  float = { border = 'rounded', source = 'if_many' },
-  underline = { severity = vim.diagnostic.severity.ERROR },
-
-  -- Can switch between these as you prefer
-  virtual_text = true, -- Text shows up at the end of the line
-  virtual_lines = false, -- Teest shows up underneath the line, with virtual lines
-
-  -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
-  jump = { float = true },
-}
-
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Quickfix list' })
-
--- Exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-
--- Split navigation
--- See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('closewithq', { clear = true }),
   pattern = { "qf", "help", "man", "lspinfo" },
-  callback = function(event)
-    local buf = event.buf
-    vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = buf })
-  end,
+  callback = function(event) vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = event.buf, desc = 'Close window' }) end,
 })
 -- }}}
 
 -- {{{ LSP
--- See https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md for default configurations.
+-- See https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md for default configurations of LSP servers.
 
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('lsp-extra-bindings', { clear = true }),
-  callback = function(event)
-    local buf = event.buf
-    vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = buf, desc = 'Goto Definition' })
-  end,
+vim.diagnostic.config({
+  severity_sort = true,
+  virtual_text = true, -- Show diagnostic messages at end of line
+  signs = { text = { [vim.diagnostic.severity.ERROR] = '', [vim.diagnostic.severity.WARN] = '' } },
+  jump = { float = true }, -- Auto open the float on jumps
 })
 
--- Setting up Lua LSP for Neovim
+-- This is already mapped by Telescope.
+-- vim.api.nvim_create_autocmd('LspAttach', {
+--   group = vim.api.nvim_create_augroup('lsp-extra-bindings', { clear = true }),
+--   callback = function(event) vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Goto Definition' }) end,
+-- })
+
+-- {{{ Lua LSP Setup for Neovim
 vim.lsp.config('lua_ls', {
   on_init = function(client)
     if client.workspace_folders then
@@ -179,14 +124,16 @@ vim.lsp.config('lua_ls', {
     Lua = {},
   },
 })
+-- }}}
 
 vim.lsp.enable('lua_ls')
 -- }}}
 
--- {{{ Treesitter
+-- {{{ TreeSitter
 -- NOTE: TreeSitter support is still considered experimental.
+-- For more configuration options see https://github.com/nvim-treesitter/nvim-treesitter.
 
--- Note: Installing of TreeSitter Grammars is done by NixOS, because `:TSInstall` doesn't work correctly on NixOS.
+-- NOTE: Installation of TreeSitter Grammars is done by NixOS itself, because `:TSInstall` doesn't work correctly on NixOS.
 -- We use this helper function to get a list of all installed grammars.
 local function get_all_grammars()
   local f = vim.api.nvim_get_runtime_file('parser/*', true)
@@ -196,8 +143,6 @@ local function get_all_grammars()
   end
   return g
 end
-
--- For more configuration options see https://github.com/nvim-treesitter/nvim-treesitter.
 
 -- Enable highlighting by TreeSitter
 vim.api.nvim_create_autocmd('FileType', {
@@ -209,7 +154,6 @@ vim.api.nvim_create_autocmd('FileType', {
 -- }}}
 
 -- {{{ Colorscheme
-
 require("gruvbox").setup({
   italic = {
     strings = false,
@@ -221,19 +165,26 @@ vim.cmd.colorscheme('gruvbox')
 -- }}}
 
 -- {{{ mini.nvim
-
--- Set some common options and keymappings.
--- Many of the above set options can be removed by this, see https://github.com/nvim-mini/mini.nvim/blob/main/lua/mini/basics.lua.
--- TODO: Add mappings for moving visual lines in insert mode, but remove mappings for normal mode.
-require('mini.basics').setup({
-  options = { extra_ui = true },
-})
 require('mini.bracketed').setup({
   undo = { suffix = '' },
-  indent = { options = { change_type = "diff" } },
 })
 
-require('mini.notify').setup()
+require('mini.pairs').setup()
+require('mini.surround').setup({
+  mappings = {
+    add = 's', -- Add surrounding in Normal and Visual modes
+    delete = 'ds', -- Delete surrounding
+    replace = 'cs', -- Replace surrounding
+    find = '', -- Find surrounding (to the right)
+    find_left = '', -- Find surrounding (to the left)
+    highlight = '', -- Highlight surrounding
+
+    suffix_last = '', -- Suffix to search with "prev" method
+    suffix_next = '', -- Suffix to search with "next" method
+  },
+  respect_selection_type = true,
+})
+
 require('mini.icons').setup()
 require('mini.git').setup()
 require('mini.diff').setup({
@@ -242,7 +193,9 @@ require('mini.diff').setup({
     signs = { add = '┃', change = '┃', delete = '-' },
   }
 })
+
 require('mini.statusline').setup()
+require('mini.notify').setup()
 
 local miniclue = require('mini.clue')
 miniclue.setup({
@@ -268,6 +221,7 @@ miniclue.setup({
     { mode = { 'i', 'c' }, keys = '<C-r>' },
     { mode = 'n', keys = '<C-w>' },
     { mode = { 'n', 'x' }, keys = 'z' },
+    { mode = 'n', keys = require('mini.basics').config.mappings.option_toggle_prefix }
   },
 
   window = {
@@ -276,27 +230,47 @@ miniclue.setup({
     },
   },
 })
+-- }}}
 
-require('mini.pairs').setup()
-require('mini.surround').setup({
-  mappings = {
-    add = 's', -- Add surrounding in Normal and Visual modes
-    delete = 'ds', -- Delete surrounding
-    replace = 'cs', -- Replace surrounding
-    find = '', -- Find surrounding (to the right)
-    find_left = '', -- Find surrounding (to the left)
-    highlight = '', -- Highlight surrounding
-
-    suffix_last = '', -- Suffix to search with "prev" method
-    suffix_next = '', -- Suffix to search with "next" method
+-- {{{ Telescope
+require('telescope').setup({
+  -- See `:help telescope` and `:help telescope.setup()`
+  -- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' } } }
+  -- pickers = {}
+  extensions = {
+    ['ui-select'] = { require('telescope.themes').get_dropdown() },
   },
-  respect_selection_type = true,
+})
+
+require('telescope').load_extension('ui-select') -- Make builtin neovim actions use telescope
+require('telescope').load_extension('fzf') -- Use fzf syntax for matching
+
+local tsbuiltin = require('telescope.builtin')
+vim.keymap.set('n', '<C-h>', tsbuiltin.help_tags, { desc = 'Help' })
+vim.keymap.set('n', '<leader>b', tsbuiltin.buffers, { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>f', tsbuiltin.find_files, { desc = 'Files' })
+vim.keymap.set('n', '<leader>r', tsbuiltin.oldfiles, { desc = 'Recent Files' })
+vim.keymap.set('n', '<leader>/', tsbuiltin.current_buffer_fuzzy_find, { desc = 'Search' })
+vim.keymap.set('n', '<leader>d', tsbuiltin.diagnostics, { desc = 'Diagnostics' })
+
+-- Use Telescope for choosing LSP target instead of Quickfix list
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('telescope-lsp-attach', { clear = true }),
+  callback = function(event)
+    local buf = event.buf
+    vim.keymap.set('n', 'grr', tsbuiltin.lsp_references, { buffer = buf, desc = 'Goto References' })
+    vim.keymap.set('n', 'grd', tsbuiltin.lsp_definitions, { buffer = buf, desc = 'Goto Definitions' })
+    vim.keymap.set('n', 'gri', tsbuiltin.lsp_implementations, { buffer = buf, desc = 'Goto Implementation' })
+    vim.keymap.set('n', 'gO', tsbuiltin.lsp_workspace_symbols, { buffer = buf, desc = 'Workspace symbols' })
+  end,
 })
 -- }}}
 
--- [[ Other Plugins ]]
+-- [[ Add optional packages ]]
+-- Nvim comes bundled with a set of packages that are not enabled by
+-- default. You can enable any of them by using the `:packadd` command.
 
-require('user.telescope')
+-- [[ Other Plugins ]]
 
 require('toggleterm').setup({
   open_mapping = "<Leader>t",
@@ -305,6 +279,7 @@ require('toggleterm').setup({
   persist_mode = false,
   shell =  "/run/current-system/sw/bin/fish",
 })
-vim.keymap.set('t', '<C-w>', '<C-\\><C-n><C-w>')
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-w>', '<C-\\><C-n><C-w>', { desc = 'Quick window commands' })
 
 -- vim: ts=2 sts=2 sw=2 et foldmethod=marker

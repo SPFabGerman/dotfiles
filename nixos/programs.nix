@@ -37,7 +37,7 @@
       myneovim = wrapNeovimUnstable neovim-unwrapped {
         autoconfigure = true; # Auto configures necessary code for certain plugins
         autowrapRuntimeDeps = true; # Add plugin dependencies to PATH
-        wrapRc = false;
+        wrapRc = false; # Use userspace configuration
         plugins = with pkgs.vimPlugins; [
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
