@@ -46,6 +46,10 @@ vim.o.confirm = true
 vim.keymap.set('n', 'U', '<C-R>')
 vim.keymap.set({'n', 'x'}, 'x', '"_x')
 
+-- This is better for a german keyboard layout
+vim.keymap.set('n', ',', ';')
+vim.keymap.set('n', ';', ',')
+
 -- By default don't replace clipboard with replaced text when pasting in visual mode
 vim.keymap.set('x', 'p', 'P')
 vim.keymap.set('x', 'P', 'p')
@@ -165,12 +169,18 @@ vim.cmd.colorscheme('gruvbox')
 -- }}}
 
 -- {{{ mini.nvim
-require('mini.bracketed').setup({
-  undo = { suffix = '' },
+require('mini.bracketed').setup()
+require('mini.indentscope').setup({
+  options = { try_as_border = true },
+})
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'python' },
+  callback = function(event) vim.b[event.buf].miniindentscope_config = { options = { border = 'top' } } end
 })
 
 require('mini.pairs').setup()
 require('mini.surround').setup({
+  --- {{{ Surround Setup
   mappings = {
     add = 's', -- Add surrounding in Normal and Visual modes
     delete = 'ds', -- Delete surrounding
@@ -178,19 +188,75 @@ require('mini.surround').setup({
     find = '', -- Find surrounding (to the right)
     find_left = '', -- Find surrounding (to the left)
     highlight = '', -- Highlight surrounding
-
     suffix_last = '', -- Suffix to search with "prev" method
     suffix_next = '', -- Suffix to search with "next" method
   },
   respect_selection_type = true,
+  --- }}}
 })
 
+-- NOTE: SplitJoin itself only uses simple text processing for doing the splits.
+-- This works reasonably well for most common cases, but can fail in some edge cases.
+-- A more accurate alternative may be to use a plugin for semantic processing with TreeSitter.
+-- WARN: Also be careful when comments are interlined. These are often not handled correctly.
+local minisplitjoin = require('mini.splitjoin')
+minisplitjoin.setup({
+  mappings = { toggle = 'gs' },
+})
+-- {{{ SplitJoin Lua
+-- TODO: Can something for functions be added?
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'lua' },
+  callback = function(event)
+    vim.b[event.buf].minisplitjoin_config = {
+      split = { hooks_post = { minisplitjoin.gen_hook.add_trailing_separator({ brackets = { '%b{}' } }) } },
+      join  = { hooks_post = { minisplitjoin.gen_hook.del_trailing_separator({ brackets = { '%b{}' } }), minisplitjoin.gen_hook.pad_brackets({ brackets = { '%b{}' } }) } },
+    }
+  end
+})
+-- }}}
+-- {{{ SplitJoin Nix
+-- NOTE: In Nix set attributes are separated by ';'.
+-- But Nix uses ';' generally more as an expression delimiter than a pure separator.
+-- (Think for example in with or let expressions.)
+-- This leads to many false positives, which is why we exclude set splits / joins in Nix.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'nix' },
+  callback = function(event)
+    vim.b[event.buf].minisplitjoin_config = {
+      detect = {
+        brackets = { '%b()', '%b[]' },
+        -- Matches (multiple) spaces, excluding the starting ones in a list.
+        -- (See https://github.com/nvim-mini/mini.nvim/issues/386.)
+        -- Note also that only the end of the matched string is used for the split position.
+        separator = '[^[]%f[ ] +',
+      },
+      join  = { hooks_post = { minisplitjoin.gen_hook.pad_brackets({ brackets = { '%b[]' } }) } },
+    }
+  end
+})
+-- }}}
+
+local minijump = require('mini.jump2d')
+minijump.setup({
+  view = {
+    dim = true,
+    n_steps_ahead = 3,
+  },
+  mappings = { start_jumping = '' }
+})
+vim.keymap.set('n', '<Leader>j', function() minijump.start(minijump.builtin_opts.word_start) end, { desc = 'Jump' })
+vim.keymap.set('n', '<Leader>J', function() minijump.start(minijump.builtin_opts.single_character) end, { desc = 'Jump to char' })
+
 require('mini.icons').setup()
+require('mini.icons').mock_nvim_web_devicons()
+
 require('mini.git').setup()
 require('mini.diff').setup({
   view = {
     style = 'sign',
     signs = { add = '┃', change = '┃', delete = '-' },
+    priority = 1,
   }
 })
 
@@ -198,6 +264,7 @@ require('mini.statusline').setup()
 require('mini.notify').setup()
 
 local miniclue = require('mini.clue')
+-- {{{ Mini.Clue Setup
 miniclue.setup({
   clues = {
     miniclue.gen_clues.square_brackets(),
@@ -232,13 +299,36 @@ miniclue.setup({
 })
 -- }}}
 
+-- NOTE: In some languages these may already be highlighted by syntax highlighting (sometimes through TreeSitter).
+-- This should overwrite the default syntax highlighting.
+local hipatterns = require('mini.hipatterns')
+-- {{{ HiPatterns Setup
+hipatterns.setup({
+  highlighters = {
+    fixme     = { pattern = 'FIXME', group = 'MiniHipatternsFixme' },
+    bug       = { pattern = 'BUG', group = 'MiniHipatternsFixme' },
+    err       = { pattern = 'ERROR', group = 'MiniHipatternsFixme' },
+    hack      = { pattern = 'HACK', group = 'MiniHipatternsHack' },
+    warn      = { pattern = 'WARN', group = 'MiniHipatternsHack' },
+    todo      = { pattern = 'TODO', group = 'MiniHipatternsTodo' },
+    wip       = { pattern = 'WIP', group = 'MiniHipatternsTodo' },
+    note      = { pattern = 'NOTE', group = 'MiniHipatternsNote' },
+    info      = { pattern = 'INFO', group = 'MiniHipatternsNote' },
+    hex_color = hipatterns.gen_highlighter.hex_color(), -- #ffaa00
+  }
+})
+-- }}}
+-- }}}
+
 -- {{{ Telescope
 require('telescope').setup({
-  -- See `:help telescope` and `:help telescope.setup()`
-  -- defaults = { mappings = { i = { ['<c-enter>'] = 'to_fuzzy_refine' } } }
-  -- pickers = {}
+  defaults = {
+    mappings = {
+      i = { ["<esc>"] = require('telescope.actions').close },
+    },
+  },
   extensions = {
-    ['ui-select'] = { require('telescope.themes').get_dropdown() },
+    ['ui-select'] = { require('telescope.themes').get_cursor() },
   },
 })
 
@@ -250,7 +340,7 @@ vim.keymap.set('n', '<C-h>', tsbuiltin.help_tags, { desc = 'Help' })
 vim.keymap.set('n', '<leader>b', tsbuiltin.buffers, { desc = 'Buffers' })
 vim.keymap.set('n', '<leader>f', tsbuiltin.find_files, { desc = 'Files' })
 vim.keymap.set('n', '<leader>r', tsbuiltin.oldfiles, { desc = 'Recent Files' })
-vim.keymap.set('n', '<leader>/', tsbuiltin.current_buffer_fuzzy_find, { desc = 'Search' })
+vim.keymap.set('n', '<leader>s', tsbuiltin.current_buffer_fuzzy_find, { desc = 'Search' })
 vim.keymap.set('n', '<leader>d', tsbuiltin.diagnostics, { desc = 'Diagnostics' })
 
 -- Use Telescope for choosing LSP target instead of Quickfix list
@@ -266,18 +356,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 -- }}}
 
--- [[ Add optional packages ]]
--- Nvim comes bundled with a set of packages that are not enabled by
--- default. You can enable any of them by using the `:packadd` command.
-
 -- [[ Other Plugins ]]
 
+-- NOTE: Can in the future maybe be replaced by mini.terminal when it is implemented.
 require('toggleterm').setup({
   open_mapping = "<Leader>t",
   insert_mappings = false,
   terminal_mappings = false,
   persist_mode = false,
-  shell =  "/run/current-system/sw/bin/fish",
+  shell = "/run/current-system/sw/bin/fish",
 })
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 vim.keymap.set('t', '<C-w>', '<C-\\><C-n><C-w>', { desc = 'Quick window commands' })
