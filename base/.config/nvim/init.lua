@@ -5,10 +5,10 @@
 -- (For a list of all installed plugins see [nixos/programs.nix].)
 
 -- Set some common options and keymappings.
--- TODO: Add mappings for moving visual lines in insert mode, but remove mappings for normal mode.
 require('mini.basics').setup({
   options = { extra_ui = true },
 })
+local toogle_prefix_key = require('mini.basics').config.mappings.option_toggle_prefix
 
 -- {{{ Extra Options
 -- See `:help option-list`
@@ -32,6 +32,24 @@ vim.o.scrolloff = 3
 -- Sets how neovim will display certain whitespace characters in the editor.
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣', precedes = '⇠', extends = '⇢' }
 
+-- Use already opened buffers when switching to a file (for example with `<C-w>f`).
+vim.o.switchbuf = 'useopen'
+
+-- Default fold method. This is overwritten if TreeSitter is activated or by some FTPlugins.
+vim.o.foldmethod = 'indent'
+vim.o.foldlevel = vim.o.foldnestmax -- By default nothing is folded
+
+-- Allow concealing or visual replacement of text (defined by syntax highlighting)
+vim.o.conceallevel = 2
+
+-- Treat camelCased words as different words in spell checking
+vim.o.spelloptions = 'camel'
+
+-- Extend word completion by spellcheck (if `spell` is enabled)
+vim.o.complete    = '.,w,b,kspell'
+-- Enable fuzzy matching in completion (Currently disabled, as I don't think it's super useful.)
+-- vim.o.completeopt = 'menuone,noselect,fuzzy,nosort'
+
 -- Better indentation and tab lengths
 vim.o.tabstop = 4
 vim.o.shiftwidth = 2
@@ -40,9 +58,22 @@ vim.o.expandtab = true
 -- If performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s).
 vim.o.confirm = true
+
+-- FTPlugins
+vim.g.markdown_folding = 1
 -- }}}
 
 -- {{{ Basic Keymaps
+-- mini.basic sets keybindings for normal mode that I don't want.
+vim.keymap.del({ 'n', 'x' }, 'j')
+vim.keymap.del({ 'n', 'x' }, 'k')
+vim.keymap.del('n', 'gO')
+
+-- Use display movements in insert mode
+-- TODO: This breaks builtin completion.
+-- vim.keymap.set('i', '<Up>', '<c-o>gk')
+-- vim.keymap.set('i', '<Down>', '<c-o>gj')
+
 vim.keymap.set('n', 'U', '<C-R>')
 vim.keymap.set({'n', 'x'}, 'x', '"_x')
 
@@ -73,20 +104,6 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- {{{ LSP
 -- See https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md for default configurations of LSP servers.
-
-vim.diagnostic.config({
-  severity_sort = true,
-  virtual_text = true, -- Show diagnostic messages at end of line
-  signs = { text = { [vim.diagnostic.severity.ERROR] = '', [vim.diagnostic.severity.WARN] = '' } },
-  jump = { float = true }, -- Auto open the float on jumps
-})
-
--- This is already mapped by Telescope.
--- vim.api.nvim_create_autocmd('LspAttach', {
---   group = vim.api.nvim_create_augroup('lsp-extra-bindings', { clear = true }),
---   callback = function(event) vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Goto Definition' }) end,
--- })
-
 -- {{{ Lua LSP Setup for Neovim
 vim.lsp.config('lua_ls', {
   on_init = function(client)
@@ -129,8 +146,29 @@ vim.lsp.config('lua_ls', {
   },
 })
 -- }}}
-
 vim.lsp.enable('lua_ls')
+
+vim.diagnostic.config({
+  severity_sort = true,
+  virtual_text = true, -- Show diagnostic messages at end of line
+  signs = { text = { [vim.diagnostic.severity.ERROR] = '', [vim.diagnostic.severity.WARN] = '' } },
+  jump = { float = true }, -- Auto open the float on jumps
+})
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('lsp-extra-bindings', { clear = true }),
+  callback = function(event)
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+    -- DISABLED: This is already mapped by Telescope.
+    -- vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Goto Definition' })
+
+    -- Inlay Hints are disabled by default, but can be toggled with the following keybinding.
+    if client and client:supports_method('textDocument/inlayHint', event.buf) then
+      vim.keymap.set('n', toogle_prefix_key .. 'H', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, { buffer = event.buf, desc = 'Toggle Inlay Hints' })
+    end
+  end,
+})
 -- }}}
 
 -- {{{ TreeSitter
@@ -148,12 +186,20 @@ local function get_all_grammars()
   return g
 end
 
--- Enable highlighting by TreeSitter
+-- Enable highlighting and folding using TreeSitter
 vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('tree-sitter-startup', { clear = true }),
   -- See https://github.com/nvim-treesitter/nvim-treesitter/blob/main/SUPPORTED_LANGUAGES.md for a list of supported languages.
   -- pattern = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'go', 'rust', 'python' },
   pattern = get_all_grammars(),
-  callback = function() vim.treesitter.start() end,
+  callback = function()
+    vim.treesitter.start()
+    -- Setup folding using TreeSitter, if FTPlugin doesn't define it's own custom way.
+    if vim.wo[0][0].foldexpr == vim.go.foldexpr and vim.wo[0][0].foldmethod == vim.go.foldmethod then
+      vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+      vim.wo[0][0].foldmethod = 'expr'
+    end
+  end,
 })
 -- }}}
 
@@ -169,11 +215,17 @@ vim.cmd.colorscheme('gruvbox')
 -- }}}
 
 -- {{{ mini.nvim
+local minimisc = require('mini.misc')
+minimisc.setup_auto_root()
+
+local miniextra = require('mini.extra')
+
 require('mini.bracketed').setup()
 require('mini.indentscope').setup({
   options = { try_as_border = true },
 })
 vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('mini-indentscope-python', { clear = true }),
   pattern = { 'python' },
   callback = function(event) vim.b[event.buf].miniindentscope_config = { options = { border = 'top' } } end
 })
@@ -206,6 +258,7 @@ minisplitjoin.setup({
 -- {{{ SplitJoin Lua
 -- TODO: Can something for functions be added?
 vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('mini-splitjoin-lua', { clear = true }),
   pattern = { 'lua' },
   callback = function(event)
     vim.b[event.buf].minisplitjoin_config = {
@@ -221,6 +274,7 @@ vim.api.nvim_create_autocmd('FileType', {
 -- (Think for example in with or let expressions.)
 -- This leads to many false positives, which is why we exclude set splits / joins in Nix.
 vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('mini-splitjoin-nix', { clear = true }),
   pattern = { 'nix' },
   callback = function(event)
     vim.b[event.buf].minisplitjoin_config = {
@@ -248,8 +302,10 @@ minijump.setup({
 vim.keymap.set('n', '<Leader>j', function() minijump.start(minijump.builtin_opts.word_start) end, { desc = 'Jump' })
 vim.keymap.set('n', '<Leader>J', function() minijump.start(minijump.builtin_opts.single_character) end, { desc = 'Jump to char' })
 
-require('mini.icons').setup()
-require('mini.icons').mock_nvim_web_devicons()
+local miniicons = require('mini.icons')
+miniicons.setup()
+miniicons.mock_nvim_web_devicons()
+miniicons.tweak_lsp_kind()
 
 require('mini.git').setup()
 require('mini.diff').setup({
@@ -288,7 +344,7 @@ miniclue.setup({
     { mode = { 'i', 'c' }, keys = '<C-r>' },
     { mode = 'n', keys = '<C-w>' },
     { mode = { 'n', 'x' }, keys = 'z' },
-    { mode = 'n', keys = require('mini.basics').config.mappings.option_toggle_prefix }
+    { mode = 'n', keys = toogle_prefix_key }
   },
 
   window = {
@@ -302,22 +358,15 @@ miniclue.setup({
 -- NOTE: In some languages these may already be highlighted by syntax highlighting (sometimes through TreeSitter).
 -- This should overwrite the default syntax highlighting.
 local hipatterns = require('mini.hipatterns')
--- {{{ HiPatterns Setup
 hipatterns.setup({
   highlighters = {
-    fixme     = { pattern = 'FIXME', group = 'MiniHipatternsFixme' },
-    bug       = { pattern = 'BUG', group = 'MiniHipatternsFixme' },
-    err       = { pattern = 'ERROR', group = 'MiniHipatternsFixme' },
-    hack      = { pattern = 'HACK', group = 'MiniHipatternsHack' },
-    warn      = { pattern = 'WARN', group = 'MiniHipatternsHack' },
-    todo      = { pattern = 'TODO', group = 'MiniHipatternsTodo' },
-    wip       = { pattern = 'WIP', group = 'MiniHipatternsTodo' },
-    note      = { pattern = 'NOTE', group = 'MiniHipatternsNote' },
-    info      = { pattern = 'INFO', group = 'MiniHipatternsNote' },
+    high = miniextra.gen_highlighter.words({ 'FIXME', 'BUG', 'ERR', 'ERROR' }, 'MiniHipatternsFixme'),
+    medium = miniextra.gen_highlighter.words({ 'HACK', 'WARN', 'WARNING' }, 'MiniHipatternsHack'),
+    todo = miniextra.gen_highlighter.words({ 'TODO', 'WIP' }, 'MiniHipatternsTodo'),
+    low = miniextra.gen_highlighter.words({ 'NOTE', 'INFO' }, 'MiniHipatternsNote'),
     hex_color = hipatterns.gen_highlighter.hex_color(), -- #ffaa00
   }
 })
--- }}}
 -- }}}
 
 -- {{{ Telescope
@@ -369,4 +418,4 @@ require('toggleterm').setup({
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 vim.keymap.set('t', '<C-w>', '<C-\\><C-n><C-w>', { desc = 'Quick window commands' })
 
--- vim: ts=2 sts=2 sw=2 et foldmethod=marker
+-- vim: ts=2 sts=2 sw=2 et foldmethod=marker foldlevel=0

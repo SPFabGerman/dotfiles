@@ -28,7 +28,6 @@
     enable = true;
     dockerCompat = true;
   };
-  security.lsm = lib.mkForce [ ]; # Temporary workaround to make old distroboxes work again. See also https://discourse.nixos.org/t/distrobox-selinux-oci-permission-error/64943/15
 
   # List packages installed in system profile
   environment.systemPackages =
@@ -46,6 +45,7 @@
           telescope-ui-select-nvim
           telescope-fzf-native-nvim
           gruvbox-nvim
+          everforest
           toggleterm-nvim
         ];
       };
