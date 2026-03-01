@@ -46,9 +46,12 @@ vim.o.conceallevel = 2
 vim.o.spelloptions = 'camel'
 
 -- Extend word completion by spellcheck (if `spell` is enabled)
-vim.o.complete    = '.,w,b,kspell'
--- Enable fuzzy matching in completion (Currently disabled, as I don't think it's super useful.)
--- vim.o.completeopt = 'menuone,noselect,fuzzy,nosort'
+vim.o.complete = '.,w,b,kspell'
+
+-- Make popupmenu and floating windows opaque.
+-- On some terminal emulators (e.g. kitty) transparency can prevent icons from being displayed in full width.
+vim.o.pumblend = 0
+vim.o.winblend = 0
 
 -- Better indentation and tab lengths
 vim.o.tabstop = 4
@@ -104,36 +107,32 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- {{{ LSP
 -- See https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md for default configurations of LSP servers.
+
+-- Advertise extra capabilities through Mini.completion.
+-- TODO: Optimally we already setup mini.completion beforehand.
+vim.lsp.config('*', { capabilities = require('mini.completion').get_lsp_capabilities() })
+
 -- {{{ Lua LSP Setup for Neovim
 vim.lsp.config('lua_ls', {
   on_init = function(client)
-    if client.workspace_folders then
-      local path = client.workspace_folders[1].name
-      if
-        path ~= vim.fn.resolve(vim.fn.stdpath('config'))
-        -- and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc'))
-      then
-        return
-      end
+    -- TODO: It's probably better to check the path of the file being edited, as the workspace is not guaranteed to exist.
+    if not client.workspace_folders or not client.workspace_folders[1] then
+      return
+    end
+    local path = client.workspace_folders[1].name
+    if path ~= vim.fn.resolve(vim.fn.stdpath('config')) then -- and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc'))
+      return
     end
 
     client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
       runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
         version = 'LuaJIT',
-        -- Tell the language server how to find Lua modules same way as Neovim (see `:h lua-module-load`)
-        path = { 'lua/?.lua', 'lua/?/init.lua' },
+        path = { 'lua/?.lua', 'lua/?/init.lua' }, -- Tell the language server how to find Lua modules same way as Neovim (see `:h lua-module-load`)
       },
       -- Make the server aware of Neovim runtime files
       workspace = {
         checkThirdParty = false,
-        library = {
-          vim.env.VIMRUNTIME,
-          -- Depending on the usage, you might want to add additional paths
-          -- here.
-          -- '${3rd}/luv/library',
-          -- '${3rd}/busted/library',
-        },
+        library = { vim.env.VIMRUNTIME }, -- Depending on the usage, you might want to add additional paths here.
         -- Or pull in all of 'runtimepath'.
         -- NOTE: this is a lot slower and will cause issues when working on your own configuration.
         -- See https://github.com/neovim/nvim-lspconfig/issues/3189
@@ -152,19 +151,29 @@ vim.diagnostic.config({
   severity_sort = true,
   virtual_text = true, -- Show diagnostic messages at end of line
   signs = { text = { [vim.diagnostic.severity.ERROR] = '', [vim.diagnostic.severity.WARN] = '' } },
-  jump = { float = true }, -- Auto open the float on jumps
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('lsp-extra-bindings', { clear = true }),
+  group = vim.api.nvim_create_augroup('my-lsp-setup', { clear = true }),
   callback = function(event)
-    local client = vim.lsp.get_client_by_id(event.data.client_id)
+    local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
 
     -- DISABLED: This is already mapped by Telescope.
     -- vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Goto Definition' })
 
+    -- Enable auto-completion. Note: Use CTRL-Y to select an item.
+    -- TODO: Add keybindings to also accept with enter.
+    -- if client:supports_method('textDocument/completion') then
+    --   vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
+    -- end
+
+    -- Instead of builtin autocompletion we instead rely on mini.completion, as it is much nicer.
+    -- TODO: This should probably be made conditionally, to only happen if mini.completion is loaded.
+    -- NOTE: This overwrites filetype specific completion via omnifunc. (But LSP does that anyway.)
+    vim.bo[event.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
+
     -- Inlay Hints are disabled by default, but can be toggled with the following keybinding.
-    if client and client:supports_method('textDocument/inlayHint', event.buf) then
+    if client:supports_method('textDocument/inlayHint', event.buf) then
       vim.keymap.set('n', toogle_prefix_key .. 'H', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, { buffer = event.buf, desc = 'Toggle Inlay Hints' })
     end
   end,
@@ -209,7 +218,6 @@ require("gruvbox").setup({
     strings = false,
     comments = false,
   },
-  transparent_mode = true,
 })
 vim.cmd.colorscheme('gruvbox')
 -- }}}
@@ -217,6 +225,7 @@ vim.cmd.colorscheme('gruvbox')
 -- {{{ mini.nvim
 local minimisc = require('mini.misc')
 minimisc.setup_auto_root()
+minimisc.setup_termbg_sync()
 
 local miniextra = require('mini.extra')
 
@@ -230,7 +239,7 @@ vim.api.nvim_create_autocmd('FileType', {
   callback = function(event) vim.b[event.buf].miniindentscope_config = { options = { border = 'top' } } end
 })
 
-require('mini.pairs').setup()
+require('mini.pairs').setup({ modes = { command = true } })
 require('mini.surround').setup({
   --- {{{ Surround Setup
   mappings = {
@@ -288,6 +297,25 @@ vim.api.nvim_create_autocmd('FileType', {
       join  = { hooks_post = { minisplitjoin.gen_hook.pad_brackets({ brackets = { '%b[]' } }) } },
     }
   end
+})
+-- }}}
+
+local minialign = require('mini.align')
+-- {{{ Align Setup
+minialign.setup({
+  modifiers = {
+    -- I don't like the fact that default trimming tries to keep indentation on all lines.
+    -- I think it is more intuitive if it were to only keep lowest indentation.
+    ['t'] = function(steps, _)
+      table.insert(steps.pre_justify, minialign.gen_step.trim('both', 'low'))
+    end,
+    -- Add support for default latex separator, based on how = sign is handled
+    ['&'] = function(steps, opts)
+      opts.split_pattern = '&'
+      table.insert(steps.pre_justify, minialign.gen_step.trim('both', 'low'))
+      opts.merge_delimiter = ' '
+    end,
+  }
 })
 -- }}}
 
@@ -363,10 +391,23 @@ hipatterns.setup({
     high = miniextra.gen_highlighter.words({ 'FIXME', 'BUG', 'ERR', 'ERROR' }, 'MiniHipatternsFixme'),
     medium = miniextra.gen_highlighter.words({ 'HACK', 'WARN', 'WARNING' }, 'MiniHipatternsHack'),
     todo = miniextra.gen_highlighter.words({ 'TODO', 'WIP' }, 'MiniHipatternsTodo'),
-    low = miniextra.gen_highlighter.words({ 'NOTE', 'INFO' }, 'MiniHipatternsNote'),
+    low = miniextra.gen_highlighter.words({ 'NOTE', 'INFO', 'TIP' }, 'MiniHipatternsNote'),
     hex_color = hipatterns.gen_highlighter.hex_color(), -- #ffaa00
   }
 })
+
+require('mini.snippets').setup({ mappings = { jump_next = '<Tab>', jump_prev = '<S-Tab>' } })
+require('mini.completion').setup({
+  lsp_completion = {
+    -- Setup LSP completion through omnifunc, but only setup when LSP is actually available.
+    -- This keeps both user completion and omni completion through filetype plugins available as a fallback.
+    source_func = 'omnifunc',
+    auto_setup = false,
+  },
+})
+local minikeymap = require('mini.keymap')
+minikeymap.setup()
+minikeymap.map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })
 -- }}}
 
 -- {{{ Telescope

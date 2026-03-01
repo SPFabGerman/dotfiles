@@ -3,7 +3,6 @@
 - Add a Readme
 
 ## Things to try out
-- Serious Neovim setup
 - Wayland with Niri or Cosmic Desktop
 
 ## NixOS
