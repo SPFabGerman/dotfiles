@@ -38,14 +38,16 @@
         autowrapRuntimeDeps = true; # Add plugin dependencies to PATH
         wrapRc = false; # Use userspace configuration
         plugins = with pkgs.vimPlugins; [
+          gruvbox-nvim
+          everforest
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
+          # lazydev-nvim
           mini-nvim
+          snacks-nvim
           telescope-nvim
           telescope-ui-select-nvim
           telescope-fzf-native-nvim
-          gruvbox-nvim
-          everforest
           toggleterm-nvim
         ];
       };
@@ -169,6 +171,7 @@
       texliveFull
       (pkgs.callPackage ./pplatex/pplatex.nix { })
       texlab
+      ghostscript # Needed to display latex images in terminal
 
       (aspellWithDicts (
         dicts: with dicts; [

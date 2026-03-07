@@ -10,6 +10,9 @@ require('mini.basics').setup({
 })
 local toogle_prefix_key = require('mini.basics').config.mappings.option_toggle_prefix
 
+local minikeymap = require('mini.keymap')
+minikeymap.setup()
+
 -- {{{ Extra Options
 -- See `:help option-list`
 vim.o.relativenumber = true
@@ -113,6 +116,8 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.lsp.config('*', { capabilities = require('mini.completion').get_lsp_capabilities() })
 
 -- {{{ Lua LSP Setup for Neovim
+-- TODO: Eventually I want to replace this by `lazydev.nvim`, as it does this automatically and also loads plugins when they are used.
+-- `lazydev.nvim` doesn't however work with the current version of lua_ls. See also https://github.com/folke/lazydev.nvim/issues/136.
 vim.lsp.config('lua_ls', {
   on_init = function(client)
     -- TODO: It's probably better to check the path of the file being edited, as the workspace is not guaranteed to exist.
@@ -145,12 +150,20 @@ vim.lsp.config('lua_ls', {
   },
 })
 -- }}}
+-- require('lazydev').setup()
 vim.lsp.enable('lua_ls')
 
 vim.diagnostic.config({
   severity_sort = true,
   virtual_text = true, -- Show diagnostic messages at end of line
-  signs = { text = { [vim.diagnostic.severity.ERROR] = '', [vim.diagnostic.severity.WARN] = '' } },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '󰅚',
+      [vim.diagnostic.severity.WARN] = '󰀪',
+      [vim.diagnostic.severity.INFO] = "󰋽",
+      [vim.diagnostic.severity.HINT] = "󰌶",
+    },
+  },
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -161,15 +174,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- DISABLED: This is already mapped by Telescope.
     -- vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Goto Definition' })
 
-    -- Enable auto-completion. Note: Use CTRL-Y to select an item.
-    -- TODO: Add keybindings to also accept with enter.
-    -- if client:supports_method('textDocument/completion') then
-    --   vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
-    -- end
-
-    -- Instead of builtin autocompletion we instead rely on mini.completion, as it is much nicer.
+    -- Overwrite default LSP completion using mini.completion.
     -- TODO: This should probably be made conditionally, to only happen if mini.completion is loaded.
-    -- NOTE: This overwrites filetype specific completion via omnifunc. (But LSP does that anyway.)
     vim.bo[event.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
 
     -- Inlay Hints are disabled by default, but can be toggled with the following keybinding.
@@ -223,13 +229,15 @@ vim.cmd.colorscheme('gruvbox')
 -- }}}
 
 -- {{{ mini.nvim
+local miniextra = require('mini.extra')
 local minimisc = require('mini.misc')
 minimisc.setup_auto_root()
 minimisc.setup_termbg_sync()
 
-local miniextra = require('mini.extra')
-
 require('mini.bracketed').setup()
+-- I prefer mini.indentscope over snacks.indent and snacks.scope.
+-- The TreeSitter support they offer is not as intuitive as one might think and doesn't always work well for every language. (Also lacking a way to disable it on a per language basis.)
+-- And it offers little practical advantage over just using the indent or the standard builtin block motions, especially for code that is properly formatted.
 require('mini.indentscope').setup({
   options = { try_as_border = true },
 })
@@ -261,9 +269,7 @@ require('mini.surround').setup({
 -- A more accurate alternative may be to use a plugin for semantic processing with TreeSitter.
 -- WARN: Also be careful when comments are interlined. These are often not handled correctly.
 local minisplitjoin = require('mini.splitjoin')
-minisplitjoin.setup({
-  mappings = { toggle = 'gs' },
-})
+minisplitjoin.setup({ mappings = { toggle = 'gs' } })
 -- {{{ SplitJoin Lua
 -- TODO: Can something for functions be added?
 vim.api.nvim_create_autocmd('FileType', {
@@ -319,6 +325,17 @@ minialign.setup({
 })
 -- }}}
 
+require('mini.snippets').setup({ mappings = { jump_next = '<Tab>', jump_prev = '<S-Tab>' } })
+require('mini.completion').setup({
+  lsp_completion = {
+    -- Setup LSP completion through omnifunc, but only setup when LSP is actually available.
+    -- This keeps both user completion and omni completion through filetype plugins available as a fallback.
+    source_func = 'omnifunc',
+    auto_setup = false,
+  },
+})
+minikeymap.map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })
+
 local minijump = require('mini.jump2d')
 minijump.setup({
   view = {
@@ -330,11 +347,6 @@ minijump.setup({
 vim.keymap.set('n', '<Leader>j', function() minijump.start(minijump.builtin_opts.word_start) end, { desc = 'Jump' })
 vim.keymap.set('n', '<Leader>J', function() minijump.start(minijump.builtin_opts.single_character) end, { desc = 'Jump to char' })
 
-local miniicons = require('mini.icons')
-miniicons.setup()
-miniicons.mock_nvim_web_devicons()
-miniicons.tweak_lsp_kind()
-
 require('mini.git').setup()
 require('mini.diff').setup({
   view = {
@@ -344,8 +356,25 @@ require('mini.diff').setup({
   }
 })
 
+local miniicons = require('mini.icons')
+miniicons.setup()
+miniicons.mock_nvim_web_devicons()
+miniicons.tweak_lsp_kind()
+
 require('mini.statusline').setup()
-require('mini.notify').setup()
+require('mini.notify').setup({
+  content = {
+    sort = function(notif_arr)
+      local predicate = function(notif)
+        -- Filter out some LSP progress notifications from 'lua_ls'
+        -- Code comes from https://github.com/echasnovski/nvim/blob/ed2c21491dea0de864df2eb9d3a588adf9175fad/plugin/30_mini.lua#L32
+        if not (notif.data.source == 'lsp_progress' and notif.data.client_name == 'lua_ls') then return true end
+        return notif.msg:find('Diagnosing') == nil and notif.msg:find('semantic tokens') == nil
+      end
+      return require('mini.notify').default_sort(vim.tbl_filter(predicate, notif_arr))
+    end,
+  },
+})
 
 local miniclue = require('mini.clue')
 -- {{{ Mini.Clue Setup
@@ -395,60 +424,98 @@ hipatterns.setup({
     hex_color = hipatterns.gen_highlighter.hex_color(), -- #ffaa00
   }
 })
+-- }}}
 
-require('mini.snippets').setup({ mappings = { jump_next = '<Tab>', jump_prev = '<S-Tab>' } })
-require('mini.completion').setup({
-  lsp_completion = {
-    -- Setup LSP completion through omnifunc, but only setup when LSP is actually available.
-    -- This keeps both user completion and omni completion through filetype plugins available as a fallback.
-    source_func = 'omnifunc',
-    auto_setup = false,
+-- {{{ Snacks.nvim
+require('snacks').setup({
+  picker = {
+    enabled = true,
+    win = {
+      input = {
+        keys = { ["<Esc>"] = { "close", mode = { "n", "i" } } },
+        b = { minicompletion_disable = true },
+      },
+    },
   },
+  explorer = { enabled = true },
+  input = {
+    enabled = true,
+    win = {
+      keys = { i_esc = { "<esc>", { "cancel" }, mode = "i" } },
+      b = { minicompletion_disable = true },
+    },
+  },
+
+  -- BUG: Image plugin doesn't really work well with markdown math
+  image = { enabled = true },
 })
-local minikeymap = require('mini.keymap')
-minikeymap.setup()
-minikeymap.map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })
+
+-- Picker keybindings
+local picker = require('snacks').picker
+vim.keymap.set('n', '<leader>h', picker.help, { desc = 'Help Pages' })
+vim.keymap.set('n', '<leader>b', picker.buffers, { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>f', picker.files, { desc = 'Files' })
+vim.keymap.set('n', '<leader>e', picker.explorer, { desc = 'Explorer' })
+vim.keymap.set('n', '<leader>r', picker.recent, { desc = 'Recent Files' })
+vim.keymap.set('n', '<leader>s', picker.lines, { desc = 'Search' })
+vim.keymap.set('n', '<leader>d', picker.diagnostics, { desc = 'Diagnostics' })
+
+-- Use Picker for choosing LSP target instead of Quickfix list
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('snack-picker-lsp-attach', { clear = true }),
+  callback = function(event)
+    local buf = event.buf
+    vim.keymap.set('n', 'grr', picker.lsp_references, { buffer = buf, desc = 'Goto References' })
+    vim.keymap.set('n', 'grd', picker.lsp_definitions, { buffer = buf, desc = 'Goto Definitions' })
+    vim.keymap.set('n', 'gri', picker.lsp_implementations, { buffer = buf, desc = 'Goto Implementation' })
+    vim.keymap.set('n', 'gO', picker.lsp_workspace_symbols, { buffer = buf, desc = 'Workspace symbols' })
+  end,
+})
 -- }}}
 
 -- {{{ Telescope
-require('telescope').setup({
-  defaults = {
-    mappings = {
-      i = { ["<esc>"] = require('telescope.actions').close },
-    },
-  },
-  extensions = {
-    ['ui-select'] = { require('telescope.themes').get_cursor() },
-  },
-})
+-- Currently disabled, as I want to try out Snacks.nvim picker functionality.
 
-require('telescope').load_extension('ui-select') -- Make builtin neovim actions use telescope
-require('telescope').load_extension('fzf') -- Use fzf syntax for matching
+-- require('telescope').setup({
+--   defaults = {
+--     mappings = {
+--       i = { ["<esc>"] = require('telescope.actions').close },
+--     },
+--   },
+--   extensions = {
+--     ['ui-select'] = { require('telescope.themes').get_cursor() },
+--   },
+-- })
+--
+-- require('telescope').load_extension('ui-select') -- Make builtin neovim actions use telescope
+-- require('telescope').load_extension('fzf') -- Use fzf syntax for matching
+--
+-- local tsbuiltin = require('telescope.builtin')
+-- vim.keymap.set('n', '<C-h>', tsbuiltin.help_tags, { desc = 'Help' })
+-- vim.keymap.set('n', '<leader>b', tsbuiltin.buffers, { desc = 'Buffers' })
+-- vim.keymap.set('n', '<leader>f', tsbuiltin.find_files, { desc = 'Files' })
+-- vim.keymap.set('n', '<leader>r', tsbuiltin.oldfiles, { desc = 'Recent Files' })
+-- vim.keymap.set('n', '<leader>s', tsbuiltin.current_buffer_fuzzy_find, { desc = 'Search' })
+-- vim.keymap.set('n', '<leader>d', tsbuiltin.diagnostics, { desc = 'Diagnostics' })
+--
+-- -- Use Telescope for choosing LSP target instead of Quickfix list
+-- vim.api.nvim_create_autocmd('LspAttach', {
+--   group = vim.api.nvim_create_augroup('telescope-lsp-attach', { clear = true }),
+--   callback = function(event)
+--     local buf = event.buf
+--     vim.keymap.set('n', 'grr', tsbuiltin.lsp_references, { buffer = buf, desc = 'Goto References' })
+--     vim.keymap.set('n', 'grd', tsbuiltin.lsp_definitions, { buffer = buf, desc = 'Goto Definitions' })
+--     vim.keymap.set('n', 'gri', tsbuiltin.lsp_implementations, { buffer = buf, desc = 'Goto Implementation' })
+--     vim.keymap.set('n', 'gO', tsbuiltin.lsp_workspace_symbols, { buffer = buf, desc = 'Workspace symbols' })
+--   end,
+-- })
 
-local tsbuiltin = require('telescope.builtin')
-vim.keymap.set('n', '<C-h>', tsbuiltin.help_tags, { desc = 'Help' })
-vim.keymap.set('n', '<leader>b', tsbuiltin.buffers, { desc = 'Buffers' })
-vim.keymap.set('n', '<leader>f', tsbuiltin.find_files, { desc = 'Files' })
-vim.keymap.set('n', '<leader>r', tsbuiltin.oldfiles, { desc = 'Recent Files' })
-vim.keymap.set('n', '<leader>s', tsbuiltin.current_buffer_fuzzy_find, { desc = 'Search' })
-vim.keymap.set('n', '<leader>d', tsbuiltin.diagnostics, { desc = 'Diagnostics' })
-
--- Use Telescope for choosing LSP target instead of Quickfix list
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('telescope-lsp-attach', { clear = true }),
-  callback = function(event)
-    local buf = event.buf
-    vim.keymap.set('n', 'grr', tsbuiltin.lsp_references, { buffer = buf, desc = 'Goto References' })
-    vim.keymap.set('n', 'grd', tsbuiltin.lsp_definitions, { buffer = buf, desc = 'Goto Definitions' })
-    vim.keymap.set('n', 'gri', tsbuiltin.lsp_implementations, { buffer = buf, desc = 'Goto Implementation' })
-    vim.keymap.set('n', 'gO', tsbuiltin.lsp_workspace_symbols, { buffer = buf, desc = 'Workspace symbols' })
-  end,
-})
 -- }}}
 
 -- [[ Other Plugins ]]
 
 -- NOTE: Can in the future maybe be replaced by mini.terminal when it is implemented.
+-- I tried replacing it with snack.terminal, but the results weren't really that good.
 require('toggleterm').setup({
   open_mapping = "<Leader>t",
   insert_mappings = false,
