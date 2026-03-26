@@ -26,7 +26,7 @@ end
 reload_theme()
 
 -- Set wallpaper on all screens (even new ones) and when a screen's geometry changes (e.g. different resolution)
-local function set_wallpaper(s) gears.wallpaper.maximized(wallpaper, s, true) end
+local function set_wallpaper(s) gears.wallpaper.maximized(wallpaper, s) end
 awful.screen.connect_for_each_screen(set_wallpaper)
 screen.connect_signal("property::geometry", set_wallpaper)
 

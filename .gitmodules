@@ -16,3 +16,6 @@
 [submodule "base/.config/emacs/org-pretty-table"]
 	path = base/.config/emacs/org-pretty-table
 	url = https://github.com/Fuco1/org-pretty-table.git
+[submodule "base/.config/awesome/awesomewm-types"]
+	path = base/.config/awesome/awesomewm-types
+	url = https://github.com/SeleneCosmia/awesomewm-types.git

@@ -42,12 +42,12 @@
           everforest
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
-          # lazydev-nvim
+          lazydev-nvim
           mini-nvim
           snacks-nvim
-          telescope-nvim
-          telescope-ui-select-nvim
-          telescope-fzf-native-nvim
+          # telescope-nvim
+          # telescope-ui-select-nvim
+          # telescope-fzf-native-nvim
           toggleterm-nvim
         ];
       };
@@ -123,7 +123,6 @@
       nsxiv # Basic Image Viewer
       btop # System Resource Viewer
       evince # PDF Viewer
-      pdfslicer
       thunderbird # EMails
       onlyoffice-desktopeditors
 

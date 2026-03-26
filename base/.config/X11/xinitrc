@@ -37,6 +37,8 @@ picom &
 
 # Autostart applications
 dex -a -e Awesome --term kitty
+# Additionally also autostart gnome authentication agent
+dex /run/current-system/sw/etc/xdg/autostart/polkit-gnome-authentication-agent-1.desktop
 
 # Start WM
 exec awesome
