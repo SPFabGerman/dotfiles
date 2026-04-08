@@ -1,0 +1,32 @@
+menu:
+  - key: "t"
+    desc: Terminal
+    cmd: kitty
+  - key: "s"
+    desc: Browser
+    cmd: firefox
+  - key: "m"
+    desc: Mails
+    cmd: thunderbird
+  - key: "f"
+    desc: Files
+    cmd: kitty lf
+  - key: "v"
+    desc: Vim
+    cmd: kitty nvim
+  - key: "e"
+    desc: Emacs
+    cmd: emacs
+  - key: "b"
+    desc: BTop
+    cmd: kitty btop
+  - key: "c"
+    desc: Calculator
+    cmd: kitty python3 -i ~/.config/python/pycalc.py
+  - key: "o"
+    desc: Quick Open
+    # Note: Depending on the terminal emulator and it's settings, the become(nohup ...) approach here might not close the terminal appropriately.
+    cmd: kitty fzf --preview='fzf-preview {}' --bind 'enter:become(nohup mimeopen -n {} > /dev/null)' --bind "ctrl-e:become($EDITOR {})" --bind 'ctrl-o:become(lf {})'
+  - key: "u"
+    desc: Unicode picker
+    cmd: rofimoji -f ~/.config/rofi/math-reduced.csv

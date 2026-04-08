@@ -1,3 +1,7 @@
 program_options:
   tray: auto
   terminal: 'kitty -d'
+
+device_config:
+- device_id: 'usb-Generic-_SD_MMC_20120501030900000-0:0'
+  ignore: true

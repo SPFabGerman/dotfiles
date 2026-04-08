@@ -1,0 +1,74 @@
+// -*- mode: jsonc -*-
+{
+    // "layer": "top", // Waybar at top layer
+    // "position": "bottom", // Waybar position (top|bottom|left|right)
+    "height": 25, // Waybar height (to be removed for auto height)
+    // "width": 1280, // Waybar width
+    "spacing": 4, // Gaps between modules (4px)
+    // "margin-top": 4,
+    // Choose the order of the modules
+    "modules-left": [
+        "niri/workspaces"
+    ],
+    "modules-center": [
+        "niri/window"
+    ],
+    "modules-right": [
+        "tray",
+        "battery",
+        "wireplumber",
+        "clock",
+        "custom/power"
+    ],
+    "niri/workspaces": {
+      "format": "{icon}",
+      "format-icons": {
+        // Named workspaces (you need to configure them in niri)
+        // "browser": "",
+        // "chat": "<b></b>",
+
+        // Icons by state
+        "active": "",
+        "default": ""
+      }
+    },
+    "tray": {
+        "icon-size": 21,
+        "spacing": 4
+    },
+    "clock": {
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "battery": {
+      "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+      },
+      "format": "{icon} {capacity}%",
+      "format-full": "{icon} {capacity}%",
+      "format-charging": " {capacity}%",
+      "format-plugged": " {capacity}%",
+      "format-alt": "{icon} {time}",
+      "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+    },
+    "wireplumber": {
+        "scroll-step": 0, // %, can be a float
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": ["", "", ""]
+    },
+    "custom/power": {
+      "format" : "⏻ ",
+      "tooltip": false,
+      "menu": "on-click",
+      "menu-file": "$HOME/.config/waybar/power_menu.xml", // Menu file in resources folder
+      "menu-actions": {
+        "shutdown": "shutdown",
+        "reboot": "reboot",
+        "suspend": "systemctl suspend",
+        "hibernate": "systemctl hibernate"
+      }
+    }
+}

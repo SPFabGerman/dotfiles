@@ -1,0 +1,3 @@
+timeout 300 'swaylock -f; niri msg output eDP-1 off' resume 'niri msg output eDP-1 on'
+before-sleep 'swaylock -f'
+lock 'swaylock -f'

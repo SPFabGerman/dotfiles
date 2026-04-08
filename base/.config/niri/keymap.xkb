@@ -1,0 +1,10 @@
+xkb_keymap {
+	xkb_keycodes  { include "evdev+aliases(qwertz)"	};
+	xkb_types     { include "complete"	};
+	xkb_compat    { include "complete"	};
+	xkb_symbols   {
+      include "pc+de(nodeadkeys)+inet(evdev)+ctrl(nocaps)+terminate(ctrl_alt_bksp)"
+      key <AE12> { [ grave, acute, cedilla, cedilla ] };
+    };
+	xkb_geometry  { include "pc(pc104)"	};
+};

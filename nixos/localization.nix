@@ -6,7 +6,8 @@
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "de";
-    variant = "";
+    variant = "nodeadkeys";
+    options = "terminate:ctrl_alt_bksp,ctrl:nocaps"; # The first option is set by default
   };
 
   time.timeZone = "Europe/Berlin";

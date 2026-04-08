@@ -29,7 +29,7 @@ batsignal -w 30 -c 15 -d 5 -D "systemctl hibernate" &
 
 # Setup Automount
 # Disable SD card reader, that remains active for some reason
-[[ -e "/dev/sda" ]] && [[ ! -e "/dev/sda1" ]] && udisksctl power-off -b /dev/sda
+# [[ -e "/dev/sda" ]] && [[ ! -e "/dev/sda1" ]] && udisksctl power-off -b /dev/sda
 udiskie &
 
 # Compositor

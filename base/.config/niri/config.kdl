@@ -1,0 +1,248 @@
+input {
+  keyboard {
+    numlock // Enable numlock on startup
+    xkb {
+      // Use a custom keymap file that swaps the grave and acute key order.
+      // WARNING: This overwrites the default xkb keymap from localectl.
+      file "~/.config/niri/keymap.xkb"
+    }
+  }
+
+  touchpad {
+    tap // Tap to click
+    dwt // Disable when typing
+    natural-scroll
+    // disabled-on-external-mouse
+  }
+
+  warp-mouse-to-focus
+  focus-follows-mouse
+}
+
+output "eDP-1" {
+  scale 1.25
+}
+
+layout {
+  gaps 16
+
+  always-center-single-column
+
+  // Presets for "switch-preset-column-width" (Mod+R)
+  preset-column-widths {
+    proportion 0.33333
+    proportion 0.5
+    proportion 0.66667
+    proportion 1.0
+  }
+
+  // Allow windows to choose their initial window width themselves instead of a fixed width.
+  default-column-width {} // { proportion 0.5; }
+
+  focus-ring {
+    // off
+    width 4
+    active-color "#7fc8ff"
+    inactive-color "#505050" // Color of the ring on inactive monitors.
+
+    // You can use any CSS linear-gradient tool on the web to set these up. (https://www.css-gradient.com/)
+    // active-gradient from="#80c8ff" to="#c7ff7f" angle=45
+    active-gradient from="#e5989b" to="#ffb4a2" angle=45 relative-to="workspace-view" in="oklch longer hue"
+  }
+
+  border {
+    // off
+    width 1
+    active-color "#7fc8ff"
+    inactive-color "#505050"
+    urgent-color "#ffb4a2"
+
+    active-gradient from="#e5989b" to="#ffb4a2" angle=45 relative-to="workspace-view" in="oklch longer hue"
+  }
+
+  shadow {
+    on
+    softness 5 // Softness controls the shadow blur radius.
+    spread 2 // Spread expands the shadow.
+    offset x=3 y=3 // Offset moves the shadow relative to the window.
+  }
+
+  tab-indicator {
+    place-within-column
+    gap 6
+    width 6
+    corner-radius 4
+    gaps-between-tabs 4
+    active-gradient from="#c5686b" to="#cf8472" angle=45 relative-to="workspace-view" in="oklch longer hue"
+  }
+
+  insert-hint {
+    gradient from="#c5686b80" to="#cf847280" angle=45 relative-to="workspace-view" in="oklch longer hue"
+  }
+
+  struts {
+    left 8
+    right 8
+    // top 8
+    // bottom 8
+  }
+}
+
+cursor {
+  xcursor-theme "breeze_cursors"
+}
+
+// spawn-at-startup "waybar" // This is done by a systemd user service, to offer easier reloads.
+spawn-at-startup "swaync"
+// BUG: Batsignal starts an arbitrary notification daemon if one isn't available yet.
+// This is a race condition and can prevent swaync from starting.
+// BUG: Batsignal is also not killed when niri exits.
+spawn-sh-at-startup "sleep 5; pgrep batsignal || exec batsignal"
+spawn-sh-at-startup "swaybg --image ~/wallpapers/20241116-fernlugnerlq-33e3fc.png"
+spawn-at-startup "swayidle" "-w"
+spawn-at-startup "udiskie"
+
+hotkey-overlay {
+  // skip-at-startup
+  hide-not-bound
+}
+
+// Ask clients to omit their client-side decorations if possible.
+// If the client will specifically ask for CSD, the request will be honored.
+// Additionally, clients will be informed that they are tiled, removing some client-side rounded corners.
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d-%H:%M:%S.png"
+
+// Enable rounded corners for all windows.
+window-rule {
+  geometry-corner-radius 12
+  clip-to-geometry true
+}
+
+// Open the Firefox picture-in-picture player as floating by default.
+window-rule {
+  match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+  open-floating true
+}
+
+// Move Steam notifications to the bottom right corner.
+window-rule {
+  match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+  default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+
+binds {
+  Mod+H { show-hotkey-overlay; } // Shows a list of important hotkeys.
+
+  // Basic programs
+  Mod+T hotkey-overlay-title="Open a Terminal" { spawn "kitty"; }
+  Mod+Shift+Q hotkey-overlay-title="System shutdown" { spawn "nwg-bar"; }
+  // nwg-drawer is fast enough that it doesn't have to be run as a background daemon. This makes it slightly less prone to crashing.
+  Mod+Space hotkey-overlay-title="Run an Application" { spawn-sh "~/.config/nwg-drawer/nwg-drawer.sh -wm niri"; }
+  Mod+A hotkey-overlay-title="Quick Menu" { spawn "wlr-which-key"; }
+  Mod+N hotkey-overlay-title="Notifications" { spawn "swaync-client" "-t"; }
+
+  // This allows to restart the screenlocker when it crashed accidentally without unlocking the session.
+  Mod+Shift+L allow-when-locked=true { spawn "swaylock"; }
+
+  // Volume and Media key mappings
+  XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
+  XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
+  XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+  XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+  XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+  XF86AudioStop        allow-when-locked=true { spawn-sh "playerctl stop"; }
+  XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
+  XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
+
+  // Brightness key mappings for brightnessctl.
+  XF86MonBrightnessUp allow-when-locked=true { spawn-sh "brightnessctl --class=backlight set +10%;
+    brightnessctl --class=backlight --machine-readable info | cut -d , -f 4 | xargs -I '{}' -- notify-send -u low 'Brightness: {}' -h 'int:value:{}' -r 1";
+  }
+  XF86MonBrightnessDown allow-when-locked=true { spawn-sh "brightnessctl --class=backlight set 10%-;
+    brightnessctl --class=backlight --machine-readable info | cut -d , -f 4 | xargs -I '{}' -- notify-send -u low 'Brightness: {}' -h 'int:value:{}' -r 1";
+  }
+
+  // Touchpad toogle
+  XF86TouchpadToggle allow-when-locked=true { spawn "tuxedo-touchpad-toggle"; }
+
+  // Open/close the Overview: a zoomed-out view of workspaces and windows.
+  // You can also move the mouse into the top-left hot corner or do a four-finger swipe up on a touchpad.
+  Mod+O repeat=false { toggle-overview; }
+
+  Mod+Q repeat=false { close-window; }
+
+  Mod+Left  { focus-column-left; }
+  Mod+Right { focus-column-right; }
+  Mod+Up    { focus-window-or-workspace-up; }
+  Mod+Down  { focus-window-or-workspace-down; }
+
+  Mod+Shift+Left  { consume-or-expel-window-left; } // { move-column-left; }
+  Mod+Shift+Right { consume-or-expel-window-right; } // { move-column-right; }
+  Mod+Shift+Up    { move-window-up-or-to-workspace-up; }
+  Mod+Shift+Down  { move-window-down-or-to-workspace-down; }
+
+  Mod+Ctrl+Left  { focus-monitor-previous; }
+  Mod+Ctrl+Right { focus-monitor-next; }
+
+  Mod+Shift+Ctrl+Left  { move-column-to-monitor-previous; } // { move-window-to-monitor-previous; } { move-workspace-to-monitor-previous; }
+  Mod+Shift+Ctrl+Right { move-column-to-monitor-next; }
+
+  Mod+1 { focus-workspace 1; }
+  Mod+2 { focus-workspace 2; }
+  Mod+3 { focus-workspace 3; }
+  Mod+4 { focus-workspace 4; }
+  Mod+5 { focus-workspace 5; }
+  Mod+6 { focus-workspace 6; }
+  Mod+7 { focus-workspace 7; }
+  Mod+8 { focus-workspace 8; }
+  Mod+9 { focus-workspace 9; }
+  Mod+Shift+1 { move-column-to-workspace 1; } // { move-window-to-workspace 1; }
+  Mod+Shift+2 { move-column-to-workspace 2; }
+  Mod+Shift+3 { move-column-to-workspace 3; }
+  Mod+Shift+4 { move-column-to-workspace 4; }
+  Mod+Shift+5 { move-column-to-workspace 5; }
+  Mod+Shift+6 { move-column-to-workspace 6; }
+  Mod+Shift+7 { move-column-to-workspace 7; }
+  Mod+Shift+8 { move-column-to-workspace 8; }
+  Mod+Shift+9 { move-column-to-workspace 9; }
+
+  // Switches focus between the current and the previous workspace.
+  Mod+Tab { focus-workspace-previous; }
+
+  Mod+R { switch-preset-column-width; }
+  Mod+Ctrl+R { switch-preset-window-height; }
+  Mod+Shift+R { reset-window-height; }
+  Mod+F { maximize-column; }
+  Mod+Ctrl+F { maximize-window-to-edges; }
+  Mod+Shift+F { fullscreen-window; }
+
+  // Finer width adjustments.
+  Mod+Minus { set-column-width "-10%"; }
+  Mod+Plus { set-column-width "+10%"; }
+  Mod+Ctrl+Minus { set-window-height "-10%"; }
+  Mod+Ctrl+Plus { set-window-height "+10%"; }
+
+  Mod+C { center-column; }
+
+  // Move the focused window between the floating and the tiling layout.
+  Mod+V       { toggle-window-floating; }
+  Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+
+  // Toggle tabbed column display mode.
+  Mod+W { toggle-column-tabbed-display; }
+
+  Print { screenshot; }
+  Ctrl+Print { screenshot-screen; }
+  Alt+Print { screenshot-window; }
+
+  // Applications such as remote-desktop clients and software KVM switches may
+  // request that niri stops processing the keyboard shortcuts defined here
+  // so they may, for example, forward the key presses as-is to a remote machine.
+  // It's a good idea to bind an escape hatch to toggle the inhibitor,
+  // so a buggy application can't hold your session hostage.
+  Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+  Mod+Shift+E { quit; }
+}

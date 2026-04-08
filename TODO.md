@@ -1,15 +1,18 @@
 # Dotfiles TODOs
 
-- Add a Readme
-
 ## Things to try out
-- Wayland with Niri or Cosmic Desktop
 - BTRFS for home partition
+- Make nix store it's own partition, so that it is reusable by other operating systems
 
 ## NixOS
 - Maybe disable channels entirely?
-- make nix store it's own partition, so that it is reusable by other operating systems
 - Push pplatex changes
+
+## Niri
+- Icon theme
+- Check Nvidia Prime configuration
+- Nicer Waybar and SwayNC setup
+- Check out Noctalia Shell (or other Quickshell)
 
 ## ZSH
 - Go through defined options and clean some up
@@ -51,21 +54,21 @@ Code Fixes:
 - Extend error lens support for other things too (Spellchecking)
 - Add Grammar checking support
 
+## Dotfiles Repo
+- Add a Readme
+- dot script: add code to update all git submodules
+- Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
+- Look into git hooks (see also https://pre-commit.com/)
+- Find a way to do nightly commits of the dotfiles repo to avoid accidental loss of data.
+- Setup signing of git commits
+
 ## Other
 - Find or create a better opener than mimeopen
 - Add a Display Manager
-- Networking System Tray
+- Networking System Tray?
 - Add Bluetooth support
-- Setup way to duplicate screen
-- dot script: add code to update all git submodules
-- Find a way to fetch new git commits in the background after going into a git repository
-- Add code to regularly check for dirty (untracked or not commited) stuff in the dotfiles repo and inform the user
-- Update dunst config
-- Report xmodmap bug in xinitrc file
-- Look into git hooks (see also https://pre-commit.com/)
 - Look into ways to create widgets window-manager agnostic (e.g. eww)
 - Checkout new FZF options
-- Find a way to do nightly commits of the dotfiles repo to avoid accidental loss of data.
 - Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)
 - Setup ssh agent
-- Setup signing of git commits
+- Find a way to fetch new git commits in the background after going into a git repository

@@ -23,6 +23,7 @@
           ./system.nix
           ./localization.nix
           ./x11.nix
+          ./niri.nix
           ./programs.nix
           ./auto-upgrade.nix
 

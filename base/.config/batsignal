@@ -1,0 +1,10 @@
+-w
+30
+
+-c
+15
+
+-d
+5
+-D
+systemctl hibernate
