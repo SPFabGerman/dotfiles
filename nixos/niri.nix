@@ -22,6 +22,13 @@
     xwayland-satellite
     brightnessctl
     wl-mirror
+    polkit_gnome
+    udiskie # Automount utility
+    playerctl # Media control
+    libnotify # for notify-send command
+    batsignal
+    nwg-drawer # Application Launcher
+    nwg-bar # Power Menu
   ];
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {

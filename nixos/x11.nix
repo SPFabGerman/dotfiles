@@ -6,8 +6,6 @@
   ...
 }:
 {
-  # Enable the X11 windowing system.
-  # (You can disable this if you're only using the Wayland session.)
   services.xserver.enable = true;
   services.xserver.displayManager.startx.enable = true;
   services.xserver.windowManager.awesome.enable = true;
@@ -37,4 +35,41 @@
 
   # Enable Lockscreen support
   programs.i3lock.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    picom # Compositor
+    xwallpaper # Wallpaper setter
+    maim # Screenshots
+    dragon-drop # Drag-and-Drop of Files
+
+    sxhkd # Hotkeys
+    xmodmap # Key Remapping
+    playerctl # Media control
+
+    nwg-drawer # Application Launcher
+    nwg-bar # Power Menu
+
+    dex # Autostarts
+    polkit_gnome
+    udiskie # Automount utility
+
+    # Notifications
+    dunst
+    libnotify # for notify-send command
+    batsignal
+
+    # Clipboard
+    xclip
+    xsel
+
+    # Lockscreen
+    xss-lock
+    i3lock-color
+
+    # Multi Monitor Management
+    arandr
+    srandrd
+
+    acpi # Dependency for AwesomeWM-Widgets
+  ];
 }

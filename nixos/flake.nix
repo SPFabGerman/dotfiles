@@ -27,9 +27,10 @@
           ./programs.nix
           ./auto-upgrade.nix
 
-          ./gaming-nvidia.nix
+          ./gaming.nix
 
           ./hardware-configuration.nix
+          ./hardware-nvidia.nix
           ./hardware-tuxedo.nix
         ];
       };

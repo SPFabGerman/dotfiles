@@ -11,7 +11,7 @@ xmodmap -e 'keycode 49 = asciicircum degree' # The above line is bugged and also
 xmodmap -e 'keysym dead_acute = grave acute' # Change Grave order
 
 xrdb ~/.Xresources
-srandrd -n -e xrandr --output HDMI-1 --right-of eDP-1 --auto &
+# srandrd -n -e xrandr --output HDMI-1 --right-of eDP-1 --auto &
 setwallpaper &
 
 # Lockscreen
@@ -25,7 +25,7 @@ playerctld &
 # Notifications
 dunst &
 # echo ~/.config/dunst/dunstrc | entr -nps "pkill dunst; dunst & sleep .5; notify-send \"Dunst reloaded\" -u low" &
-batsignal -w 30 -c 15 -d 5 -D "systemctl hibernate" &
+batsignal &
 
 # Setup Automount
 # Disable SD card reader, that remains active for some reason

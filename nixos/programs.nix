@@ -9,7 +9,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Disable default aliases. For some shells these can overwrite user configuration.
+  # Disable default aliases. For some shells (e.g. fish) these can overwrite user configuration.
   environment.shellAliases = lib.mkForce { };
 
   programs.zsh.enable = true;
@@ -23,13 +23,14 @@
 
   programs.firefox.enable = true;
 
+  security.polkit.enable = true;
+
   # Enable containerization to support software for other distributions
   virtualisation.podman = {
     enable = true;
     dockerCompat = true;
   };
 
-  # List packages installed in system profile
   environment.systemPackages =
     with pkgs;
     let
@@ -53,48 +54,26 @@
       };
     in
     [
-      gnumake
-      wget
-      polkit_gnome
-      udiskie # Automount utility
+      # Basic Applications
+      kitty
+      emacs-gtk
+      nsxiv # Simple Image Viewer
+      evince # PDF Viewer
       simple-scan # Scan Utility
-      distrobox # Easy userspace utility to manage containers
-      acpi # Dependency for AwesomeWM-Widgets
+      spotify
 
-      # Basic Xorg Management
-      # Hotkeys, Media Control & Key Remapping
-      sxhkd
-      playerctl
-      xmodmap
+      # Messaging
+      thunderbird
+      discord
+      signal-desktop
 
-      # Unicode selection
-      rofi
-      rofimoji
+      # File Synchronization
+      syncthing
+      syncthingtray
 
-      # Notification daemon & Battery Notifications
-      libnotify # for notify-send command
-      dunst
-      batsignal
-
-      picom # Compositor
-      xwallpaper # Wallpaper setter
-      dex # Autostarts
-      nwg-drawer # Application Launcher
-      nwg-bar # Power Menu
-      maim # Screenshots
-      dragon-drop # Drag-and-Drop of Files
-
-      # Clipboard
-      xclip
-      xsel
-
-      # Lockscreen
-      xss-lock
-      i3lock-color
-
-      # Multi Monitor Management
-      arandr
-      srandrd
+      # rofi
+      fuzzel # Wayland alternative for rofi
+      rofimoji # Unicode selection
 
       # Theming
       papirus-icon-theme
@@ -102,37 +81,12 @@
       pywal16 # Color generator
       imagemagick # Runtime dependency of pywal
 
-      # Terminal emulators
-      alacritty
-      kitty
-
-      # Shell Customization
+      # Shell Customization (zsh + fish)
       oh-my-posh # Shell Prompt
       zsh-completions
       zsh-syntax-highlighting
       fishPlugins.foreign-env
       fishPlugins.autopair
-      tmux
-
-      # Basic Applications
-      pulsemixer # Volume Manager
-      wiremix
-      lf # File Management
-      myneovim
-      emacs-gtk # Editor
-      nsxiv # Basic Image Viewer
-      btop # System Resource Viewer
-      evince # PDF Viewer
-      thunderbird # EMails
-      onlyoffice-desktopeditors
-
-      # File Synchronization
-      syncthing
-      syncthingtray
-
-      discord
-      signal-desktop
-      spotify
 
       # CLI Tools
       fzf # Fuzzy Finder
@@ -146,13 +100,23 @@
       fd # File Find
       ripgrep
       perl5Packages.FileMimeInfo # Mimetype of files
-      entr # Running applications on file change
+      # entr # Running applications on file change
       renameutils
       trash-cli
       unzip
       dust # Storage Usage Visualizer
       stow # Dotfile Management
       jq # JSON Query
+      distrobox # Easy userspace utility to manage containers
+
+      # TUI Applications
+      myneovim
+      lf # File Management
+      btop # System Resource Viewer
+      # pulsemixer # Volume Manager
+      wiremix
+
+      # Git Tools
       (pkgs.callPackage ./git-user/git-user.nix { })
       lazygit
 
@@ -163,15 +127,21 @@
       nix-tree
 
       # Programming Languages & Tools
+      gnumake
+      wget
       python3
       go
       gopls
       lua-language-server
+
+      # LaTeX
       texliveFull
       (pkgs.callPackage ./pplatex/pplatex.nix { })
       texlab
-      ghostscript # Needed to display latex images in terminal
+      pdfpc
+      ghostscript # Needed by some tools to display latex equations
 
+      # Spell and Grammar checking
       (aspellWithDicts (
         dicts: with dicts; [
           en
@@ -182,19 +152,17 @@
       ltex-ls-plus
     ];
 
-  security.polkit.enable = true;
-
-  fonts.enableDefaultPackages = false;
+  # fonts.enableDefaultPackages = false;
   fonts.packages = with pkgs; [
-    # Default font packages # TODO: There has to be a better way to do that, if we set enableDefaultPackages to false?
-    dejavu_fonts
-    gyre-fonts
-    liberation_ttf
-    unifont
-    noto-fonts-color-emoji
-
-    # I overwrite the default gnu-freefont with a otf version, since some programs (emacs) work better with it
-    (pkgs.callPackage ./gnu-freefont/gnu-freefont-otf.nix { })
+    # # Default font packages # TODO: There has to be a better way to do that, if we set enableDefaultPackages to false?
+    # dejavu_fonts
+    # gyre-fonts
+    # liberation_ttf
+    # unifont
+    # noto-fonts-color-emoji
+    #
+    # # I overwrite the default gnu-freefont with a otf version, since some programs (emacs) work better with it
+    # (pkgs.callPackage ./gnu-freefont/gnu-freefont-otf.nix { })
 
     nerd-fonts.fira-code
     nerd-fonts.meslo-lg

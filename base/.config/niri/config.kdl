@@ -36,8 +36,7 @@ layout {
     proportion 1.0
   }
 
-  // Allow windows to choose their initial window width themselves instead of a fixed width.
-  default-column-width {} // { proportion 0.5; }
+  default-column-width { proportion 0.5; }
 
   focus-ring {
     // off

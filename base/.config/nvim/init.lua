@@ -37,8 +37,8 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣', precedes = '❮',
 
 -- Highlight line breaks and respect list indentation
 -- (WIP: Is there a way to also show and respect comment string?)
-vim.o.showbreak = "❯ "
-vim.o.breakindentopt = 'list:-1,shift:-2'
+-- vim.o.showbreak = "❯ "
+-- vim.o.breakindentopt = 'list:-1,shift:-2'
 
 -- Use already opened buffers when switching to a file (for example with `<C-w>f`).
 vim.o.switchbuf = 'useopen'
@@ -48,7 +48,8 @@ vim.o.foldmethod = 'indent'
 vim.o.foldlevel = vim.o.foldnestmax -- By default nothing is folded
 
 -- Allow concealing or visual replacement of text (defined by syntax highlighting)
-vim.o.conceallevel = 2
+-- (Currently disabled, as it hides to much important information. Maybe only activate it for markdown files.)
+-- vim.o.conceallevel = 2
 
 -- Treat camelCased words as different words in spell checking
 vim.o.spelloptions = 'camel'
@@ -86,9 +87,10 @@ vim.keymap.del('n', 'gO')
 -- vim.keymap.set('i', '<Down>', '<c-o>gj')
 
 vim.keymap.set('n', 'U', '<C-R>')
-vim.keymap.set({'n', 'x'}, 'x', '"_x')
+vim.keymap.set({ 'n', 'x' }, 'x', '"_x')
 
 -- This is better for a german keyboard layout
+-- TODO: Change these also for the operator map
 vim.keymap.set('n', ',', ';')
 vim.keymap.set('n', ';', ',')
 
@@ -116,7 +118,8 @@ vim.api.nvim_create_autocmd('FileType', {
 -- {{{ LSP
 -- See https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md for default configurations of LSP servers.
 require('lazydev').setup() -- Setup Lua LSP for Neovim
-vim.lsp.enable('lua_ls')
+vim.lsp.enable({ 'lua_ls', 'texlab' })
+vim.lsp.config('texlab', { settings = { texlab = { build = { onSave = true } } } })
 
 vim.diagnostic.config({
   severity_sort = true,
@@ -133,13 +136,38 @@ vim.diagnostic.config({
 
 -- Setup some additional keybindings for LSP
 vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('lsp-custom-keybindings-setup', { clear = true }),
+  group = vim.api.nvim_create_augroup('my-lsp-setup', { clear = true }),
   callback = function(event)
     local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
 
+    -- Extra formatting keybindings, for when range formatting (with `gq`) is not supported.
+    if client:supports_method('textDocument/formatting', event.buf) then
+      vim.keymap.set('n', 'grf', function() vim.lsp.buf.format() end, { buffer = event.buf, desc = 'Format buffer' })
+    end
+
+    -- Opt-in auto-format on save. Usually not needed if server supports "textDocument/willSaveWaitUntil".
+    if not client:supports_method('textDocument/willSaveWaitUntil') and client:supports_method('textDocument/formatting') then
+      -- vim.b[event.buf].on_save_formatting = true
+      vim.keymap.set('n', toogle_prefix_key .. 'F',
+        function()
+          vim.b[event.buf].on_save_formatting = not vim.b[event.buf].on_save_formatting
+          print('On save formatting: ' .. tostring(vim.b[event.buf].on_save_formatting))
+        end,
+        { buffer = event.buf, desc = 'Toggle on-save Formatting' })
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        group = vim.api.nvim_create_augroup('my-lsp-setup', { clear = false }),
+        buffer = event.buf,
+        callback = function()
+          if vim.b[event.buf].on_save_formatting then vim.lsp.buf.format({ bufnr = event.buf, id = client.id }) end
+        end,
+      })
+    end
+
     -- Inlay Hints are disabled by default, but can be toggled with the following keybinding.
     if client:supports_method('textDocument/inlayHint', event.buf) then
-      vim.keymap.set('n', toogle_prefix_key .. 'H', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, { buffer = event.buf, desc = 'Toggle Inlay Hints' })
+      vim.keymap.set('n', toogle_prefix_key .. 'H',
+        function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end,
+        { buffer = event.buf, desc = 'Toggle Inlay Hints' })
     end
   end,
 })
@@ -154,7 +182,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 local function get_all_grammars()
   local f = vim.api.nvim_get_runtime_file('parser/*', true)
   local g = {}
-  for k,v in pairs(f) do
+  for k, v in pairs(f) do
     g[k] = v:match("^.*/(.*).so$")
   end
   return g
@@ -210,12 +238,12 @@ require('mini.pairs').setup({ modes = { command = true } })
 require('mini.surround').setup({
   --- {{{ Surround Setup
   mappings = {
-    add = 's', -- Add surrounding in Normal and Visual modes
-    delete = 'ds', -- Delete surrounding
-    replace = 'cs', -- Replace surrounding
-    find = '', -- Find surrounding (to the right)
-    find_left = '', -- Find surrounding (to the left)
-    highlight = '', -- Highlight surrounding
+    add = 's',        -- Add surrounding in Normal and Visual modes
+    delete = 'ds',    -- Delete surrounding
+    replace = 'cs',   -- Replace surrounding
+    find = '',        -- Find surrounding (to the right)
+    find_left = '',   -- Find surrounding (to the left)
+    highlight = '',   -- Highlight surrounding
     suffix_last = '', -- Suffix to search with "prev" method
     suffix_next = '', -- Suffix to search with "next" method
   },
@@ -258,14 +286,14 @@ vim.api.nvim_create_autocmd('FileType', {
         -- Note also that only the end of the matched string is used for the split position.
         separator = '[^[]%f[ ] +',
       },
-      join  = { hooks_post = { MiniSplitjoin.gen_hook.pad_brackets({ brackets = { '%b[]' } }) } },
+      join   = { hooks_post = { MiniSplitjoin.gen_hook.pad_brackets({ brackets = { '%b[]' } }) } },
     }
   end
 })
 -- }}}
 
 require('mini.align').setup({
--- {{{ Align Setup
+  -- {{{ Align Setup
   modifiers = {
     -- I don't like the fact that default trimming tries to keep indentation on all lines.
     -- I think it is more intuitive if it were to only keep lowest indentation.
@@ -292,7 +320,7 @@ require('mini.completion').setup({
     auto_setup = false,
   },
 })
-MiniKeymap.map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' }) -- Fix <CR> mappings for use in completion and pairs
+MiniKeymap.map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })     -- Fix <CR> mappings for use in completion and pairs
 vim.lsp.config('*', { capabilities = MiniCompletion.get_lsp_capabilities() }) -- Advertise extra LSP capabilities through mini.completion.
 
 -- Overwrite default LSP completion using mini.completion.
@@ -304,7 +332,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 require('mini.jump2d').setup({ view = { dim = true, n_steps_ahead = 3 } })
 -- vim.keymap.set('n', '<Leader>j', function() minijump.start(minijump.builtin_opts.word_start) end, { desc = 'Jump' })
-vim.keymap.set('n', '<CR>', function() MiniJump2d.start(MiniJump2d.builtin_opts.single_character) end, { desc = 'Jump to char' })
+vim.keymap.set('n', '<CR>', function() MiniJump2d.start(MiniJump2d.builtin_opts.single_character) end,
+  { desc = 'Jump to char' })
 
 require('mini.git').setup()
 require('mini.diff').setup({ view = { style = 'sign', priority = 1, signs = { add = '┃', change = '┃', delete = '-' } } })
@@ -348,17 +377,17 @@ miniclue.setup({
 
   triggers = {
     { mode = { 'n', 'x' }, keys = '<Leader>' },
-    { mode = 'n', keys = '[' },
-    { mode = 'n', keys = ']' },
-    { mode = 'i', keys = '<C-x>' },
+    { mode = 'n',          keys = '[' },
+    { mode = 'n',          keys = ']' },
+    { mode = 'i',          keys = '<C-x>' },
     { mode = { 'n', 'x' }, keys = 'g' },
     { mode = { 'n', 'x' }, keys = "'" },
     { mode = { 'n', 'x' }, keys = '`' },
     { mode = { 'n', 'x' }, keys = '"' },
     { mode = { 'i', 'c' }, keys = '<C-r>' },
-    { mode = 'n', keys = '<C-w>' },
+    { mode = 'n',          keys = '<C-w>' },
     { mode = { 'n', 'x' }, keys = 'z' },
-    { mode = 'n', keys = toogle_prefix_key }
+    { mode = 'n',          keys = toogle_prefix_key }
   },
 
   window = {
@@ -405,8 +434,8 @@ require('snacks').setup({
     },
   },
 
-  -- BUG: Image plugin doesn't really work well with markdown math
-  image = { enabled = true },
+  -- BUG: Image plugin doesn't really work well with math expressions
+  -- image = { enabled = true },
 })
 
 -- Picker keybindings

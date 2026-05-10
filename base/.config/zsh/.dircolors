@@ -123,6 +123,10 @@ EXEC 32
 .fdb_latexmk 38;5;8
 .fls 38;5;8
 .toc 38;5;8
+# Latex Beamer files
+.snm 38;5;8
+.nav 38;5;8
+.pdfpc 38;5;8
 
 # === All Git Files === (orange)
 .git 38;5;215
