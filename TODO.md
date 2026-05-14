@@ -7,6 +7,7 @@
 ## NixOS
 - Maybe disable channels entirely?
 - Push pplatex changes
+- Setup cpupower and TLP for power saving measures
 
 ## Niri
 - Nicer Waybar and SwayNC setup
@@ -36,6 +37,7 @@ Code Fixes:
 - Maybe talk about deprecating setfilter, as it can be trivially achieved by applying arguments to filter (check that in the code) and using a push command or inline by using a cmap command and deleting the current text
 - Fix issue when arguments are applied to filter the incfilter is not updated initially.
 - Add feature where arguments can be applied to filter command to search and other commands too (possibly even single letter commands like mark-load)
+- Better behavior when directories are symlinked. (Treated as identical?)
 
 ## Dotfiles Repo
 - Add a Readme
@@ -47,9 +49,10 @@ Code Fixes:
 
 ## Other
 - Find or create a better opener than mimeopen
-- Add a Display Manager
+- Add a Display Manager?
 - Networking System Tray?
 - Add Bluetooth support
+- Add a general purpose archiving utility (archiver, atool, ...)
 - Look into ways to create widgets window-manager agnostic (e.g. eww)
 - Checkout new FZF options
 - Find a better way to handle cleanhome.zsh code (maybe as a systemd user service?)

@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# The lf remote utility has some very strict and adverse demands on how a command should be formatted.
+# (Specifically a command must be on a single line, with arguments separated by spaces and arguments either quoted or escaped if they contain spaces themselves.)
+# These often conflict with utilities that output files per line, including bash when IFS is set to not include spaces. (Which is recommended to properly deal with filenames with spaces.)
+# Thus, using a remote command often requires quite a bit of additional complexity to properly format the command.
+# This script automates much of this extra work and offers a more intuitive and user-friendly interface.
+# It allows a command to be split across different arguments and for arguments to contain spaces.
+
+set -euo pipefail
+
+noresolve=false
+debug=false
+
+# Parse optional flags
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --id=*)
+      export id="${1#--id=}"
+      shift
+      ;;
+    --no-resolve)
+      noresolve=true
+      shift
+      ;;
+    --debug)
+      debug=true
+      id="${id:-xxx}"
+      shift
+      ;;
+    --help)
+      echo "Usage: $(basename $0) [--id=n|--no-resolve|--debug] [--] COMMAND" >&2
+      echo "Send commands to a remote lf instance." >&2
+      echo "" >&2
+      echo "Target instance must be specified with the --id flag, defaulting to the \$id environment variable." >&2
+      echo "Multiple commands can be given, by separating them with ';'. Don't forget to escape the semicolon." >&2
+      echo "" >&2
+      echo "File names are resolved to absolute paths, so that this command can be run from a different working directory than lf. This can be supressed with the --no-resolve flag. This is especially useful for commands that contain non-filename arguments, like 'set'." >&2
+      echo "" >&2
+      echo "When --debug is specified, nothing is sent to the lf instance and the final command will be printed." >&2
+      exit 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Error: Unknown option: $1" >&2
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# Ensure $id is set
+if [[ -z "${id:-}" ]]; then
+  echo "Error: id is not set. Use --id=xxx or set the \$id environment variable." >&2
+  exit 1
+fi
+
+# Ensure at least one positional argument exists
+if [[ $# -eq 0 ]]; then
+  echo "Error: No command supplied." >&2
+  exit 1
+fi
+
+# Resolve and escape positional arguments
+is_command_arg=true
+escaped_args=()
+for arg in "$@"; do
+  # Replace empty arguments, so that lf can recognize them.
+  if [[ "$arg" == "" ]]; then
+    arg="\"\""
+  fi
+
+  # The initial argument is the command, which should not be resolved.
+  if ! $is_command_arg && ! $noresolve && [[ -e "$arg" && "$arg" != ";" ]]; then
+    arg="$(realpath --no-symlinks "$arg")"
+  fi
+
+  # If argument contains a semicolon it needs to be quoted, not escaped.
+  # (Technically we could just quote all arguments, but I find this unnecessarily ugly.)
+  # TODO: If command starts with a quotation mark, we also need to quote the entire string appropriately.
+  if [[ "$arg" == *";"* ]]; then
+    arg="\"${arg}\""
+  else
+    arg="${arg// /\\ }"
+  fi
+  escaped_args+=("$arg")
+
+  is_command_arg=false
+  if [[ "$arg" == ";" ]]; then
+    is_command_arg=true
+  fi
+done
+
+# Concatenate arguments with spaces
+IFS=' '
+concatenated_args="${escaped_args[*]}"
+
+if $debug; then
+  echo "Send command to instance $id: ':$concatenated_args'"
+else
+  lf -remote "send $id :$concatenated_args"
+fi

@@ -1,17 +1,174 @@
-source ~/.config/lf/common_init.lf
+# {{{ Basic Options
+# UI
+set ratios 1:2:2
+set icons
+set truncatechar 󰇘
 
-# Previewer
+# Setup custom status line, based on the eza color scheme
+set timefmt "Mon _2 Jan 2006 15:04:05"
+set rulerfile ~/.config/lf/ruler
+
+# Hidden files
+# Instead of showing all hidden files, we simply overwrite what is hidden, to only hide specific files and directories.
+set hiddenfiles ".git:.#*"
+
+# Better scrolling
+set wrapscroll
+set scrolloff 2
+
+set mouse
+map <m-up> scroll-up
+map <m-down> scroll-down
+
+# Reload files on change and also every second as a failsafe
+set watch true
+set period 1
+
+# Jump when searching and filter down while typing
+set incsearch
+set incfilter
+
+# Bash strict mode by default
+# If glob expansion is necessary, then it has to be explicitly enabled on a per-case basis.
+set shell bash
+set shellopts '-eu:-o:pipefail:-o:noglob'
+set ifs "\n\t"
+
+set dupfilefmt "%b.~%n~%e"
+# }}}
+# {{{ Directory local options
+setlocal ~/Downloads dirfirst false
+setlocal ~/Downloads sortby time
+setlocal ~/Downloads reverse true
+# }}}
+# {{{ Common Commands
+# TODO: Automatically select newly created file, if only one was created
+cmd create-file $touch "$@"
+cmd create-dir $mkdir "$@"
+
+cmd create-archive !{{
+    if [[ "$#" -eq 0 ]]; then
+        echo "Please provide an archive name."
+        exit 1
+    fi
+
+    apack "$@" $fx
+}}
+
+cmd follow-link %lfrs select "$(readlink $f)"
+# TODO: Better Link creation, when no file is selected
+cmd link %ln -si -t $PWD $fx
+cmd link-relative %ln -sir -t $PWD $fx
+
+cmd trash %{{
+    printf "Really Trash? [y/N]"
+    read ans
+    [ "$ans" = "y" ] && trash $fx
+}}
+
+cmd jump ${{
+    # NOTE: Be aware that the CWD is not changed. So fd, fzf and previews still operate from the original directory. Thus, previews should not be dependent on the CWD.
+    export FZF_DEFAULT_COMMAND="fd --hidden -t d --search-path ~ --exclude '*[Tt]rash*' --format '{}'"
+    PREVIEW_CMD='exa -a -F -T -L1 --icons --group-directories-first --color=always {}'
+    DIR="$(fzf --preview="$PREVIEW_CMD")"
+    [ -n "$DIR" ] && lfrs cd "$DIR"
+}}
+
+cmd search-deep ${{
+    DIR=( $(fzf --multi --preview='fzf-preview {}') )
+    if [ ${#DIR[@]} -gt 1 ]; then
+      lfrs toggle "${DIR[@]}"
+    fi
+    lfrs select "${DIR[0]}"
+}}
+
+cmd next-dir :updir; set dironly; down; set nodironly; open
+cmd prev-dir :updir; set dironly; up; set nodironly; open
+
+# TODO: Change to a printf and print the file names in a single line?
+cmd copy-path-full &echo -n "$fx" | xclip -in -selection clipboard
+cmd copy-path-relative &echo -n "$fx" | sed "s|^$PWD|.|" | xclip -in -selection clipboard
+cmd copy-to-clipboard &xclip-copyfile $fx
+
+cmd drag-and-drop &xdragon -T -x -a $fx
+
+cmd move-from ${{
+    # TODO: Redo this in a cleaner way.
+    DEST="$PWD"
+    cd "${1/\~/$HOME}"
+    FILES="$(fzf -m --header="Move from $1:" --preview='fzf-preview {}')"
+    mv -t "$DEST" -i $FILES
+    LAST="$(echo "$FILES" | tail -n 1)"
+    lfrs select "$DEST/$LAST"
+}}
+
+cmd rename-all !{{
+    clear
+
+    if [ -n "$fs" ]; then
+        qmv -f do -d $(echo -n "$fs" | sed "s|^$PWD/||")
+    else
+        qmv -f do
+    fi
+}}
+
+cmd open &mimeopen -n "$f" &>/dev/null
+cmd open-with $mimeopen -a "$f"
+cmd open-with-new-default $mimeopen -d "$f"
+cmd open-with-editor $$EDITOR "$f"
+cmd open-with-external-editor &setsid $TERMINAL -e $EDITOR "$f"
+cmd edit $$EDITOR "$f"
+cmd terminal $$SHELL
+cmd terminal-extern &unset LF_LEVEL; setsid -f $TERMINAL -e $SHELL
+
+# Setup stub multiplexer commands.
+# These commands may later be overwritten by tmux_commands.lf or kitty_commands.lf
+cmd _inline_edit_start :set nopreview; set ratios 1:2
+cmd _inline_edit_stop :set preview; set ratios 1:2:2
+cmd _multiplexer_not_found :echoerr "Could not find a multiplexer."
+cmd multiplexer-window-splith _multiplexer_not_found
+cmd multiplexer-window-splitv _multiplexer_not_found
+cmd multiplexer-window-create _multiplexer_not_found
+# }}}
+# {{{ Better Interactive Filtering
+cmd _filter-interactive-reset :{{
+    cmap <enter> cmd-enter
+    cmap <esc>   cmd-escape
+    cmap <up>    cmd-history-prev
+    cmap <down>  cmd-history-next
+    cmap <left>  cmd-left
+    cmap <right> cmd-right
+    cmap <c-g>
+}}
+
+cmd filter-interactive :{{
+    cmap <enter> :cmd-enter; _filter-interactive-reset
+    cmap <esc>   :cmd-enter; setfilter ""; _filter-interactive-reset
+    cmap <up>    :up
+    cmap <down>  :down
+    cmap <left>  :cmd-enter; setfilter ""; updir; filter
+    cmap <right> :cmd-enter; setfilter ""; open;  filter
+    cmap <c-g>   :top
+
+    filter
+}}
+# }}}
+# {{{ Previewer
 set preload false
 set previewer ctpv
 set cleaner ctpvclear
 &ctpv -s $id
 # This is more responsive than the included ctpvquit, which only acts after a small delay
 cmd on-quit &ctpv -e $id
+# }}}
+# {{{ Mappings
+# Enable menu completion
+cmap <tab> cmd-menu-complete
+cmap <backtab> cmd-menu-complete-back
 
 # Movement
 map j jump
-map <c-s> search-deep
-map F filter-interactive
+map f filter-interactive
 map n next-dir
 map N prev-dir
 
@@ -22,17 +179,18 @@ map cd push :create-dir<space>
 map ca push :create-archive<space>
 
 # move and deletion of files
+map u :clear;unselect
 map m rename
 map l link
 map r trash
 map RR delete
 
-# Advanced file movement
+# Advanced file operations
+map V search-deep
 map Y :copy-path-relative; echo "Paths copied to clipboard."
 map D drag-and-drop
 map P move-from ~/Downloads
 map M rename-all
-map V multi-select
 
 # Opening and editing files
 map ow open-with
@@ -50,17 +208,14 @@ map wc multiplexer-window-create
 # Shells and Terminals
 map t terminal
 map T terminal-extern
-
-# Different sorting for directories
-setlocal ~/Downloads dirfirst false
-setlocal ~/Downloads sortby time
-setlocal ~/Downloads reverse true
-
+# }}}
+# {{{ Git Information in info column
 # Add git information for the current directory
 # (We don't use the recommended on-load, as it is called for every modified / created file which can cause issues and high CPU load during certain operations.)
 set info custom
 cmd update-git-info &{{
-    shopt -s nullglob dotglob # Remove non-matching globs and match also hidden files
+    shopt -uo noglob # We enable glob expansion, as we need it for the loop.
+    shopt -s nullglob dotglob # Remove non-matching globs and match hidden files
 
     # Abort early if we don't have a git directory.
     [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = true ] || exit 0
@@ -74,13 +229,14 @@ cmd update-git-info &{{
 
         # The head is essentially a workaround to check directories.
         # git status only lists individual files of directories, so we simply take the first result for the directory too.
-        # TODO: A better approach would probably be some kind of summary, but that is more complicated.
-        status=$(git status --porcelain -- "$(realpath "$file")" | cut -c1-2 | head -n1)
+        # TODO: A better approach would probably be some kind of aggregated summary, but that is more complicated.
+        status=$(git status --porcelain -- "$file" | cut -c1-2 | head -n1)
 
+        # We need to use absolute file paths, to avoid race conditions when lf switches the directory quickly.
         if [ -n "$status" ]; then
-            cmds="${cmds}addcustominfo \"${file}\" \"$status\"; "
+            cmds="${cmds}addcustominfo '$PWD/$file' '$status'; "
         else
-            cmds="${cmds}addcustominfo \"${file}\" ''; "
+            cmds="${cmds}addcustominfo '$PWD/$file' ''; "
         fi
     done
 
@@ -88,22 +244,21 @@ cmd update-git-info &{{
         lf -remote "send $id :$cmds"
     fi
 }}
-
-# Setup custom status line, based on the eza color scheme
-set timefmt "Mon _2 Jan 2006 15:04:05"
-set rulerfile ~/.config/lf/ruler
-
+# }}}
+# {{{ Movement Hooks
 # Movement related functions
-cmd update-prompt &lf -remote "send $id set promptfmt \" $(oh-my-posh print primary --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | tail -n 1)\""
-cmd update-terminal-title &lf -remote "send $id tty-write \"\033]2;${PWD/$HOME/"~"}\a\""
+cmd update-prompt &lfrs --no-resolve set promptfmt " $(oh-my-posh print primary --config ~/.config/oh-my-posh-theme-powerlevel.omp.json | tail -n 1)"
+cmd update-terminal-title &lfrs --no-resolve tty-write "\033]2;${PWD/$HOME/"~"}\a"
 map <c-r> :redraw;reload;update-prompt;update-terminal-title;update-git-info
 
-cmd pre-cd :setfilter ""
 cmd on-cd :update-prompt;update-terminal-title;update-git-info
 cmd on-focus-gained on-cd
+# }}}
 
 cmd on-init :{{
-    &[[ -n "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/kitty_commands.lf"
-    &[[ -n "$TMUX" ]] && [[ -z "$KITTY_WINDOW_ID" ]] && lf -remote "send $id source ~/.config/lf/tmux_commands.lf"
+    &[[ -n "$KITTY_WINDOW_ID" ]] && lfrs source ~/.config/lf/kitty_commands.lf
+    &[[ -n "$TMUX" ]] && [[ -z "$KITTY_WINDOW_ID" ]] && lfrs source ~/.config/lf/tmux_commands.lf
     on-cd
 }}
+
+# vim: foldmethod=marker foldlevel=0

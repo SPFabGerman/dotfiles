@@ -18,4 +18,3 @@ cmd edit :{{
 
 cmd terminal-extern $kitten @ launch --no-response --type=tab --cwd=current
 cmd terminal $kitten @ launch --no-response --location=hsplit --bias=25 --cwd=current --env ZSH_FOLLOW_CWD_OF_PID=$id
-

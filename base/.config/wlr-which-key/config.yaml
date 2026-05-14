@@ -19,8 +19,8 @@ menu:
     cmd: emacs
   - key: "o"
     desc: Quick Open
-    # Note: Depending on the terminal emulator and it's settings, the become(nohup ...) approach here might not close the terminal appropriately.
-    cmd: kitty fzf --preview='fzf-preview {}' --bind 'enter:become(nohup mimeopen -n {} > /dev/null)' --bind "ctrl-e:become($EDITOR {})" --bind 'ctrl-o:become(lf {})'
+    # NOTE: Depending on the terminal emulator and it's settings, the become(nohup ...) approach here might not close the terminal appropriately.
+    cmd: kitty sh -c "fd --search-path ~ --search-path ~/.config --follow --no-ignore-vcs --format '{}' | fzf --scheme=path --preview='fzf-preview {}' --bind 'enter:become(nohup setsid -f mimeopen -n {} > /dev/null)' --bind 'ctrl-e:become($EDITOR {})' --bind 'ctrl-o:become(lf {})'"
   - key: "c"
     desc: Calculator
     cmd: kitty python3 -i ~/.config/python/pycalc.py

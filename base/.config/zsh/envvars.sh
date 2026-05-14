@@ -34,7 +34,7 @@ if is-installed "fzf"; then
     if is-installed "fd"; then
         # The exec-batch is useful to remove trailing slashes from directories.
         # This works better with the fzf path matching.
-        export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exec-batch printf '%s\n' {}"
+        export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --format '{}'"
     fi
     if is-installed "fzf-preview" && is-installed "kitty"; then
         export FZF_PREVIEW_IMAGE_HANDLER=kitty
